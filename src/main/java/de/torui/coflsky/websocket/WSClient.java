@@ -14,7 +14,7 @@ import de.torui.coflsky.core.Command;
 
 public class WSClient extends WebSocketClient{
 	
-	private static Gson gson;
+	public static Gson gson;
 	
 	public static WSClient Instancce;	
 		
