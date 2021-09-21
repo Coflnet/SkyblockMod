@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  java:
+    image: openjdk:8-jdk-slim
+    command: bash -c "source /data/docker-build.sh"
+    volumes: 
+        - .:/data
+        - ../mod:/artifacts
