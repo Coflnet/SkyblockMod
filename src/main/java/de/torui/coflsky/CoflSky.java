@@ -2,8 +2,11 @@ package de.torui.coflsky;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 import de.torui.coflsky.websocket.WSClient;
+import de.torui.coflsky.websocket.WSClientWrapper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -21,28 +24,38 @@ public class CoflSky
 {
     public static final String MODID = "CoflSky";
     public static final String VERSION = "1.0";
-    public static WSClient WS;
+    public static WSClientWrapper Wrapper;
+    
+    public static String PlayerUUID = "";
+    
     @EventHandler
     public void init(FMLInitializationEvent event) throws URISyntaxException
     {
+    	
+    	//Minecraft.getSessionInfo().forEach((a,b) -> System.out.println("Key=" + a + " value=" + b));
+    	
 		// some example code
         System.out.println("Initializing");
         
         //new Thread(new WSClient(new URI("ws://localhost:8080"))).start();        
         System.out.println(">>>Started");
         
-        ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
-        MinecraftForge.EVENT_BUS.register(new EventRegistry());
+       
+        CoflSky.Wrapper = new WSClientWrapper("wss://sky-commands.coflnet.com/modsocket?uuid=");
+        
+        if(event.getSide() == Side.CLIENT)
+        	ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
+        MinecraftForge.EVENT_BUS.register(new EventRegistry());	   
     }   
     
 
-    @EventHandler
+   /* @EventHandler
     public void init(FMLServerStartingEvent event)
     {
     	
     	if(event.getSide() == Side.CLIENT)    	return;
     		//event.registerServerCommand(new CoflSkyCommand());
-    }
+    }*/
     
 }
 	

@@ -9,7 +9,10 @@ import org.java_websocket.handshake.ServerHandshake;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.core.Command;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
 
 
 public class WSClient extends WebSocketClient{
@@ -43,12 +46,11 @@ public class WSClient extends WebSocketClient{
 
 	@Override
 	public void onMessage(String message) {
-		System.out.println(message);
+		//System.out.println(message);
 		
 		Command cmd = gson.fromJson(message, Command.class);
-
-		
-		System.out.println(cmd);
+		//System.out.println(cmd);
+		WSCommandHandler.HandleCommand(cmd, Minecraft.getMinecraft().thePlayer);
 	}
 
 	@Override
@@ -62,7 +64,8 @@ public class WSClient extends WebSocketClient{
 	}
 	
 	public void SendCommand(Command command) {
-		
+		String json = gson.toJson(command);
+		this.send(json);
 	}
 	
 }
