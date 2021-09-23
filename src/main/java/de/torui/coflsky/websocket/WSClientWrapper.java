@@ -3,6 +3,7 @@ package de.torui.coflsky.websocket;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 import com.neovisionaries.ws.client.WebSocketException;
@@ -41,6 +42,9 @@ public class WSClientWrapper {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (WebSocketException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

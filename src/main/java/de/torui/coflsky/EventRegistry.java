@@ -17,19 +17,16 @@ import net.minecraftforge.fml.server.FMLServerHandler;
 
 public class EventRegistry{
 
+	
 	@SubscribeEvent
 	public void onConnectedToServerEvent(ClientConnectedToServerEvent event) {
-		//String serverIP =  Minecraft.getMinecraft().getCurrentServerData().serverIP;
-		//System.out.println("ServerIP: " + serverIP);
-		if(!event.isLocal) {
+		if(!event.isLocal ) {
 			//String serverIP =  Minecraft.getMinecraft().getCurrentServerData().serverIP;
 			
 		/*	if(false && serverIP.equals("hypixel.net")) {
 				
 			}*/
 		//UUID.randomUUID().toString();
-			
-		//String username = Minecraft.getSessionInfo().get("X-Minecraft-Username");
 		
 		//String id = FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString();
 		

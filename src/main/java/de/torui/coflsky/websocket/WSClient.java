@@ -2,6 +2,9 @@ package de.torui.coflsky.websocket;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.NoSuchAlgorithmException;
+
+import javax.net.ssl.SSLContext;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -39,8 +42,28 @@ public class WSClient extends WebSocketAdapter {
 		this.uri = uri;
 	}
 	
-	public void start() throws IOException, WebSocketException {
+	public void start() throws IOException, WebSocketException, NoSuchAlgorithmException {
 		WebSocketFactory factory = new WebSocketFactory();
+		
+		// Create a custom SSL context.
+		SSLContext context = NaiveSSLContext.getInstance("TLS");
+
+		// Set the custom SSL context.
+		factory.setSSLContext(context);
+
+		// Disable manual hostname verification for NaiveSSLContext.
+		//
+		// Manual hostname verification has been enabled since the
+		// version 2.1. Because the verification is executed manually
+		// after Socket.connect(SocketAddress, int) succeeds, the
+		// hostname verification is always executed even if you has
+		// passed an SSLContext which naively accepts any server
+		// certificate. However, this behavior is not desirable in
+		// some cases and you may want to disable the hostname
+		// verification. You can disable the hostname verification
+		// by calling WebSocketFactory.setVerifyHostname(false).
+		factory.setVerifyHostname(false);
+		
 		this.socket = factory.createSocket(uri);
 		this.socket.addListener(this);
 		this.socket.connect();
