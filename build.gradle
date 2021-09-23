@@ -10,17 +10,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+    	classpath "com.github.jengelman.gradle.plugins:shadow:1.2.0"
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
     }
 }
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-
-/*
-// for people who want stable - not yet functional for MC 1.8.8 - we require the forgegradle 2.1 snapshot
-plugins {
-    //id "net.minecraftforge.gradle.forge" version "2.0.2"
-}*/
 
 version = "1.0"
 group= "de.torui.coflmod" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -38,46 +35,11 @@ minecraft {
     mappings = "stable_20"
     //makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
+
 configurations {
     shade
-    compile.extendsFrom shade
+    compile.extendsFrom(shade)
 }
-
-jar {
-    /*from(configurations.inJar) {
-        into 'META-INF/libraries'
-    }*/
-
-    configurations.shade.each { dep ->
-        from(project.zipTree(dep)){
-            exclude 'META-INF', 'META-INF/**'
-        }
-    }
-}
-
-minecraft {
-    srgExtra "PK: org/slf4j de/torui/org/slf4j"
-    srgExtra "PK: org/java_websocket de/torui/org/java_websocket"
-}
-
-jar {
-    /*manifest {
-        attributes("Implementation-Title": "Gradle",
-                   "Implementation-Version": version,
-					"ContainedDeps": "Java-WebSocket-1.5.1.jar slf4j-api-1.7.25.jar",)
-    }*/
-    
-   /* from('./MetaFiles') {
-        include 'Java-WebSocket-1.5.1.jar.meta'
-        into('/META-INF/libraries')
-    }
-    from('./MetaFiles') {
-        include 'slf4j-api-1.7.25.jar.meta'
-        into('/META-INF/libraries')
-    }*/
- //   file("libraries/Java-WebSocket-1.5.1.jar.meta").text= "Maven-Artifact: org.java-websocket:Java-WebSocket:1.5.1"
-}
-
 dependencies {
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
@@ -100,8 +62,12 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 	//inJar 'javax.websocket:javax.websocket-api:1.1'
-	shade 'org.java-websocket:Java-WebSocket:1.5.1'
-	// 'org.slf4j:slf4j-nop:1.7.25'
+
+	shade 'com.neovisionaries:nv-websocket-client:2.14'
+	//compile 'com.neovisionaries:nv-websocket-client:2.14'
+	//shade 'org.java-websocket:Java-WebSocket:1.5.2'
+	//shade fileTree(dir: '.', include: ['Java-WebSocket-1.5.3-SNAPSHOT.jar'])
+	//shade fileTree(dir: '.', include: ['nv-websocket-client-2.14.jar'])
 }
 
 sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
@@ -121,10 +87,20 @@ processResources
                 
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
+    }	
         
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
 }
+
+
+
+shadowJar {
+    version = 1.0
+    configurations = [project.configurations.shade]
+}
+
+reobf { shadowJar { mappingType = "SEARGE" } }
+tasks.reobfJar.dependsOn(shadowJar)

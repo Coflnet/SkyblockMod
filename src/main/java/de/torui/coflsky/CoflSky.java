@@ -34,6 +34,10 @@ public class CoflSky
     	
     	//Minecraft.getSessionInfo().forEach((a,b) -> System.out.println("Key=" + a + " value=" + b));
     	
+    	//System.out.println("Loggerfactory: " + LoggerFactory.getILoggerFactory());
+    //	Logger log = LoggerFactory.getLogger(CoflSky.class);
+   // 	log.debug("Testing");
+    	
 		// some example code
         System.out.println("Initializing");
         

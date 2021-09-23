@@ -16,6 +16,7 @@ import net.minecraftforge.client.ClientCommandHandler;
 
 public class WSCommandHandler {
 	public static boolean HandleCommand(Command cmd, Entity sender) {
+		//Entity sender = Minecraft.getMinecraft().thePlayer;
 		System.out.println("Handling Command=" + cmd.toString());
 		switch(cmd.getType()) {
 		case WriteToChat:

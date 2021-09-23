@@ -48,8 +48,8 @@ public class CoflSkyCommand extends CommandBase {
 				//todo: stop
 				break;
 			case "debug":
-				//WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/say hewwo"), sender.getCommandSenderEntity());
-				//WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, "{ \"text\": \"Clickable Texts are fun\", \"onClick\": \"me Hello World\"}"), sender.getCommandSenderEntity());
+				WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
+			//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, "{ \"text\": \"Clickable Texts are fun\", \"onClick\": \"me Hello World\"}"), sender.getCommandSenderEntity());
 				break;	
 			case "callback":
 				CallbackCommand(args);
@@ -73,7 +73,7 @@ public class CoflSkyCommand extends CommandBase {
 		System.out.println("CallbackData: " + command);
 		//new Thread(()->{
 			System.out.println("Callback: " + command);
-			WSCommandHandler.HandleCommand(new Command(CommandType.Execute, command), Minecraft.getMinecraft().thePlayer);	
+			WSCommandHandler.HandleCommand(new Command(CommandType.Execute, command), Minecraft.getMinecraft().thePlayer);
 			CoflSky.Wrapper.SendMessage(new Command(CommandType.Clicked, command));		
 			
 			System.out.println("Sent!");

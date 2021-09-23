@@ -19,13 +19,14 @@ public class EventRegistry{
 
 	@SubscribeEvent
 	public void onConnectedToServerEvent(ClientConnectedToServerEvent event) {
-		
+		//String serverIP =  Minecraft.getMinecraft().getCurrentServerData().serverIP;
+		//System.out.println("ServerIP: " + serverIP);
 		if(!event.isLocal) {
-			String serverIP =  Minecraft.getMinecraft().getCurrentServerData().serverIP;
+			//String serverIP =  Minecraft.getMinecraft().getCurrentServerData().serverIP;
 			
-			if(false && serverIP.equals("hypixel.net")) {
+		/*	if(false && serverIP.equals("hypixel.net")) {
 				
-			}
+			}*/
 		//UUID.randomUUID().toString();
 			
 		//String username = Minecraft.getSessionInfo().get("X-Minecraft-Username");
