@@ -24,10 +24,9 @@ public class WSClientWrapper {
     
     public synchronized void start() {
     	if(!isRunning) {
-    		 String uuid = CoflSky.PlayerUUID;
     		try {
     			
-				socket = new WSClient(new URI(uri + uuid));
+				socket = new WSClient(new URI(uri));
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

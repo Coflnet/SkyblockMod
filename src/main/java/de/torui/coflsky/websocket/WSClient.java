@@ -45,7 +45,7 @@ public class WSClient extends WebSocketAdapter {
 	public void start() throws IOException, WebSocketException, NoSuchAlgorithmException {
 		WebSocketFactory factory = new WebSocketFactory();
 		
-		// Create a custom SSL context.
+		/*// Create a custom SSL context.
 		SSLContext context = NaiveSSLContext.getInstance("TLS");
 
 		// Set the custom SSL context.
@@ -63,6 +63,7 @@ public class WSClient extends WebSocketAdapter {
 		// verification. You can disable the hostname verification
 		// by calling WebSocketFactory.setVerifyHostname(false).
 		factory.setVerifyHostname(false);
+		factory.*/
 		
 		this.socket = factory.createSocket(uri);
 		this.socket.addListener(this);

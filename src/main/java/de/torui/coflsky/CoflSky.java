@@ -39,13 +39,11 @@ public class CoflSky
     public static final String VERSION = "1.0";
     public static WSClientWrapper Wrapper;
     
-    public static String PlayerUUID = "";
-    
     @EventHandler
     public void init(FMLInitializationEvent event) throws URISyntaxException
     {
     	
-    	//Minecraft.getSessionInfo().forEach((a,b) -> System.out.println("Key=" + a + " value=" + b));
+    	Minecraft.getSessionInfo().forEach((a,b) -> System.out.println("Key=" + a + " value=" + b));
     	
     	//System.out.println("Loggerfactory: " + LoggerFactory.getILoggerFactory());
     //	Logger log = LoggerFactory.getLogger(CoflSky.class);
@@ -58,28 +56,28 @@ public class CoflSky
         System.out.println(">>>Started");
         
         String username = Minecraft.getSessionInfo().get("X-Minecraft-Username");
-        System.out.println(">>> Username= " + username);
-        /*try {
-			QueryUUID("pingulinoo");
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+        String uuid = QueryUUID(username);
+        System.out.println(">>> Username= " + username + " with UUID=" + uuid ); 
         
         String URI = "https://api.mojang.com/profiles/minecraft";
         
         
-        CoflSky.Wrapper = new WSClientWrapper("ws://sky-commands.coflnet.com/modsocket?version=" + CoflSky.VERSION  + "&uuid=");
+        //CoflSky.Wrapper = new WSClientWrapper("wss://sky-commands.coflnet.com/modsocket?version=" + CoflSky.VERSION  + "&uuid=");
+        CoflSky.Wrapper = new WSClientWrapper("ws://sky-mod.coflnet.com/modsocket?version=" + CoflSky.VERSION  + "&uuid=" + uuid);
         
         if(event.getSide() == Side.CLIENT)
         	ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
         MinecraftForge.EVENT_BUS.register(new EventRegistry());	   
     }   
-    
-    public static String QueryUUID(String username) throws MalformedURLException {
-    	URL url = new URL("https://api.mojang.com/profiles/minecraft");
-    	HttpURLConnection con;
+    private static class UUIDHelper {
+    	public String id;
+    	public String name;
+    }
+    public static String QueryUUID(String username) {
+    	
 		try {
+			URL url = new URL("https://api.mojang.com/profiles/minecraft");
+	    	HttpURLConnection con;
 			con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("POST");
 			
@@ -105,14 +103,17 @@ public class CoflSky
 			 String resString =  result.toString("UTF-8");
 			 
 			 System.out.println("Result= " + resString);
-			 
+			 UUIDHelper[] helpers = WSClient.gson.fromJson(resString, UUIDHelper[].class);
+			 if(helpers.length == 1) {
+				 return helpers[0].id;
+			 }
 			 
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	return null;
+    	return UUID.randomUUID().toString();
     }
     
 

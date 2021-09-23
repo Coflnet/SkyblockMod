@@ -20,12 +20,12 @@ public class EventRegistry{
 	
 	@SubscribeEvent
 	public void onConnectedToServerEvent(ClientConnectedToServerEvent event) {
-		if(!event.isLocal ) {
+	/*	if(!event.isLocal ) {
 			//String serverIP =  Minecraft.getMinecraft().getCurrentServerData().serverIP;
 			
 		/*	if(false && serverIP.equals("hypixel.net")) {
 				
-			}*/
+			}*
 		//UUID.randomUUID().toString();
 		
 		//String id = FMLClientHandler.instance().getClient().thePlayer.getUniqueID().toString();
@@ -37,7 +37,7 @@ public class EventRegistry{
 		System.out.println("Connected to server");		
 		CoflSky.Wrapper.start();
 		System.out.println("CoflSky started");
-		}
+		}*/
 	}
 	
 	@SubscribeEvent
