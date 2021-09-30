@@ -30,7 +30,17 @@ public class CoflSkyCommand extends CommandBase {
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/cofl token <token> to register\n/coflsky start to connect\n/coflsky stop to stop";
+		return HelpText;
+	}
+	
+	public static final String HelpText = "Available sub-commands:\n"
+			+ "start: starts a new connection\n"
+			+ "stop: stops the connection";
+	
+	@Override
+	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+		// TODO Auto-generated method stub
+		return super.addTabCompletionOptions(sender, args, pos);
 	}
 
 	@Override
@@ -55,16 +65,27 @@ public class CoflSkyCommand extends CommandBase {
 				CallbackCommand(args);
 				break;
 			default:
+				QueryServerCommands.QueryCommands();
 				sender.addChatMessage(new ChatComponentText("" + args[0] +"is not a valid subcommand!"));
 				System.out.println(args[0] +"is not a valid subcommand!");
 				return;
 			}
+		} 
+		
+		else {
+			ListHelp(sender);
 		}
 		
-		/*if(args.length == 2 && args[0].equals("token")) {
-			//todo: send authorisation message
-		}*/
-		
+	}
+	
+	public void CommandNotRecognized(String[] args, ICommandSender sender) {
+		sender.addChatMessage(new ChatComponentText(HelpText));
+		sender.addChatMessage(new ChatComponentText(QueryServerCommands.QueryCommands()));
+	}
+	
+	public void ListHelp(ICommandSender sender) {
+		sender.addChatMessage(new ChatComponentText(HelpText));
+		sender.addChatMessage(new ChatComponentText(QueryServerCommands.QueryCommands()));
 	}
 	
 	public void CallbackCommand(String[] args) {

@@ -17,12 +17,15 @@ import java.util.UUID;
 import com.google.gson.JsonArray;
 import com.google.gson.stream.JsonReader;
 
+import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
+import de.torui.coflsky.minecraft_integration.TemporarySession;
 import de.torui.coflsky.websocket.WSClient;
 import de.torui.coflsky.websocket.WSClientWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -43,11 +46,14 @@ public class CoflSky
     public void init(FMLInitializationEvent event) throws URISyntaxException
     {
     	
-    	Minecraft.getSessionInfo().forEach((a,b) -> System.out.println("Key=" + a + " value=" + b));
+    	System.out.println(">>>> "+ TemporarySession.GetTempFileFolder().toString());
+    	//Minecraft.getSessionInfo().forEach((a,b) -> System.out.println("Key=" + a + " value=" + b));
     	
     	//System.out.println("Loggerfactory: " + LoggerFactory.getILoggerFactory());
     //	Logger log = LoggerFactory.getLogger(CoflSky.class);
    // 	log.debug("Testing");
+    	
+    	  
     	
 		// some example code
         System.out.println("Initializing");
@@ -55,67 +61,28 @@ public class CoflSky
         //new Thread(new WSClient(new URI("ws://localhost:8080"))).start();        
         System.out.println(">>>Started");
         
-        String username = Minecraft.getSessionInfo().get("X-Minecraft-Username");
-        String uuid = QueryUUID(username);
+        String username = PlayerDataProvider.getUsername();
+        String uuid = PlayerDataProvider.getActivePlayerUUID();
         System.out.println(">>> Username= " + username + " with UUID=" + uuid ); 
         
-        String URI = "https://api.mojang.com/profiles/minecraft";
+        String tempUUID = UUID.randomUUID().toString();
+        try {
+			TemporarySession.UpdateSessions();
+			tempUUID = TemporarySession.GetSession(username).SessionUUID;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         
         
         //CoflSky.Wrapper = new WSClientWrapper("wss://sky-commands.coflnet.com/modsocket?version=" + CoflSky.VERSION  + "&uuid=");
-        CoflSky.Wrapper = new WSClientWrapper("ws://sky-mod.coflnet.com/modsocket?version=" + CoflSky.VERSION  + "&uuid=" + uuid);
+        CoflSky.Wrapper = new WSClientWrapper("ws://sky-mod.coflnet.com/modsocket?version=" + CoflSky.VERSION + "&SId=" + tempUUID  + "&uuid=" + uuid);
         
         if(event.getSide() == Side.CLIENT)
         	ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
         MinecraftForge.EVENT_BUS.register(new EventRegistry());	   
     }   
-    private static class UUIDHelper {
-    	public String id;
-    	public String name;
-    }
-    public static String QueryUUID(String username) {
-    	
-		try {
-			URL url = new URL("https://api.mojang.com/profiles/minecraft");
-	    	HttpURLConnection con;
-			con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("POST");
-			
-			con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-			con.setRequestProperty("Accept", "application/json");
-			con.setDoInput(true);
-			con.setDoOutput(true);
 
-			// ...
-
-			OutputStream os = con.getOutputStream();
-			byte[] bytes = ("[\"" + username + "\"]").getBytes("UTF-8");
-			os.write(bytes);
-			os.close();
-			
-			 InputStream in = new BufferedInputStream(con.getInputStream());
-			 ByteArrayOutputStream result = new ByteArrayOutputStream();
-			 byte[] buffer = new byte[1024];
-			 for (int length; (length = in.read(buffer)) != -1; ) {
-			     result.write(buffer, 0, length);
-			 }
-			 // StandardCharsets.UTF_8.name() > JDK 7
-			 String resString =  result.toString("UTF-8");
-			 
-			 System.out.println("Result= " + resString);
-			 UUIDHelper[] helpers = WSClient.gson.fromJson(resString, UUIDHelper[].class);
-			 if(helpers.length == 1) {
-				 return helpers[0].id;
-			 }
-			 
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	return UUID.randomUUID().toString();
-    }
-    
 
    /* @EventHandler
     public void init(FMLServerStartingEvent event)
