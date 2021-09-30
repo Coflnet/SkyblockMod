@@ -55,6 +55,7 @@ public class CoflSkyCommand extends CommandBase {
 				break;
 			case "stop":
 				CoflSky.Wrapper.stop();
+				sender.addChatMessage(new ChatComponentText("Connection closed"));
 				//todo: stop
 				break;
 			case "debug":
