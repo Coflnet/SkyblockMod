@@ -9,9 +9,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.event.ClickEvent;
+import net.minecraft.event.ClickEvent.Action;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 
 public class CoflSkyCommand extends CommandBase {
@@ -55,7 +59,18 @@ public class CoflSkyCommand extends CommandBase {
 				break;
 			case "stop":
 				CoflSky.Wrapper.stop();
-				sender.addChatMessage(new ChatComponentText("Connection closed"));
+				sender.addChatMessage(new ChatComponentText("you stopped the connection to ")
+						.appendSibling(new ChatComponentText("C").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
+						.appendSibling(new ChatComponentText("oflnet").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
+						.appendSibling(new ChatComponentText(".\n    To reconnect enter "))
+						.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+						.appendSibling(new ChatComponentText("/cofl start"))
+						.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+						.appendSibling(new ChatComponentText(" or click this message"))
+						.setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start")))
+						);
+						
+						//)§1C§6oflnet§8§f.\n    To restart enter §8\"§f/cofl start§8\"")));
 				//todo: stop
 				break;
 			case "debug":
@@ -80,8 +95,7 @@ public class CoflSkyCommand extends CommandBase {
 	}
 	
 	public void CommandNotRecognized(String[] args, ICommandSender sender) {
-		sender.addChatMessage(new ChatComponentText(HelpText));
-		sender.addChatMessage(new ChatComponentText(QueryServerCommands.QueryCommands()));
+		
 	}
 	
 	public void ListHelp(ICommandSender sender) {
