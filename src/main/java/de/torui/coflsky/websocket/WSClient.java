@@ -17,6 +17,7 @@ import net.minecraft.client.Minecraft;
 
 import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.core.Command;
+import de.torui.coflsky.core.StringCommand;
 
 public class WSClient extends WebSocketAdapter {
 
@@ -37,6 +38,7 @@ public class WSClient extends WebSocketAdapter {
 	}
 	public URI uri;
 	public WebSocket socket;
+	public WebSocketState currentState = WebSocketState.CLOSED;
 	
 	public WSClient(URI uri) {
 		this.uri = uri;
@@ -92,6 +94,7 @@ public class WSClient extends WebSocketAdapter {
 	@Override
 	public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
 		System.out.println("WebSocket Changed state to: " + newState);
+		currentState = newState;
 		super.onStateChanged(websocket, newState);
 	}
 
@@ -110,6 +113,11 @@ public class WSClient extends WebSocketAdapter {
 
 	public void SendCommand(Command cmd) {
 		String json = gson.toJson(cmd);
+		this.socket.sendText(json);
+	}
+
+	public void SendCommand(StringCommand sc) {
+		String json = gson.toJson(sc);
 		this.socket.sendText(json);
 	}
 

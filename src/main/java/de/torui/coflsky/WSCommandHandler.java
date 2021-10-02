@@ -13,6 +13,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.client.event.sound.SoundEvent;
 
 public class WSCommandHandler {
 	public static boolean HandleCommand(Command cmd, Entity sender) {
@@ -31,6 +32,10 @@ public class WSCommandHandler {
 		
 		return true;
 	}
+	
+	private static void PlaySound(Command cmd, Entity sender) {
+      
+	}
 
 	private static void Execute(Command cmd, Entity sender) {
 		
@@ -48,18 +53,18 @@ public class WSCommandHandler {
 		WriteToChatCommand wcmd = WSClient.gson.fromJson(cmd.getData(), WriteToChatCommand.class);
 		//System.out.println("Executing wcmd Text=" + wcmd.Text + " OnClick="  + wcmd.OnClick);
 		
-		if(wcmd.Text != null && wcmd.OnClick != null) {
+		if(wcmd.Text != null ) {
 			IChatComponent comp = new ChatComponentText(wcmd.Text);
 			
 			ChatStyle style;
-			if(wcmd.OnClick.startsWith("http")) {
-				style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.OPEN_URL, wcmd.OnClick));
-			} else {
-				style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl callback "  +wcmd.OnClick));
+			if(wcmd.OnClick != null) {
+				if(wcmd.OnClick.startsWith("http")) {
+					style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.OPEN_URL, wcmd.OnClick));
+				} else {
+					style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl callback "  +wcmd.OnClick));
+				}
+				comp.setChatStyle(style);
 			}
-			
-			 
-			comp.setChatStyle(style);
 			
 			Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
 		}

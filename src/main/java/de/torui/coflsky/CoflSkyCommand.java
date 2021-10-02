@@ -5,6 +5,7 @@ import java.util.List;
 
 import de.torui.coflsky.core.Command;
 import de.torui.coflsky.core.CommandType;
+import de.torui.coflsky.core.StringCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -37,9 +38,10 @@ public class CoflSkyCommand extends CommandBase {
 		return HelpText;
 	}
 	
-	public static final String HelpText = "Available sub-commands:\n"
+	public static final String HelpText = "Available local sub-commands:\n"
 			+ "start: starts a new connection\n"
-			+ "stop: stops the connection";
+			+ "stop: stops the connection\n"
+			+ "status: Emits status information\nServer-Only Commands:";
 	
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
@@ -69,21 +71,19 @@ public class CoflSkyCommand extends CommandBase {
 						.appendSibling(new ChatComponentText(" or click this message"))
 						.setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start")))
 						);
-						
-						//)§1C§6oflnet§8§f.\n    To restart enter §8\"§f/cofl start§8\"")));
-				//todo: stop
 				break;
-			case "debug":
-				WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
+			//case "debug":
+			//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
 			//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, "{ \"text\": \"Clickable Texts are fun\", \"onClick\": \"me Hello World\"}"), sender.getCommandSenderEntity());
-				break;	
+			//	break;	
 			case "callback":
 				CallbackCommand(args);
 				break;
+			case "status":
+				sender.addChatMessage(new ChatComponentText(StatusMessage()));
+				break;
 			default:
-				QueryServerCommands.QueryCommands();
-				sender.addChatMessage(new ChatComponentText("" + args[0] +"is not a valid subcommand!"));
-				System.out.println(args[0] +"is not a valid subcommand!");
+				CommandNotRecognized(args, sender);
 				return;
 			}
 		} 
@@ -94,7 +94,27 @@ public class CoflSkyCommand extends CommandBase {
 		
 	}
 	
+	public String StatusMessage() {
+		
+		String vendor = System.getProperty("java.vm.vendor");
+		String name = System.getProperty("java.vm.name");
+		String version = System.getProperty("java.version");
+		String detailedVersion = System.getProperty("java.vm.version");
+		
+		return vendor + " " + name + " " + version + " " + detailedVersion + "|Connection = " + (CoflSky.Wrapper!=null?CoflSky.Wrapper.GetStatus():"UNINITIALIZED_WRAPPER");
+	}
+	
 	public void CommandNotRecognized(String[] args, ICommandSender sender) {
+		String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+		
+		StringCommand sc = new StringCommand(args[0], command);
+		
+		if(CoflSky.Wrapper.isRunning) {
+			CoflSky.Wrapper.SendMessage(sc);
+		} else {
+			sender.addChatMessage(new ChatComponentText("CoflSky not active. Server Commands are currently not available.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+		}
+		
 		
 	}
 	

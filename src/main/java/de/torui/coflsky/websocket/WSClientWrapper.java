@@ -10,6 +10,7 @@ import com.neovisionaries.ws.client.WebSocketException;
 
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.core.Command;
+import de.torui.coflsky.core.StringCommand;
 
 
 public class WSClientWrapper {
@@ -67,4 +68,13 @@ public class WSClientWrapper {
     public synchronized void SendMessage(Command cmd){
     	this.socket.SendCommand(cmd);
     }
+
+	public void SendMessage(StringCommand sc) {
+		this.socket.SendCommand(sc);
+	}
+	
+	public String GetStatus() {
+		return "" + isRunning + " " +  
+	    (this.socket!=null ? this.socket.currentState.toString() : "NOT_INITIALIZED");
+	}
 }
