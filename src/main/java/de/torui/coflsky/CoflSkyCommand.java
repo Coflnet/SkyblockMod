@@ -6,6 +6,7 @@ import java.util.List;
 import de.torui.coflsky.core.Command;
 import de.torui.coflsky.core.CommandType;
 import de.torui.coflsky.core.StringCommand;
+import de.torui.coflsky.websocket.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -75,7 +76,7 @@ public class CoflSkyCommand extends CommandBase {
 			case "debug":
 			//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
 			//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, "{ \"text\": \"Clickable Texts are fun\", \"onClick\": \"me Hello World\"}"), sender.getCommandSenderEntity());
-			WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "random.explode"), sender.getCommandSenderEntity());
+			WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "\"minecraft:random.explode\""), sender.getCommandSenderEntity());
 				break;	
 			case "callback":
 				CallbackCommand(args);
@@ -108,7 +109,7 @@ public class CoflSkyCommand extends CommandBase {
 	public void CommandNotRecognized(String[] args, ICommandSender sender) {
 		String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 		
-		StringCommand sc = new StringCommand(args[0], command);
+		StringCommand sc = new StringCommand(args[0], WSClient.gson.toJson(command));
 		
 		if(CoflSky.Wrapper.isRunning) {
 			CoflSky.Wrapper.SendMessage(sc);
@@ -130,8 +131,8 @@ public class CoflSkyCommand extends CommandBase {
 		System.out.println("CallbackData: " + command);
 		//new Thread(()->{
 			System.out.println("Callback: " + command);
-			WSCommandHandler.HandleCommand(new Command(CommandType.Execute, command), Minecraft.getMinecraft().thePlayer);
-			CoflSky.Wrapper.SendMessage(new Command(CommandType.Clicked, command));		
+			WSCommandHandler.HandleCommand(new Command(CommandType.Execute, WSClient.gson.toJson(command)), Minecraft.getMinecraft().thePlayer);
+			CoflSky.Wrapper.SendMessage(new Command(CommandType.Clicked, WSClient.gson.toJson(command)));		
 			
 			System.out.println("Sent!");
 		//}).start();

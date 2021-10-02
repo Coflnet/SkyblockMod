@@ -50,7 +50,7 @@ public class WSCommandHandler {
 		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
 				
 			//random.explode
-			PositionedSoundRecord psr = PositionedSoundRecord.create(new ResourceLocation(cmd.getData()));
+			PositionedSoundRecord psr = PositionedSoundRecord.create(new ResourceLocation(WSClient.gson.fromJson(cmd.getData(), String.class)));
 			handler.playSound(psr);
 	}
 
@@ -59,7 +59,7 @@ public class WSCommandHandler {
 		//Minecraft.getMinecraft().thePlayer.sendChatMessage(cmd.getData());
 		System.out.println("Execute: " + cmd.getData() + " sender:" + sender);
 		
-		Minecraft.getMinecraft().thePlayer.sendChatMessage(cmd.getData());
+		Minecraft.getMinecraft().thePlayer.sendChatMessage(WSClient.gson.fromJson(cmd.getData(), String.class));
 		
 		//ICommandManager manager = MinecraftServer.getServer().getCommandManager();
 		//System.out.println("CommandManager: " + manager);
