@@ -13,5 +13,7 @@ public enum CommandType {
 	TokenLogin,
 	
 	@SerializedName("tokenLogin")
-	Clicked;
+	Clicked,
+	@SerializedName("playSound")
+	PlaySound;
 }

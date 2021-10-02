@@ -4,6 +4,13 @@ import de.torui.coflsky.core.Command;
 import de.torui.coflsky.core.WriteToChatCommand;
 import de.torui.coflsky.websocket.WSClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.PositionedSound;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.audio.SoundCategory;
+import net.minecraft.client.audio.SoundEventAccessorComposite;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.audio.SoundManager;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.event.ClickEvent;
@@ -12,6 +19,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.sound.SoundEvent;
 
@@ -26,6 +34,8 @@ public class WSCommandHandler {
 		case Execute:
 			Execute(cmd, sender);
 			break;
+		case PlaySound:
+			PlaySound(cmd, sender);
 		default:
 			break;
 		}
@@ -34,7 +44,14 @@ public class WSCommandHandler {
 	}
 	
 	private static void PlaySound(Command cmd, Entity sender) {
-      
+		
+		//Minecraft.getMinecraft().theWorld.playSoundAtEntity(sender,	"random.explode",1f, 1f);
+		
+		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
+				
+			//random.explode
+			PositionedSoundRecord psr = PositionedSoundRecord.create(new ResourceLocation(cmd.getData()));
+			handler.playSound(psr);
 	}
 
 	private static void Execute(Command cmd, Entity sender) {

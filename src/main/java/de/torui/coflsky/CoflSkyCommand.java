@@ -72,10 +72,11 @@ public class CoflSkyCommand extends CommandBase {
 						.setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start")))
 						);
 				break;
-			//case "debug":
+			case "debug":
 			//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
 			//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, "{ \"text\": \"Clickable Texts are fun\", \"onClick\": \"me Hello World\"}"), sender.getCommandSenderEntity());
-			//	break;	
+			WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "random.explode"), sender.getCommandSenderEntity());
+				break;	
 			case "callback":
 				CallbackCommand(args);
 				break;
