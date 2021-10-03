@@ -7,12 +7,16 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.gui.MinecraftServerGui;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.server.FMLServerHandler;
 
 public class EventRegistry{
@@ -45,6 +49,28 @@ public class EventRegistry{
 		System.out.println("Disconnected from server");
 		CoflSky.Wrapper.stop();
 		System.out.println("CoflSky stopped");
+	}
+	
+	
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
+	public void onEvent(KeyInputEvent event) {
+
+		if(CoflSky.keyBindings[0].isPressed()) {
+			//System.out.println(">>>>> Key Pressed");
+			
+			if(WSCommandHandler.lastOnClickEvent != null) {
+				
+				String command = WSCommandHandler.lastOnClickEvent;
+				WSCommandHandler.lastOnClickEvent = null;
+				//System.out.println(">>>>> HasLastONClickEvent = " + command);
+				Minecraft.getMinecraft().thePlayer.sendChatMessage(command);
+			}
+			
+		
+		}
+		
 	}
 	/*@SubscribeEvent
 public void OnSomething(FMLNetworkEvent.ClientConnectedToServerEvent event) {

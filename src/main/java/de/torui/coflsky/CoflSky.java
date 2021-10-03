@@ -1,38 +1,21 @@
 package de.torui.coflsky;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.UUID;
 
-import com.google.gson.JsonArray;
-import com.google.gson.stream.JsonReader;
+import org.lwjgl.input.Keyboard;
 
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import de.torui.coflsky.minecraft_integration.TemporarySession;
-import de.torui.coflsky.websocket.WSClient;
 import de.torui.coflsky.websocket.WSClientWrapper;
-import net.minecraft.client.Minecraft;
-import net.minecraft.init.Blocks;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = CoflSky.MODID, version = CoflSky.VERSION)
@@ -40,7 +23,11 @@ public class CoflSky
 {
     public static final String MODID = "CoflSky";
     public static final String VERSION = "1.1-Alpha";
+    
     public static WSClientWrapper Wrapper;
+    public static KeyBinding[] keyBindings;
+
+
     
     @EventHandler
     public void init(FMLInitializationEvent event) throws URISyntaxException
@@ -78,8 +65,20 @@ public class CoflSky
         //CoflSky.Wrapper = new WSClientWrapper("wss://sky-commands.coflnet.com/modsocket?version=" + CoflSky.VERSION  + "&uuid=");
         CoflSky.Wrapper = new WSClientWrapper("ws://sky-mod.coflnet.com/modsocket?version=" + CoflSky.VERSION + "&SId=" + tempUUID  + "&uuid=" + uuid);
         
-        if(event.getSide() == Side.CLIENT)
+        keyBindings = new KeyBinding[] {
+        		new KeyBinding("key.replay_last.onclick", Keyboard.KEY_R, "SkyCofl")
+        };
+        
+        if(event.getSide() == Side.CLIENT) {
         	ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
+        	
+        	for (int i = 0; i < keyBindings.length; ++i) 
+        	{
+        	    ClientRegistry.registerKeyBinding(keyBindings[i]);
+        	}
+        	
+        	
+        }        	
         MinecraftForge.EVENT_BUS.register(new EventRegistry());	   
     }   
 

@@ -23,7 +23,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.sound.SoundEvent;
 
+
+
 public class WSCommandHandler {
+
+	public static String lastOnClickEvent;
+	
 	public static boolean HandleCommand(Command cmd, Entity sender) {
 		//Entity sender = Minecraft.getMinecraft().thePlayer;
 		System.out.println("Handling Command=" + cmd.toString());
@@ -79,6 +84,7 @@ public class WSCommandHandler {
 					style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.OPEN_URL, wcmd.OnClick));
 				} else {
 					style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl callback "  +wcmd.OnClick));
+					lastOnClickEvent = "/cofl callback "  +wcmd.OnClick;
 				}
 				comp.setChatStyle(style);
 			}
