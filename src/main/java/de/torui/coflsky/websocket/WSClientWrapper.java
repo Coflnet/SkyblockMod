@@ -133,7 +133,12 @@ public class WSClientWrapper {
     }
     
     public synchronized void SendMessage(Command cmd){
-    	this.socket.SendCommand(cmd);
+    	if(this.isRunning) {
+    		this.socket.SendCommand(cmd);
+    	} else {
+    		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("tried sending a callback to coflnet but failed. the connection must be closed."));
+    	}
+    	
     }
 
 	public void SendMessage(StringCommand sc) {

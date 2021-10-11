@@ -80,7 +80,6 @@ public class WSCommandHandler {
 				} else {
 					style = new ChatStyle()
 							.setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl callback " + wcmd.OnClick));
-					lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
 				}
 				comp.setChatStyle(style);
 			}
@@ -116,7 +115,12 @@ public class WSCommandHandler {
 
 		IChatComponent comp = CommandToChatComponent(wcmd);
 		if (comp != null)
+		{
+			if(wcmd.OnClick != null)
+				lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
 			Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
+		}
+			
 	}
 
 }
