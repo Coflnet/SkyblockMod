@@ -6,6 +6,7 @@ import java.util.List;
 import de.torui.coflsky.core.Command;
 import de.torui.coflsky.core.CommandType;
 import de.torui.coflsky.core.StringCommand;
+import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.websocket.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -42,14 +43,8 @@ public class CoflSkyCommand extends CommandBase {
 	public static final String HelpText = "Available local sub-commands:\n"
 			+ "start: starts a new connection\n"
 			+ "stop: stops the connection\n"
+			+ "reset: resets all local session information and stops the connection\n"
 			+ "status: Emits status information\nServer-Only Commands:";
-	
-	@Override
-	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
-		// TODO Auto-generated method stub
-		return super.addTabCompletionOptions(sender, args, pos);
-	}
-
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
 		System.out.println(Arrays.toString(args));
@@ -58,7 +53,8 @@ public class CoflSkyCommand extends CommandBase {
 			switch(args[0]) {
 			case "start":
 				//todo: start
-				CoflSky.Wrapper.start();
+				sender.addChatMessage(new ChatComponentText("starting connection..."));
+				CoflSky.Wrapper.startConnection();
 				break;
 			case "stop":
 				CoflSky.Wrapper.stop();
@@ -84,6 +80,9 @@ public class CoflSkyCommand extends CommandBase {
 			case "status":
 				sender.addChatMessage(new ChatComponentText(StatusMessage()));
 				break;
+			case "reset":
+				HandleReset();
+				break;
 			default:
 				CommandNotRecognized(args, sender);
 				return;
@@ -96,6 +95,15 @@ public class CoflSkyCommand extends CommandBase {
 		
 	}
 	
+	private void HandleReset() {
+		CoflSky.Wrapper.stop();
+		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Stopping Connection to CoflNet"));
+		CoflSessionManager.DeleteAllCoflSessions();
+		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Deleting CoflNet sessions..."));
+		CoflSky.Wrapper.startConnection();
+		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Started the Connection to CoflNet"));
+	}
+
 	public String StatusMessage() {
 		
 		String vendor = System.getProperty("java.vm.vendor");
