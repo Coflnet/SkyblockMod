@@ -7,12 +7,19 @@ public class WriteToChatCommand {
 	public String Text;
 	@SerializedName("onClick")
 	public String OnClick;
-	public WriteToChatCommand(String text, String onClickEvent) {
+	
+	@SerializedName("hover")
+	public String Hover;
+	
+	public WriteToChatCommand() {
+
+	}
+
+	public WriteToChatCommand(String text, String onClick, String hover) {
 		super();
 		Text = text;
-		OnClick = onClickEvent;
-	}
-	
-	
+		OnClick = onClick;
+		Hover = hover;
+	}	
 	
 }
