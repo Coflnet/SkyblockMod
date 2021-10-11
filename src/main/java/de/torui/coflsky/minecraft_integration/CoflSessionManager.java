@@ -101,7 +101,10 @@ public class CoflSessionManager {
 	}
 	public static void DeleteAllCoflSessions() {
 		Path path =GetTempFileFolder();
-		path.toFile().delete();
+		File[] sessions = path.toFile().listFiles();
+		for(File f : sessions) {
+			f.delete();
+		}
 	}
 	
 	public static CoflSession GetCoflSession(String username) throws IOException {
