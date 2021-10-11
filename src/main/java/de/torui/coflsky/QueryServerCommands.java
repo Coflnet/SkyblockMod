@@ -17,7 +17,7 @@ public class QueryServerCommands {
 	
 	public static String QueryCommands() {
 		
-		String queryResult = GetRequest("https://sky-commands.coflnet.com/api/mod/commands");
+		String queryResult = GetRequest(CoflSky.CommandUri);
 		
 		if(queryResult != null) {
 			CommandInfo[] commands = gson.fromJson(queryResult, CommandInfo[].class);
