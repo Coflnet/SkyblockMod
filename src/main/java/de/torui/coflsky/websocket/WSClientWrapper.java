@@ -12,6 +12,8 @@ import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.core.Command;
 import de.torui.coflsky.core.StringCommand;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ChatComponentText;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 
 
@@ -32,6 +34,7 @@ public class WSClientWrapper {
     	socket.stop();
     	
     	System.out.println("Sleeping...");
+    	Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Lost connection to Coflnet, trying to reestablish the connection in 2 Seconds..."));
     	
     	try {
 			Thread.sleep(2000);
