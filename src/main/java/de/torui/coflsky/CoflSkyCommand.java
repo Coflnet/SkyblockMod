@@ -50,52 +50,53 @@ public class CoflSkyCommand extends CommandBase {
 			+ "status: Emits status information\nServer-Only Commands:";
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-		System.out.println(Arrays.toString(args));
-		
-		if(args.length >= 1) {
-			switch(args[0]) {
-			case "start":
-				//todo: start
-				sender.addChatMessage(new ChatComponentText("starting connection..."));
-				CoflSky.Wrapper.startConnection();
-				break;
-			case "stop":
-				CoflSky.Wrapper.stop();
-				sender.addChatMessage(new ChatComponentText("you stopped the connection to ")
-						.appendSibling(new ChatComponentText("C").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
-						.appendSibling(new ChatComponentText("oflnet").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
-						.appendSibling(new ChatComponentText(".\n    To reconnect enter "))
-						.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
-						.appendSibling(new ChatComponentText("/cofl start"))
-						.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
-						.appendSibling(new ChatComponentText(" or click this message"))
-						.setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start")))
-						);
-				break;
-			case "debug":
-			//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
-			//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, "{ \"text\": \"Clickable Texts are fun\", \"onClick\": \"me Hello World\"}"), sender.getCommandSenderEntity());
-			WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "{\"name\":\"random.orb\",\"pitch\":0.5}"), sender.getCommandSenderEntity());
-				break;	
-			case "callback":
-				CallbackCommand(args);
-				break;
-			case "status":
-				sender.addChatMessage(new ChatComponentText(StatusMessage()));
-				break;
-			case "reset":
-				HandleReset();
-				break;
-			default:
-				CommandNotRecognized(args, sender);
-				return;
+		new Thread(()->{
+			System.out.println(Arrays.toString(args));
+			
+			if(args.length >= 1) {
+				switch(args[0]) {
+				case "start":
+					//todo: start
+					sender.addChatMessage(new ChatComponentText("starting connection..."));
+					CoflSky.Wrapper.startConnection();
+					break;
+				case "stop":
+					CoflSky.Wrapper.stop();
+					sender.addChatMessage(new ChatComponentText("you stopped the connection to ")
+							.appendSibling(new ChatComponentText("C").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
+							.appendSibling(new ChatComponentText("oflnet").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
+							.appendSibling(new ChatComponentText(".\n    To reconnect enter "))
+							.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+							.appendSibling(new ChatComponentText("/cofl start"))
+							.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+							.appendSibling(new ChatComponentText(" or click this message"))
+							.setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start")))
+							);
+					break;
+				case "debug":
+				//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
+				//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, "{ \"text\": \"Clickable Texts are fun\", \"onClick\": \"me Hello World\"}"), sender.getCommandSenderEntity());
+				WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "{\"name\":\"random.orb\",\"pitch\":0.5}"), sender.getCommandSenderEntity());
+					break;	
+				case "callback":
+					CallbackCommand(args);
+					break;
+				case "status":
+					sender.addChatMessage(new ChatComponentText(StatusMessage()));
+					break;
+				case "reset":
+					HandleReset();
+					break;
+				default:
+					CommandNotRecognized(args, sender);
+					return;
+				}
+			} 
+			
+			else {
+				ListHelp(sender);
 			}
-		} 
-		
-		else {
-			ListHelp(sender);
-		}
-		
+		}).start();		
 	}
 	
 	private void HandleReset() {
