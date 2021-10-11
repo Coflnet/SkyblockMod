@@ -1,6 +1,7 @@
 package de.torui.coflsky;
 
 import de.torui.coflsky.core.Command;
+import de.torui.coflsky.core.SoundCommand;
 import de.torui.coflsky.core.WriteToChatCommand;
 import de.torui.coflsky.websocket.WSClient;
 import net.minecraft.client.Minecraft;
@@ -37,8 +38,10 @@ public class WSCommandHandler {
 			break;
 		case PlaySound:
 			PlaySound(cmd, sender);
+			break;
 		case ChatMessage:
 			ChatMessage(cmd);
+			break;
 		default:
 			break;
 		}
@@ -48,14 +51,14 @@ public class WSCommandHandler {
 
 	private static void PlaySound(Command cmd, Entity sender) {
 
-		// Minecraft.getMinecraft().theWorld.playSoundAtEntity(sender,
-		// "random.explode",1f, 1f);
-
+		SoundCommand sc = WSClient.gson.fromJson(cmd.getData(), SoundCommand.class);
+		
 		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
 
 		// random.explode
 		PositionedSoundRecord psr = PositionedSoundRecord
-				.create(new ResourceLocation(WSClient.gson.fromJson(cmd.getData(), String.class)));
+				.create(new ResourceLocation(sc.Name), sc.Pitch);
+		
 		handler.playSound(psr);
 	}
 

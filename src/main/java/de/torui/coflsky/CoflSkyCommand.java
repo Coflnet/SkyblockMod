@@ -1,5 +1,6 @@
 package de.torui.coflsky;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,6 +8,8 @@ import de.torui.coflsky.core.Command;
 import de.torui.coflsky.core.CommandType;
 import de.torui.coflsky.core.StringCommand;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
+import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
+import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import de.torui.coflsky.websocket.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -72,7 +75,7 @@ public class CoflSkyCommand extends CommandBase {
 			case "debug":
 			//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
 			//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, "{ \"text\": \"Clickable Texts are fun\", \"onClick\": \"me Hello World\"}"), sender.getCommandSenderEntity());
-			WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "\"minecraft:random.explode\""), sender.getCommandSenderEntity());
+			WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "{\"name\":\"random.orb\",\"pitch\":0.5}"), sender.getCommandSenderEntity());
 				break;	
 			case "callback":
 				CallbackCommand(args);
@@ -111,7 +114,20 @@ public class CoflSkyCommand extends CommandBase {
 		String version = System.getProperty("java.version");
 		String detailedVersion = System.getProperty("java.vm.version");
 		
-		return vendor + " " + name + " " + version + " " + detailedVersion + "|Connection = " + (CoflSky.Wrapper!=null?CoflSky.Wrapper.GetStatus():"UNINITIALIZED_WRAPPER");
+		String status = vendor + " " + name + " " + version + " " + detailedVersion + "|Connection = " + (CoflSky.Wrapper!=null?CoflSky.Wrapper.GetStatus():"UNINITIALIZED_WRAPPER");
+		try {
+		status += "  uri=" + CoflSky.Wrapper.socket.uri.toString();		
+		} catch(NullPointerException npe) {}
+		
+		
+		try {
+			CoflSession session = CoflSessionManager.GetCoflSession(PlayerDataProvider.getUsername());
+			String sessionString = WSClient.gson.toJson(session);
+			status += "  session=" + sessionString;
+		} catch (IOException e) {
+		}
+		
+		return status;
 	}
 	
 	public void CommandNotRecognized(String[] args, ICommandSender sender) {
