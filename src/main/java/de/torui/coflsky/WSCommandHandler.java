@@ -13,14 +13,18 @@ import net.minecraft.client.audio.SoundEventAccessorComposite;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.command.ICommandManager;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.ClickEvent.Action;
 import net.minecraft.event.HoverEvent;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.integrated.IntegratedServerCommandManager;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.ClientCommandHandler;
 
 public class WSCommandHandler {
 
@@ -64,8 +68,14 @@ public class WSCommandHandler {
 
 	private static void Execute(Command cmd, Entity sender) {
 		System.out.println("Execute: " + cmd.getData() + " sender:" + sender);
-
-		Minecraft.getMinecraft().thePlayer.sendChatMessage(WSClient.gson.fromJson(cmd.getData(), String.class));
+		String dummy = WSClient.gson.fromJson(cmd.getData(), String.class);
+		
+		if(dummy.startsWith("/cofl")) {
+			ClientCommandHandler.instance.executeCommand(sender, dummy);
+		} else {
+			Minecraft.getMinecraft().thePlayer.sendChatMessage(dummy);
+		}
+		
 	}
 
 	
@@ -112,7 +122,7 @@ public class WSCommandHandler {
 
 	private static void WriteToChat(Command cmd) {
 		WriteToChatCommand wcmd = WSClient.gson.fromJson(cmd.getData(), WriteToChatCommand.class);
-
+		
 		IChatComponent comp = CommandToChatComponent(wcmd);
 		if (comp != null)
 		{
