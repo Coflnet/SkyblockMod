@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 
 import org.lwjgl.input.Keyboard;
 
-
 import de.torui.coflsky.websocket.WSClientWrapper;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -50,6 +49,7 @@ public class CoflSky
         
         if(event.getSide() == Side.CLIENT) {
         	ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
+        	ClientCommandHandler.instance.registerCommand(new ColfCommand());
         	
         	for (int i = 0; i < keyBindings.length; ++i) 
         	{
