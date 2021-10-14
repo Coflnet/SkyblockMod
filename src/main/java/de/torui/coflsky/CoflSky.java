@@ -6,7 +6,7 @@ import java.net.URISyntaxException;
 
 import org.lwjgl.input.Keyboard;
 
-import de.torui.coflsky.websocket.WSClientWrapper;
+import de.torui.coflsky.network.WSClientWrapper;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;

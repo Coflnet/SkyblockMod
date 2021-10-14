@@ -1,4 +1,4 @@
-package de.torui.coflsky.websocket;
+package de.torui.coflsky.network;
 /*
  * Copyright (C) 2015 Neo Visionaries Inc.
  *

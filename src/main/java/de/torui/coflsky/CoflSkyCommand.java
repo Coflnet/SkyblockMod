@@ -9,8 +9,9 @@ import de.torui.coflsky.core.CommandType;
 import de.torui.coflsky.core.StringCommand;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
+import de.torui.coflsky.network.QueryServerCommands;
+import de.torui.coflsky.network.WSClient;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
-import de.torui.coflsky.websocket.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -75,8 +76,9 @@ public class CoflSkyCommand extends CommandBase {
 					break;
 				case "debug":
 				//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
-				//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, "{ \"text\": \"Clickable Texts are fun\", \"onClick\": \"me Hello World\"}"), sender.getCommandSenderEntity());
-				WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "{\"name\":\"random.orb\",\"pitch\":0.5}"), sender.getCommandSenderEntity());
+				//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, " {\"type\":\"writeToChat\",\"data\":\"{\\\"text\\\":\\\"\\\\nFLIP: º9Goblin Eg\r\n"
+				//			+ "g º87,000 -> 13,999 ºg[BUY]\\\",\\\"onClick\\\":\\\"/viewauction f7d7295ca72f43e9876bf6da7424000c\\\",\\\"hover\\\":\\\"\\\"}\"}"), sender.getCommandSenderEntity());
+				//WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "{\"name\":\"random.orb\",\"pitch\":0.5}"), sender.getCommandSenderEntity());
 					break;	
 				case "callback":
 					CallbackCommand(args);

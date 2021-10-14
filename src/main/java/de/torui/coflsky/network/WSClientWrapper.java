@@ -1,4 +1,4 @@
-package de.torui.coflsky.websocket;
+package de.torui.coflsky.network;
 
 import java.io.IOException;
 import java.net.URI;

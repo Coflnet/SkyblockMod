@@ -1,4 +1,4 @@
-package de.torui.coflsky;
+package de.torui.coflsky.network;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,6 +10,8 @@ import java.util.Arrays;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import de.torui.coflsky.CoflSky;
 
 public class QueryServerCommands {
 	

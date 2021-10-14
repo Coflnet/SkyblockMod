@@ -3,7 +3,7 @@ package de.torui.coflsky;
 import de.torui.coflsky.core.Command;
 import de.torui.coflsky.core.SoundCommand;
 import de.torui.coflsky.core.WriteToChatCommand;
-import de.torui.coflsky.websocket.WSClient;
+import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSound;
