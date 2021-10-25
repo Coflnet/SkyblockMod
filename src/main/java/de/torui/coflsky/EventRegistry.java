@@ -65,7 +65,7 @@ public class EventRegistry{
 				String command = WSCommandHandler.lastOnClickEvent;
 				WSCommandHandler.lastOnClickEvent = null;
 				//System.out.println(">>>>> HasLastONClickEvent = " + command);
-				Minecraft.getMinecraft().thePlayer.sendChatMessage(command);
+				WSCommandHandler.Execute(command,Minecraft.getMinecraft().thePlayer);
 			}
 			
 		

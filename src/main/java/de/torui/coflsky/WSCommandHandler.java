@@ -69,17 +69,22 @@ public class WSCommandHandler {
 	private static void Execute(Command cmd, Entity sender) {
 		System.out.println("Execute: " + cmd.getData() + " sender:" + sender);
 		String dummy = WSClient.gson.fromJson(cmd.getData(), String.class);
-		
-		if(dummy.startsWith("/cofl")) {
-			ClientCommandHandler.instance.executeCommand(sender, dummy);
+		Execute(dummy,sender);	
+	}
+
+	public static void Execute(String cmd, Entity sender)
+	{
+		if(cmd.startsWith("/cofl") || cmd.startsWith("http")) {
+			ClientCommandHandler.instance.executeCommand(sender, cmd);
 		} else {
-			Minecraft.getMinecraft().thePlayer.sendChatMessage(dummy);
+			Minecraft.getMinecraft().thePlayer.sendChatMessage(cmd);
 		}
-		
 	}
 
 	
 	private static IChatComponent CommandToChatComponent(WriteToChatCommand wcmd) {
+		if(wcmd.OnClick != null)
+			lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
 		if (wcmd.Text != null) {
 			IChatComponent comp = new ChatComponentText(wcmd.Text);
 
@@ -126,8 +131,6 @@ public class WSCommandHandler {
 		IChatComponent comp = CommandToChatComponent(wcmd);
 		if (comp != null)
 		{
-			if(wcmd.OnClick != null)
-				lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
 			Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
 		}
 			
