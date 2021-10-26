@@ -27,9 +27,9 @@ public class CoflSky
 
     
     public static final String[] webSocketURIPrefix = new String [] {
-        	"wss://sky-commands.coflnet.com/modsocket",
-            "wss://sky-mod.coflnet.com/modsocket",
-        	"ws://sky-commands.coflnet.com/modsocket",
+        	"wss://sky.coflnet.com/modsocket",
+        	"wss://sky-mod.coflnet.com/modsocket",
+        	"ws://sky.coflnet.com/modsocket",
         	"ws://sky-mod.coflnet.com/modsocket",
     };
     
