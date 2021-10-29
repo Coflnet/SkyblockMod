@@ -53,7 +53,7 @@ public class CoflSky
         	
         	for (int i = 0; i < keyBindings.length; ++i) 
         	{
-        	    ClientRegistry.registerKeyBinding(keyBindings[i]);
+        	    //ClientRegistry.registerKeyBinding(keyBindings[i]);
         	}
         	
         	
