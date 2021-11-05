@@ -5,6 +5,7 @@ import de.torui.coflsky.core.CommandType;
 import de.torui.coflsky.core.JsonStringCommand;
 import java.util.UUID;
 
+import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.gui.MinecraftServerGui;
