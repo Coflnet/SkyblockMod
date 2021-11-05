@@ -44,7 +44,7 @@ public class CoflSky
         CoflSky.Wrapper = new WSClientWrapper(webSocketURIPrefix);
         
         keyBindings = new KeyBinding[] {
-        		new KeyBinding("key.replay_last.onclick", Keyboard.KEY_R, "SkyCofl"),
+        		new KeyBinding("key.replay_last.onclick", Keyboard.KEY_NONE, "SkyCofl"),
         };
         
         if(event.getSide() == Side.CLIENT) {
@@ -53,7 +53,7 @@ public class CoflSky
         	
         	for (int i = 0; i < keyBindings.length; ++i) 
         	{
-        	    //ClientRegistry.registerKeyBinding(keyBindings[i]);
+        	    ClientRegistry.registerKeyBinding(keyBindings[i]);
         	}
         	
         	
