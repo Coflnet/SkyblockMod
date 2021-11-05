@@ -69,11 +69,13 @@ public class WSClientWrapper {
     	
     	Minecraft.getMinecraft().thePlayer.addChatMessage(
     			new ChatComponentText("Cofl could not establish a connection to any server!"+
-    	"\nIf you think this is a bug. Please report it on our Discord and include the logs!")
+    	"\nIf you think this is a bug. Please report it on our Discord and include the ")
     			.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED))
-    			/*.appendSibling(new ChatComponentText("logs")
+    			.appendSibling(new ChatComponentText("logs!")
     							.setChatStyle(new ChatStyle()
-    							.setChatClickEvent(new ClickEvent(Action.OPEN_URL, ""))))*/);
+								.setUnderlined(true)
+								.setColor(EnumChatFormatting.BLUE)
+    							.setChatClickEvent(new ClickEvent(Action.OPEN_URL, "https://www.youtube.com/watch?v=9Kb29wEcMcs")))));
     	
     	return false;
     	//throw new Error("Could not connect to any websocket remote!");
