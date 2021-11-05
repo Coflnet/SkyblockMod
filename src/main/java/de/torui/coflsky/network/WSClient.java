@@ -16,8 +16,8 @@ import com.neovisionaries.ws.client.WebSocketState;
 import net.minecraft.client.Minecraft;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
-import de.torui.coflsky.core.Command;
-import de.torui.coflsky.core.JsonStringCommand;
+import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.JsonStringCommand;
 
 public class WSClient extends WebSocketAdapter {
 

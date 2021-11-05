@@ -2,10 +2,10 @@ package de.torui.coflsky;
 
 import com.google.gson.reflect.TypeToken;
 
-import de.torui.coflsky.core.Command;
-import de.torui.coflsky.core.JsonStringCommand;
-import de.torui.coflsky.core.commandEntities.SoundData;
-import de.torui.coflsky.core.commandEntities.ChatMessageData;
+import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.JsonStringCommand;
+import de.torui.coflsky.commands.models.ChatMessageData;
+import de.torui.coflsky.commands.models.SoundData;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;

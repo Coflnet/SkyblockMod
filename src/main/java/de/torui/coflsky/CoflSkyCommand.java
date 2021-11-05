@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import de.torui.coflsky.core.Command;
-import de.torui.coflsky.core.CommandType;
-import de.torui.coflsky.core.JsonStringCommand;
+import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.CommandType;
+import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
 import de.torui.coflsky.network.QueryServerCommands;

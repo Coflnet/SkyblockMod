@@ -1,10 +1,10 @@
 package de.torui.coflsky;
 
-import de.torui.coflsky.core.Command;
-import de.torui.coflsky.core.CommandType;
-import de.torui.coflsky.core.JsonStringCommand;
 import java.util.UUID;
 
+import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.CommandType;
+import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;

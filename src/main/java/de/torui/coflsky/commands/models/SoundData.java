@@ -1,4 +1,4 @@
-package de.torui.coflsky.core.commandEntities;
+package de.torui.coflsky.commands.models;
 
 import com.google.gson.annotations.SerializedName;
 
