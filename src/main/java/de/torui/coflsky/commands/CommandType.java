@@ -26,5 +26,8 @@ public enum CommandType {
 	
 	@SerializedName("purchaseConfirm")
 	PurchaseConfirm,
+	
+	@SerializedName("reset")
+	Reset,
 
 }
