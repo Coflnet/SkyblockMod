@@ -1,8 +1,8 @@
-package de.torui.coflsky.core;
+package de.torui.coflsky.commands.models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class WriteToChatCommand {
+public class ChatMessageData {
 	@SerializedName("text")
 	public String Text;
 	@SerializedName("onClick")
@@ -11,11 +11,11 @@ public class WriteToChatCommand {
 	@SerializedName("hover")
 	public String Hover;
 	
-	public WriteToChatCommand() {
+	public ChatMessageData() {
 
 	}
 
-	public WriteToChatCommand(String text, String onClick, String hover) {
+	public ChatMessageData(String text, String onClick, String hover) {
 		super();
 		Text = text;
 		OnClick = onClick;

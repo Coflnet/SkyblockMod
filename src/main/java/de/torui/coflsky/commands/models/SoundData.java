@@ -1,23 +1,19 @@
-package de.torui.coflsky.core;
+package de.torui.coflsky.commands.models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class SoundCommand {
+public class SoundData {
 	@SerializedName("name")
 	public String Name;
 	
 	@SerializedName("pitch")
-	public float Pitch;
-
+	public float Pitch;	
 	
-	
-	public SoundCommand() {
+	public SoundData() {
 		super();
 	}
 
-
-
-	public SoundCommand(String name, float pitch) {
+	public SoundData(String name, float pitch) {
 		super();
 		Name = name;
 		Pitch = pitch;

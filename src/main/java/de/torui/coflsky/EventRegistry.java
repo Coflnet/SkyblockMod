@@ -2,6 +2,10 @@ package de.torui.coflsky;
 
 import java.util.UUID;
 
+import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.CommandType;
+import de.torui.coflsky.commands.JsonStringCommand;
+import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.gui.MinecraftServerGui;
@@ -58,14 +62,13 @@ public class EventRegistry{
 	public void onEvent(KeyInputEvent event) {
 
 		if(CoflSky.keyBindings[0].isPressed()) {
-			//System.out.println(">>>>> Key Pressed");
-			
+
 			if(WSCommandHandler.lastOnClickEvent != null) {
 				
 				String command = WSCommandHandler.lastOnClickEvent;
 				WSCommandHandler.lastOnClickEvent = null;
-				//System.out.println(">>>>> HasLastONClickEvent = " + command);
-				WSCommandHandler.Execute(command,Minecraft.getMinecraft().thePlayer);
+				WSCommandHandler.HandleCommand(new JsonStringCommand(CommandType.Execute, WSClient.gson.toJson(command)),
+						Minecraft.getMinecraft().thePlayer);
 			}
 			
 		

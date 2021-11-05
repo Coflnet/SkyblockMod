@@ -1,25 +1,19 @@
 package de.torui.coflsky;
 
-import de.torui.coflsky.core.Command;
-import de.torui.coflsky.core.SoundCommand;
-import de.torui.coflsky.core.WriteToChatCommand;
+import com.google.gson.reflect.TypeToken;
+
+import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.JsonStringCommand;
+import de.torui.coflsky.commands.models.ChatMessageData;
+import de.torui.coflsky.commands.models.SoundData;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.PositionedSound;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.audio.SoundCategory;
-import net.minecraft.client.audio.SoundEventAccessorComposite;
 import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.audio.SoundManager;
-import net.minecraft.command.ICommandManager;
-import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.ClickEvent.Action;
 import net.minecraft.event.HoverEvent;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.integrated.IntegratedServerCommandManager;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
@@ -28,23 +22,24 @@ import net.minecraftforge.client.ClientCommandHandler;
 
 public class WSCommandHandler {
 
-	public static String lastOnClickEvent;
+	public static transient String lastOnClickEvent;
 
-	public static boolean HandleCommand(Command cmd, Entity sender) {
+	public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
 		// Entity sender = Minecraft.getMinecraft().thePlayer;
 		System.out.println("Handling Command=" + cmd.toString());
+
 		switch (cmd.getType()) {
 		case WriteToChat:
-			WriteToChat(cmd);
+			WriteToChat(cmd.GetAs(new TypeToken<ChatMessageData>() {}));
 			break;
 		case Execute:
-			Execute(cmd, sender);
+			Execute(cmd.GetAs(new TypeToken<String>() {}), sender);
 			break;
 		case PlaySound:
-			PlaySound(cmd, sender);
+			PlaySound(cmd.GetAs(new TypeToken<SoundData>() {}), sender);
 			break;
 		case ChatMessage:
-			ChatMessage(cmd);
+			ChatMessage(cmd.GetAs(new TypeToken<ChatMessageData[]>() {}));
 			break;
 		default:
 			break;
@@ -53,9 +48,9 @@ public class WSCommandHandler {
 		return true;
 	}
 
-	private static void PlaySound(Command cmd, Entity sender) {
-
-		SoundCommand sc = WSClient.gson.fromJson(cmd.getData(), SoundCommand.class);
+	private static void PlaySound(Command<SoundData> cmd, Entity sender) {
+		
+		SoundData sc = cmd.getData();
 		
 		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
 
@@ -66,10 +61,10 @@ public class WSCommandHandler {
 		handler.playSound(psr);
 	}
 
-	private static void Execute(Command cmd, Entity sender) {
+	private static void Execute(Command<String> cmd, Entity sender) {
 		System.out.println("Execute: " + cmd.getData() + " sender:" + sender);
-		String dummy = WSClient.gson.fromJson(cmd.getData(), String.class);
-		Execute(dummy,sender);	
+		//String dummy = WSClient.gson.fromJson(cmd.getData(), String.class);
+		Execute(cmd.getData(),sender);	
 	}
 
 	public static void Execute(String cmd, Entity sender)
@@ -82,7 +77,7 @@ public class WSCommandHandler {
 	}
 
 	
-	private static IChatComponent CommandToChatComponent(WriteToChatCommand wcmd) {
+	private static IChatComponent CommandToChatComponent(ChatMessageData wcmd) {
 		if(wcmd.OnClick != null)
 			lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
 		if (wcmd.Text != null) {
@@ -110,12 +105,12 @@ public class WSCommandHandler {
 		return null;
 	}
 	
-	private static void ChatMessage(Command cmd) {
-		WriteToChatCommand[] list = WSClient.gson.fromJson(cmd.getData(), WriteToChatCommand[].class);
+	private static void ChatMessage(Command<ChatMessageData[]> cmd) {		
+		ChatMessageData[] list = cmd.getData() ;//WSClient.gson.fromJson(cmd.getData(), WriteToChatCommand[].class);
 
 		IChatComponent master = new ChatComponentText("");
 
-		for (WriteToChatCommand wcmd : list) {
+		for (ChatMessageData wcmd : list) {
 			IChatComponent comp = CommandToChatComponent(wcmd);
 			if (comp != null)
 				master.appendSibling(comp);
@@ -125,8 +120,8 @@ public class WSCommandHandler {
 
 	
 
-	private static void WriteToChat(Command cmd) {
-		WriteToChatCommand wcmd = WSClient.gson.fromJson(cmd.getData(), WriteToChatCommand.class);
+	private static void WriteToChat(Command<ChatMessageData> cmd) {
+		ChatMessageData wcmd = cmd.getData();
 		
 		IChatComponent comp = CommandToChatComponent(wcmd);
 		if (comp != null)

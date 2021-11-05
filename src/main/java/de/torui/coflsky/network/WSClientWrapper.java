@@ -9,8 +9,8 @@ import java.util.UUID;
 import com.neovisionaries.ws.client.WebSocketException;
 
 import de.torui.coflsky.CoflSky;
-import de.torui.coflsky.core.Command;
-import de.torui.coflsky.core.StringCommand;
+import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
@@ -141,9 +141,6 @@ public class WSClientWrapper {
     	
     }
 
-	public void SendMessage(StringCommand sc) {
-		this.socket.SendCommand(sc);
-	}
 	
 	public String GetStatus() {
 		return "" + isRunning + " " +  
