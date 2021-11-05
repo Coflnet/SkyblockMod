@@ -106,8 +106,8 @@ public class CoflSkyCommand extends CommandBase {
 		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Stopping Connection to CoflNet"));
 		CoflSessionManager.DeleteAllCoflSessions();
 		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Deleting CoflNet sessions..."));
-		CoflSky.Wrapper.startConnection();
-		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Started the Connection to CoflNet"));
+		if(CoflSky.Wrapper.startConnection())
+			Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Started the Connection to CoflNet"));
 	}
 
 	public String StatusMessage() {

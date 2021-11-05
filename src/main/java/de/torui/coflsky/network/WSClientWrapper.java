@@ -13,7 +13,11 @@ import de.torui.coflsky.core.Command;
 import de.torui.coflsky.core.StringCommand;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import net.minecraft.client.Minecraft;
+import net.minecraft.event.ClickEvent;
+import net.minecraft.event.ClickEvent.Action;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 
 
@@ -63,7 +67,17 @@ public class WSClientWrapper {
     		}
     	}
     	
-    	throw new Error("Could not connect to any websocket remote!");
+    	Minecraft.getMinecraft().thePlayer.addChatMessage(
+    			new ChatComponentText("Cofl could not establish a connection to any server!"+
+    	"\nIf you think this is a bug. Please report it on our Discord and include the logs!")
+    			.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED))
+    			/*.appendSibling(new ChatComponentText("logs")
+    							.setChatStyle(new ChatStyle()
+    							.setChatClickEvent(new ClickEvent(Action.OPEN_URL, ""))))*/);
+    	
+    	return false;
+    	//throw new Error("Could not connect to any websocket remote!");
+    	
     }
     
     
