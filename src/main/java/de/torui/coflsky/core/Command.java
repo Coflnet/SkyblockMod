@@ -2,20 +2,21 @@ package de.torui.coflsky.core;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Command {
+public class Command<T> {
 	@SerializedName("type")
 	private CommandType Type;
 	@SerializedName("data")
-	private String data;
-	
-	public Command() {}
-	
-	public Command(CommandType type, String data) {
+	private T data;
+
+	public Command() {
+	}
+
+	public Command(CommandType type, T data) {
 		super();
-		this.Type = type;
+		Type = type;
 		this.data = data;
 	}
-	
+
 	public CommandType getType() {
 		return Type;
 	}
@@ -24,17 +25,18 @@ public class Command {
 		Type = type;
 	}
 
-	public String getData() {
+	public T getData() {
 		return data;
 	}
-	public void setData(String data) {
+
+	public void setData(T data) {
 		this.data = data;
 	}
 
 	@Override
 	public String toString() {
 		return "Command [Type=" + Type + ", data=" + data + "]";
-	}
-	
-	
+	}	
+
 }
+

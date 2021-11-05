@@ -5,17 +5,26 @@ import com.google.gson.annotations.SerializedName;
 public enum CommandType {
 	@SerializedName("writeToChat")
 	WriteToChat,
-	
+
 	@SerializedName("execute")
 	Execute,
-	
+
 	@SerializedName("tokenLogin")
 	TokenLogin,
-	
+
 	@SerializedName("clicked")
-	Clicked,
+	Clicked, 
+	
 	@SerializedName("playSound")
-	PlaySound,
+	PlaySound, 
+	
 	@SerializedName("chatMessage")
-	ChatMessage;
+	ChatMessage,
+
+	@SerializedName("purchaseStart")
+	PurchaseStart, 
+	
+	@SerializedName("purchaseConfirm")
+	PurchaseConfirm,
+
 }

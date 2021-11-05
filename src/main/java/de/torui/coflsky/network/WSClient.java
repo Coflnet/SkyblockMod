@@ -17,7 +17,7 @@ import net.minecraft.client.Minecraft;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.core.Command;
-import de.torui.coflsky.core.StringCommand;
+import de.torui.coflsky.core.JsonStringCommand;
 
 public class WSClient extends WebSocketAdapter {
 
@@ -112,7 +112,7 @@ public class WSClient extends WebSocketAdapter {
 		
 		//super.onTextMessage(websocket, text);
 		 System.out.println("Received: "+ text);
-		Command cmd = gson.fromJson(text, Command.class);
+		JsonStringCommand cmd = gson.fromJson(text, JsonStringCommand.class);
 		//System.out.println(cmd);
 		WSCommandHandler.HandleCommand(cmd, Minecraft.getMinecraft().thePlayer);
 		
@@ -122,12 +122,6 @@ public class WSClient extends WebSocketAdapter {
 		String json = gson.toJson(cmd);
 		this.socket.sendText(json);
 	}
-
-	public void SendCommand(StringCommand sc) {
-		String json = gson.toJson(sc);
-		this.socket.sendText(json);
-	}
-
 		
 	
 	
