@@ -14,3 +14,8 @@ jobs:
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Build with Gradle
         run: bash ./gradlew build
+      - name: 'Upload Jar'
+        uses: actions/upload-artifact@v2
+        with:
+          name: CoflSky-CI
+          path: build/libs/CoflMod-1.0-all.jar
