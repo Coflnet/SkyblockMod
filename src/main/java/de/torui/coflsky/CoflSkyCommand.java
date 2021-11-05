@@ -6,7 +6,7 @@ import java.util.List;
 
 import de.torui.coflsky.core.Command;
 import de.torui.coflsky.core.CommandType;
-import de.torui.coflsky.core.StringCommand;
+import de.torui.coflsky.core.JsonStringCommand;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
 import de.torui.coflsky.network.QueryServerCommands;
@@ -136,7 +136,7 @@ public class CoflSkyCommand extends CommandBase {
 	public void CommandNotRecognized(String[] args, ICommandSender sender) {
 		String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 		
-		StringCommand sc = new StringCommand(args[0], WSClient.gson.toJson(command));
+		JsonStringCommand sc = new JsonStringCommand(args[0], WSClient.gson.toJson(command));
 		
 		if(CoflSky.Wrapper.isRunning) {
 			CoflSky.Wrapper.SendMessage(sc);
@@ -158,8 +158,8 @@ public class CoflSkyCommand extends CommandBase {
 		System.out.println("CallbackData: " + command);
 		//new Thread(()->{
 			System.out.println("Callback: " + command);
-			WSCommandHandler.HandleCommand(new Command(CommandType.Execute, WSClient.gson.toJson(command)), Minecraft.getMinecraft().thePlayer);
-			CoflSky.Wrapper.SendMessage(new Command(CommandType.Clicked, WSClient.gson.toJson(command)));		
+			WSCommandHandler.HandleCommand(new JsonStringCommand(CommandType.Execute, WSClient.gson.toJson(command)), Minecraft.getMinecraft().thePlayer);
+			CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, WSClient.gson.toJson(command)));		
 			
 			System.out.println("Sent!");
 		//}).start();
