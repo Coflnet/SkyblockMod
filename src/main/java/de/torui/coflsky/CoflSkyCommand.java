@@ -102,6 +102,7 @@ public class CoflSkyCommand extends CommandBase {
 	}
 	
 	private void HandleReset() {
+		CoflSky.Wrapper.SendMessage(new Command<String>(CommandType.Reset,""));
 		CoflSky.Wrapper.stop();
 		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Stopping Connection to CoflNet"));
 		CoflSessionManager.DeleteAllCoflSessions();
