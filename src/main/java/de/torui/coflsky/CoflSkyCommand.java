@@ -145,7 +145,7 @@ public class CoflSkyCommand extends CommandBase {
 		
 		try {
 			CoflSession session = CoflSessionManager.GetCoflSession(PlayerDataProvider.getUsername());
-			String sessionString = WSClient.gson.toJson(session);
+			String sessionString = CoflSessionManager.gson.toJson(session);
 			status += "  session=" + sessionString;
 		} catch (IOException e) {
 		}
