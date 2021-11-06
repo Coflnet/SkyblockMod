@@ -29,7 +29,7 @@ import com.google.gson.stream.JsonWriter;
 import net.minecraftforge.fml.common.Loader;
 
 public class CoflSessionManager {
-	private static Gson gson = new GsonBuilder()  .registerTypeAdapter(ZonedDateTime.class, new TypeAdapter<ZonedDateTime>() {
+	public static Gson gson = new GsonBuilder()  .registerTypeAdapter(ZonedDateTime.class, new TypeAdapter<ZonedDateTime>() {
         @Override
         public void write(JsonWriter out, ZonedDateTime value) throws IOException {
             out.value(value.toString());

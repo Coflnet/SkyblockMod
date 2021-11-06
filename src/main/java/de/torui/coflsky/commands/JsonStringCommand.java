@@ -3,10 +3,12 @@ package de.torui.coflsky.commands;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import de.torui.coflsky.network.WSClient;
+
 public class JsonStringCommand extends Command<String> {
 	
 	public JsonStringCommand(String type, String data) {
-		this.setType(CommandType.valueOf(type));
+		this.setType(WSClient.gson.fromJson(type, CommandType.class));
 		this.setData(data);
 	}
 	
