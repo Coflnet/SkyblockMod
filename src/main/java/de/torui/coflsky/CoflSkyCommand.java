@@ -2,6 +2,7 @@ package de.torui.coflsky;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 import de.torui.coflsky.commands.Command;
@@ -88,6 +89,24 @@ public class CoflSkyCommand extends CommandBase {
 					break;
 				case "reset":
 					HandleReset();
+					break;
+				case "connect":
+					
+					if(args.length == 2) {
+						String destination = args[1];
+						
+						if(!destination.contains("://")) {
+							destination = new String(Base64.getDecoder().decode(destination));
+						}
+						sender.addChatMessage(new ChatComponentText("Stopping connection!"));
+						CoflSky.Wrapper.stop();
+						sender.addChatMessage(new ChatComponentText("Opening connection to " + destination));
+						if(CoflSky.Wrapper.initializeNewSocket(destination)) {
+							sender.addChatMessage(new ChatComponentText("Success"));
+						} else {
+							sender.addChatMessage(new ChatComponentText("Could not open connection, please check the logs"));							
+						}
+					}
 					break;
 				default:
 					CommandNotRecognized(args, sender);

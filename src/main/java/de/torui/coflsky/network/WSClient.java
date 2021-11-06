@@ -68,6 +68,8 @@ public class WSClient extends WebSocketAdapter {
 		// by calling WebSocketFactory.setVerifyHostname(false).
 		factory.setVerifyHostname(false);
 		factory.*/
+		factory.setVerifyHostname(false);
+		factory.setSSLContext(NaiveSSLContext.getInstance("TLSv1.2"));
 		factory.setConnectionTimeout(10*1000);
 		this.socket = factory.createSocket(uri);
 		this.socket.addListener(this);

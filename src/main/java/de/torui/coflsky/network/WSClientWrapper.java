@@ -84,7 +84,7 @@ public class WSClientWrapper {
     
     
     
-    private boolean initializeNewSocket(String uriPrefix) {
+    public boolean initializeNewSocket(String uriPrefix) {
     	
     	
     	String uri = uriPrefix;
