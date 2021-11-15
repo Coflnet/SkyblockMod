@@ -1,6 +1,10 @@
 package de.torui.coflsky;
 
 import java.time.LocalDateTime;
+
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
+
 import com.mojang.realmsclient.util.Pair;
 
 import de.torui.coflsky.commands.Command;
@@ -16,7 +20,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -25,6 +31,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.inventory.Slot;
 
 public class EventRegistry {
 
@@ -111,6 +118,41 @@ public class EventRegistry {
 		
 	}
 	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void OnGuiOpen(InitGuiEvent goe) {
+		if(goe.gui instanceof GuiChest) {
+			ContainerChest chest = (ContainerChest) ((GuiChest) goe.gui).inventorySlots;
+			IInventory inv = chest.getLowerChestInventory();
+			if (inv.hasCustomName()) { // verify that the chest actually has a custom name
+				String chestName = inv.getName();
+
+				if (chestName.equalsIgnoreCase("BIN Auction View") || chestName.equalsIgnoreCase("Ekwav")) {
+					/*Slot slot = chest.getSlot(0);
+					Slot slot2 = chest.getSlot(10);
+					
+					//int slotHeight = slot2.yDisplayPosition - slot.yDisplayPosition;
+					
+					int windowWidth = Display.getWidth(),
+							windowHeight = Display.getHeight(),
+							xOffset = Display.getX(),
+							yOffset = Display.getY(),
+							screenWidth = Minecraft.getMinecraft().currentScreen.width,
+							screenHeight = Minecraft.getMinecraft().currentScreen.height,
+							x = slot.xDisplayPosition,
+							y = slot.yDisplayPosition;
+					
+					int targetX = ((x/screenWidth) * windowWidth),
+							targetY = ((y/screenHeight) * windowHeight);
+					
+					int YPadding = (windowHeight - screenHeight)/2;*/
+					
+					Mouse.setCursorPosition(Display.getWidth()/2,goe.gui.height);
+				}
+			}
+		}
+	}
+
 	public static long lastStartTime = Long.MAX_VALUE;
 		
 	@SideOnly(Side.CLIENT)
