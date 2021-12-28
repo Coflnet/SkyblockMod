@@ -11,6 +11,7 @@ import com.neovisionaries.ws.client.WebSocketException;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.JsonStringCommand;
+import de.torui.coflsky.commands.RawCommand;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.event.ClickEvent;
@@ -148,6 +149,13 @@ public class WSClientWrapper {
     	}
     }
     
+    public synchronized void SendMessage(RawCommand cmd){
+    	if(this.isRunning) {
+    		this.socket.SendCommand(cmd);
+    	} else {
+    		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("tried sending a callback to coflnet but failed. the connection must be closed."));
+    	}
+    }
     public synchronized void SendMessage(Command cmd){
     	if(this.isRunning) {
     		this.socket.SendCommand(cmd);
