@@ -29,5 +29,7 @@ public enum CommandType {
 	
 	@SerializedName("reset")
 	Reset,
+	@SerializedName("flip")
+	Flip,
 
 }
