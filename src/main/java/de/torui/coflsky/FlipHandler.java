@@ -64,33 +64,38 @@ public class FlipHandler {
 
 		public synchronized void Insert(Flip flip) {
 			Long l = System.currentTimeMillis();
-			Flips.put(l, flip);
-			ReverseMap.put(flip, l);
+			
+			synchronized(Flips) {
+				Flips.put(l, flip);
+				ReverseMap.put(flip, l);
+			}		
 
 			RunHouseKeeping();
 		}
 
-		public void RemoveLong(Long l) {
+		private void RemoveLong(Long l) {
 			if (l == null)
 				return;
-
-			Flip f = Flips.get(l);
-			if (f != null) {
-				ReverseMap.remove(f);
-				Flips.remove(l);
+			synchronized(Flips) {
+				Flip f = Flips.get(l);
+				if (f != null) {
+					ReverseMap.remove(f);
+					Flips.remove(l);
+				}
 			}
 		}
 
-		public void RemoveFlip(Flip f) {
+		private void RemoveFlip(Flip f) {
 			if (f == null)
 				return;
-
-			Long l = ReverseMap.get(f);
-			if (l != null) {
-				Flips.remove(l);
-				ReverseMap.remove(f);
+			
+			synchronized(Flips) {
+				Long l = ReverseMap.get(f);
+				if (l != null) {
+					Flips.remove(l);
+					ReverseMap.remove(f);
+				}
 			}
-
 		}
 
 		public Flip GetHighestFlip() {
