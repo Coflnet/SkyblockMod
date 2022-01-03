@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FlipHandler {
 	public static class Flip {
@@ -25,8 +26,8 @@ public class FlipHandler {
 
 	public static class FlipDataStructure {
 
-		private Map<Long, Flip> Flips = new HashMap<>();
-		private Map<Flip, Long> ReverseMap = new HashMap<>();
+		private Map<Long, Flip> Flips = new ConcurrentHashMap <>();
+		private Map<Flip, Long> ReverseMap = new ConcurrentHashMap <>();
 
 		private Flip HighestFlip = null;
 
@@ -54,11 +55,7 @@ public class FlipHandler {
 				CurrentTask = new TimerTask() {
 					@Override
 					public void run() {
-						try {
-							RunHouseKeeping();
-						} catch (ConcurrentModificationException c) {
-
-						}
+						RunHouseKeeping();
 					}
 				};
 				t.schedule(CurrentTask, 30 * 1000/* 30 seconds */ + /* small arbitrary delay */150);
