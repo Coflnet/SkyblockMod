@@ -62,11 +62,13 @@ public class EventRegistry {
 				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 				
 				if(f != null) {
+					String command =  WSClient.gson.toJson("/viewauction " + f.id);
 					WSCommandHandler.HandleCommand(
-							new JsonStringCommand(CommandType.Execute, WSClient.gson.toJson(
-									"/viewauction " + f.id)),
+							new JsonStringCommand(CommandType.Execute,command),
 							Minecraft.getMinecraft().thePlayer);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
+					
+					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
 				}			
 				
 			}
