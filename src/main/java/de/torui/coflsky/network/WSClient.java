@@ -18,6 +18,7 @@ import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.JsonStringCommand;
+import de.torui.coflsky.commands.RawCommand;
 
 public class WSClient extends WebSocketAdapter {
 
@@ -121,7 +122,15 @@ public class WSClient extends WebSocketAdapter {
 	}
 
 	public void SendCommand(Command cmd) {
-		String json = gson.toJson(cmd);
+		Send(cmd);
+	}
+
+	public void SendCommand(RawCommand cmd) {
+		Send(cmd);
+	}
+	
+	public void Send(Object obj) {
+		String json = gson.toJson(obj);
 		this.socket.sendText(json);
 	}
 		

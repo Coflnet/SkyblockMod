@@ -8,6 +8,7 @@ import java.util.List;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
+import de.torui.coflsky.commands.RawCommand;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
 import de.torui.coflsky.network.QueryServerCommands;
@@ -156,10 +157,10 @@ public class CoflSkyCommand extends CommandBase {
 	public void CommandNotRecognized(String[] args, ICommandSender sender) {
 		String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 		
-		JsonStringCommand sc = new JsonStringCommand(args[0], WSClient.gson.toJson(command));
-		
+		//JsonStringCommand sc = new JsonStringCommand(args[0], WSClient.gson.toJson(command));
+		RawCommand rc = new RawCommand(args[0], WSClient.gson.toJson(command));
 		if(CoflSky.Wrapper.isRunning) {
-			CoflSky.Wrapper.SendMessage(sc);
+			CoflSky.Wrapper.SendMessage(rc);
 		} else {
 			sender.addChatMessage(new ChatComponentText("CoflSky not active. Server Commands are currently not available.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
 		}
