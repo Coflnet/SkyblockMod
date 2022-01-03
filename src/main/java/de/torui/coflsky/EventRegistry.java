@@ -63,9 +63,7 @@ public class EventRegistry {
 				
 				if(f != null) {
 					String command =  WSClient.gson.toJson("/viewauction " + f.id);
-					WSCommandHandler.HandleCommand(
-							new JsonStringCommand(CommandType.Execute,command),
-							Minecraft.getMinecraft().thePlayer);
+					WSCommandHandler.Execute("/viewauction " + f.id, null);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
 					
 					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
