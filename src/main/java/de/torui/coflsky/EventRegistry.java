@@ -3,6 +3,7 @@ package de.torui.coflsky;
 import java.time.LocalDateTime;
 import com.mojang.realmsclient.util.Pair;
 
+import de.torui.coflsky.FlipHandler.Flip;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
@@ -36,6 +37,8 @@ public class EventRegistry {
 			System.out.println("CoflSky stopped");
 		}
 	}
+	
+	public long LastClick = System.currentTimeMillis();
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
@@ -52,6 +55,22 @@ public class EventRegistry {
 			}
 
 		}
+		if(CoflSky.keyBindings[1].isKeyDown()) {
+			if((System.currentTimeMillis() - LastClick) >= 500) {
+				
+				LastClick = System.currentTimeMillis();				
+				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
+				
+				if(f != null) {
+					WSCommandHandler.HandleCommand(
+							new JsonStringCommand(CommandType.Execute, WSClient.gson.toJson(
+									"/viewauction " + f.id)),
+							Minecraft.getMinecraft().thePlayer);
+					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
+				}			
+				
+			}
+		}
 
 	}
 
@@ -61,7 +80,7 @@ public class EventRegistry {
 
 		if (rgoe.type == ElementType.CROSSHAIRS) {
 			Minecraft mc = Minecraft.getMinecraft();
-			mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj, "Hello World", 0, 0, Integer.MAX_VALUE);
+			mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj, "Flips in Pipeline:" + WSCommandHandler.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
 		}
 	}
 

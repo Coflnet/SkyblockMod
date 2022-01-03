@@ -25,6 +25,7 @@ import net.minecraftforge.client.ClientCommandHandler;
 public class WSCommandHandler {
 
 	public static transient String lastOnClickEvent;
+	public static FlipHandler flipHandler = new FlipHandler();
 
 	public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
 		// Entity sender = Minecraft.getMinecraft().thePlayer;
@@ -57,6 +58,10 @@ public class WSCommandHandler {
 		ChatMessageData[] messages = cmd.getData().Messages;
 		Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
 		ChatMessage(showCmd);
+		flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth));
+		
+		//just to be safe emit a event
+		CoflSky.Events.onEvent(null);
 	}
 
 	private static void PlaySound(Command<SoundData> cmd, Entity sender) {
