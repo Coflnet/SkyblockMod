@@ -37,7 +37,7 @@ public class FlipHandler {
 		public synchronized void RunHouseKeeping() {
 			synchronized (Flips) {
 
-				Long RemoveAllPrior = System.currentTimeMillis() - 50000;
+				Long RemoveAllPrior = System.currentTimeMillis() - (Config.KeepFlipsForSeconds*1000);
 				Flips.keySet().stream().filter(l -> l <= RemoveAllPrior).forEach(l -> RemoveLong(l));
 				if (!Flips.isEmpty()) {
 					HighestFlip = Flips.values().stream().max((f1, f2) -> f1.worth - f2.worth).orElse(null);
@@ -58,7 +58,7 @@ public class FlipHandler {
 						RunHouseKeeping();
 					}
 				};
-				t.schedule(CurrentTask, 50 * 1000/* 30 seconds */ + /* small arbitrary delay */150);
+				t.schedule(CurrentTask, Config.KeepFlipsForSeconds * 1000 + /* small arbitrary delay */150);
 			}
 		}
 
