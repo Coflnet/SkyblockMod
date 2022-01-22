@@ -57,11 +57,11 @@ public class EventRegistry {
 		}
 		if(CoflSky.keyBindings[1].isKeyDown()) {
 			if((System.currentTimeMillis() - LastClick) >= 500) {
-				
-				LastClick = System.currentTimeMillis();				
+						
 				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 				
 				if(f != null) {
+					LastClick = System.currentTimeMillis();		
 					String command =  WSClient.gson.toJson("/viewauction " + f.id);
 					WSCommandHandler.Execute("/viewauction " + f.id, null);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
