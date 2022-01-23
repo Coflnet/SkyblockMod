@@ -132,6 +132,9 @@ public class EventRegistry {
 	}
 	
 	public static long lastStartTime = Long.MIN_VALUE;
+	
+	public static long LastViewAuctionInvocation = Long.MIN_VALUE;
+	public static String LastViewAuctionUUID =null;
 		
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
@@ -159,7 +162,13 @@ public class EventRegistry {
 								if (heldItem.isItemEqual(GOLD_NUGGET)) {
 									AuctionData ad = new AuctionData();
 									ad.setItemId(itemUUID);
-									ad.setAuctionId("");
+									
+									if((LastViewAuctionInvocation+60*1000) >=  System.currentTimeMillis()) {
+										ad.setAuctionId(LastViewAuctionUUID);
+									} else {
+										ad.setAuctionId("");
+									}
+									
 									Command<AuctionData> data = new Command<>(CommandType.PurchaseStart, ad);
 									CoflSky.Wrapper.SendMessage(data);
 									System.out.println("PurchaseStart");

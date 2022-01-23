@@ -85,6 +85,15 @@ public class WSCommandHandler {
 
 	public static void Execute(String cmd, Entity sender)
 	{
+		
+		if(cmd.startsWith("/viewauction")){
+			String[] args = cmd.split(" ");
+			
+			String uuid = args[args.length-1];
+			EventRegistry.LastViewAuctionUUID = uuid;
+			EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
+		}
+		
 		if(cmd.startsWith("/cofl") || cmd.startsWith("http")) {
 			ClientCommandHandler.instance.executeCommand(sender, cmd);
 		} else {
