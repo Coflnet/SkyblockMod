@@ -118,7 +118,13 @@ public class EventRegistry {
 				
 				AuctionData ad = new AuctionData();
 				ad.setItemId(last.second().first());
-				ad.setAuctionId("");
+				
+				if((LastViewAuctionInvocation+60*1000) >=  System.currentTimeMillis()) {
+					ad.setAuctionId(LastViewAuctionUUID);
+				} else {
+					ad.setAuctionId("");
+				}
+				
 				Command<AuctionData> data = new Command<>(CommandType.PurchaseConfirm, ad);
 				CoflSky.Wrapper.SendMessage(data);
 				System.out.println("PurchaseConfirm");
@@ -162,7 +168,7 @@ public class EventRegistry {
 								if (heldItem.isItemEqual(GOLD_NUGGET)) {
 									AuctionData ad = new AuctionData();
 									ad.setItemId(itemUUID);
-									
+														
 									if((LastViewAuctionInvocation+60*1000) >=  System.currentTimeMillis()) {
 										ad.setAuctionId(LastViewAuctionUUID);
 									} else {
