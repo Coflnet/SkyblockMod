@@ -131,6 +131,8 @@ public class WSClient extends WebSocketAdapter {
 	
 	public void Send(Object obj) {
 		String json = gson.toJson(obj);
+		
+		System.out.println("###Sending message of json value " + json);
 		this.socket.sendText(json);
 	}
 		

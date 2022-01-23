@@ -126,7 +126,9 @@ public class EventRegistry {
 			}
 			else if(last.second().second().plusSeconds(10).isBefore(LocalDateTime.now())) {
 				last = EMPTY;
-			}
+			} 
+		} else {
+			System.out.println("NotRunning or first=null");
 		}
 		
 	}
@@ -183,11 +185,11 @@ public class EventRegistry {
 					System.out.println("Does not have a custom name");
 				}
 			} else {
-				System.out.println("Not a chest but a " + mie.gui.getClass().getCanonicalName());
+				//System.out.println("Not a chest but a " + mie.gui.getClass().getCanonicalName());
 			}
 
 		} else {
-			System.out.println("Cofl not running");
+			//System.out.println("Cofl not running");
 		}
 
 	}
