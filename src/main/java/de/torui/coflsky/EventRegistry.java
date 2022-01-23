@@ -165,15 +165,29 @@ public class EventRegistry {
 									System.out.println("PurchaseStart");
 									last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
 									lastStartTime = System.currentTimeMillis() + 200 /*ensure a small debounce*/;
-								} 
+								} else {
+									System.out.println("Item not equal to gold nugget but is instead " + heldItem);
+								}
+							} else {
+								System.out.println("Not matching debounceing logic");
 							}
 						
+						} else {
+							System.out.println("Not holdng an item!");
 						}
 
+					} else {
+						System.out.println("Does not have the right custom name but " + inv.getName());
 					}
+				} else {
+					System.out.println("Does not have a custom name");
 				}
+			} else {
+				System.out.println("Not a chest but a " + mie.gui.getClass().getCanonicalName());
 			}
 
+		} else {
+			System.out.println("Cofl not running");
 		}
 
 	}
