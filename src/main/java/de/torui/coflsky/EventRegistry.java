@@ -66,6 +66,7 @@ public class EventRegistry {
 					WSCommandHandler.Execute("/viewauction " + f.id, null);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
 					
+						WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
 					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
 				}			
 				
