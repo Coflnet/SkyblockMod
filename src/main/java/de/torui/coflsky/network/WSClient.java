@@ -122,7 +122,7 @@ public class WSClient extends WebSocketAdapter {
 	}
 
 	public void SendCommand(Command cmd) {
-		Send(cmd);
+		SendCommand(new RawCommand(gson.toJson(cmd.getType()),gson.toJson(cmd.getData())));
 	}
 
 	public void SendCommand(RawCommand cmd) {
@@ -131,6 +131,7 @@ public class WSClient extends WebSocketAdapter {
 	
 	public void Send(Object obj) {
 		String json = gson.toJson(obj);
+		SendCommand(new RawCommand(gson.toJson(cmd.getType()),gson.toJson(cmd.getData())));
 		this.socket.sendText(json);
 	}
 		
