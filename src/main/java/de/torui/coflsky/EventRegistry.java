@@ -131,7 +131,7 @@ public class EventRegistry {
 		
 	}
 	
-	public static long lastStartTime = Long.MAX_VALUE;
+	public static long lastStartTime = Long.MIN_VALUE;
 		
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
@@ -154,7 +154,7 @@ public class EventRegistry {
 							
 							String itemUUID = ExtractUuidFromInventory(inv);
 							
-							if((System.currentTimeMillis()+200) < lastStartTime) {
+							if(System.currentTimeMillis() > lastStartTime) {
 								
 								if (heldItem.isItemEqual(GOLD_NUGGET)) {
 									AuctionData ad = new AuctionData();
@@ -164,7 +164,7 @@ public class EventRegistry {
 									CoflSky.Wrapper.SendMessage(data);
 									System.out.println("PurchaseStart");
 									last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
-									lastStartTime = System.currentTimeMillis();
+									lastStartTime = System.currentTimeMillis() + 200 /*ensure a small debounce*/;
 								} 
 							}
 						
