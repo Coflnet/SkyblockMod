@@ -3,8 +3,10 @@ package de.torui.coflsky;
 import com.google.gson.reflect.TypeToken;
 
 import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.ChatMessageData;
+import de.torui.coflsky.commands.models.FlipData;
 import de.torui.coflsky.commands.models.SoundData;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
@@ -23,6 +25,7 @@ import net.minecraftforge.client.ClientCommandHandler;
 public class WSCommandHandler {
 
 	public static transient String lastOnClickEvent;
+	public static FlipHandler flipHandler = new FlipHandler();
 
 	public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
 		// Entity sender = Minecraft.getMinecraft().thePlayer;
@@ -41,11 +44,24 @@ public class WSCommandHandler {
 		case ChatMessage:
 			ChatMessage(cmd.GetAs(new TypeToken<ChatMessageData[]>() {}));
 			break;
+		case Flip:
+			Flip(cmd.GetAs(new TypeToken<FlipData>() {}));
 		default:
 			break;
 		}
 
 		return true;
+	}
+
+	private static void Flip(Command<FlipData> cmd) {
+		//handle chat message
+		ChatMessageData[] messages = cmd.getData().Messages;
+		Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
+		ChatMessage(showCmd);
+		flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth));
+		
+		//just to be safe emit a event
+		CoflSky.Events.onEvent(null);
 	}
 
 	private static void PlaySound(Command<SoundData> cmd, Entity sender) {
@@ -69,6 +85,15 @@ public class WSCommandHandler {
 
 	public static void Execute(String cmd, Entity sender)
 	{
+		
+		if(cmd.startsWith("/viewauction")){
+			String[] args = cmd.split(" ");
+			
+			String uuid = args[args.length-1];
+			EventRegistry.LastViewAuctionUUID = uuid;
+			EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
+		}
+		
 		if(cmd.startsWith("/cofl") || cmd.startsWith("http")) {
 			ClientCommandHandler.instance.executeCommand(sender, cmd);
 		} else {

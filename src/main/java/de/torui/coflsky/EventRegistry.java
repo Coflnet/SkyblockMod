@@ -3,6 +3,7 @@ package de.torui.coflsky;
 import java.time.LocalDateTime;
 import com.mojang.realmsclient.util.Pair;
 
+import de.torui.coflsky.FlipHandler.Flip;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
@@ -36,6 +37,8 @@ public class EventRegistry {
 			System.out.println("CoflSky stopped");
 		}
 	}
+	
+	public long LastClick = System.currentTimeMillis();
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
@@ -52,6 +55,23 @@ public class EventRegistry {
 			}
 
 		}
+		if(CoflSky.keyBindings[1].isKeyDown()) {
+			if((System.currentTimeMillis() - LastClick) >= 500) {
+						
+				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
+				
+				if(f != null) {
+					LastClick = System.currentTimeMillis();		
+					String command =  WSClient.gson.toJson("/viewauction " + f.id);
+					WSCommandHandler.Execute("/viewauction " + f.id, null);
+					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
+					
+						WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
+					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
+				}			
+				
+			}
+		}
 
 	}
 
@@ -61,7 +81,7 @@ public class EventRegistry {
 
 		if (rgoe.type == ElementType.CROSSHAIRS) {
 			Minecraft mc = Minecraft.getMinecraft();
-			mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj, "Hello World", 0, 0, Integer.MAX_VALUE);
+			mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj, "Flips in Pipeline:" + WSCommandHandler.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
 		}
 	}
 
@@ -98,7 +118,13 @@ public class EventRegistry {
 				
 				AuctionData ad = new AuctionData();
 				ad.setItemId(last.second().first());
-				ad.setAuctionId("");
+				
+				if((LastViewAuctionInvocation+60*1000) >=  System.currentTimeMillis()) {
+					ad.setAuctionId(LastViewAuctionUUID);
+				} else {
+					ad.setAuctionId("");
+				}
+				
 				Command<AuctionData> data = new Command<>(CommandType.PurchaseConfirm, ad);
 				CoflSky.Wrapper.SendMessage(data);
 				System.out.println("PurchaseConfirm");
@@ -111,7 +137,10 @@ public class EventRegistry {
 		
 	}
 	
-	public static long lastStartTime = Long.MAX_VALUE;
+	public static long lastStartTime = Long.MIN_VALUE;
+	
+	public static long LastViewAuctionInvocation = Long.MIN_VALUE;
+	public static String LastViewAuctionUUID =null;
 		
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
@@ -134,17 +163,23 @@ public class EventRegistry {
 							
 							String itemUUID = ExtractUuidFromInventory(inv);
 							
-							if((System.currentTimeMillis()+200) < lastStartTime) {
+							if(System.currentTimeMillis() > lastStartTime) {
 								
 								if (heldItem.isItemEqual(GOLD_NUGGET)) {
 									AuctionData ad = new AuctionData();
 									ad.setItemId(itemUUID);
-									ad.setAuctionId("");
+														
+									if((LastViewAuctionInvocation+60*1000) >=  System.currentTimeMillis()) {
+										ad.setAuctionId(LastViewAuctionUUID);
+									} else {
+										ad.setAuctionId("");
+									}
+									
 									Command<AuctionData> data = new Command<>(CommandType.PurchaseStart, ad);
 									CoflSky.Wrapper.SendMessage(data);
 									System.out.println("PurchaseStart");
 									last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
-									lastStartTime = System.currentTimeMillis();
+									lastStartTime = System.currentTimeMillis() + 200 /*ensure a small debounce*/;
 								} 
 							}
 						

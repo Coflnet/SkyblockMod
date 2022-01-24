@@ -60,6 +60,8 @@ public class CoflSkyCommand extends CommandBase {
 				switch(args[0]) {
 				case "start":
 					//todo: start
+					//possible workaround for https://github.com/Coflnet/SkyblockMod/issues/48
+					CoflSky.Wrapper.stop();
 					sender.addChatMessage(new ChatComponentText("starting connection..."));
 					CoflSky.Wrapper.startConnection();
 					break;
