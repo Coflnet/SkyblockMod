@@ -46,7 +46,7 @@ public class CoflSky
         
         keyBindings = new KeyBinding[] {
         		new KeyBinding("key.replay_last.onclick", Keyboard.KEY_NONE, "SkyCofl"),
-        		new KeyBinding("key.start_highest_bid", Keyboard.KEY_O, "SkyCofl")
+        		new KeyBinding("key.start_highest_bid", Keyboard.KEY_NONE, "SkyCofl")
         };
         
         if(event.getSide() == Side.CLIENT) {
