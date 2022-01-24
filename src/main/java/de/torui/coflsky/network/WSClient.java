@@ -124,7 +124,6 @@ public class WSClient extends WebSocketAdapter {
 	public void SendCommand(Command cmd) {
 		SendCommand(new RawCommand(cmd.getType().ToJson(),gson.toJson(cmd.getData())));
 	}
-	
 	public void SendCommand(RawCommand cmd) {
 		Send(cmd);
 	}
