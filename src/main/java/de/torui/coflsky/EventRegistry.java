@@ -15,6 +15,7 @@ import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -68,7 +69,7 @@ public class EventRegistry {
 					
 						WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
 					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
-				}			
+				}
 				
 			}
 		}

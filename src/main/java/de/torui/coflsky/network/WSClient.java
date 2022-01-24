@@ -12,6 +12,7 @@ import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
+import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
 import net.minecraft.client.Minecraft;
 import de.torui.coflsky.CoflSky;
@@ -71,8 +72,12 @@ public class WSClient extends WebSocketAdapter {
 		factory.*/
 		factory.setVerifyHostname(false);
 		factory.setSSLContext(NaiveSSLContext.getInstance("TLSv1.2"));
+		
 		factory.setConnectionTimeout(10*1000);
+		factory.setSocketTimeout(10*1000);
+		
 		this.socket = factory.createSocket(uri);
+		this.socket.setPongInterval(1_000);
 		this.socket.addListener(this);
 		this.socket.connect();
 	}
@@ -134,6 +139,17 @@ public class WSClient extends WebSocketAdapter {
 		System.out.println("###Sending message of json value " + json);
 		this.socket.sendText(json);
 	}
+
+	@Override
+	public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame,
+			boolean closedByServer) throws Exception {
+		super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
+		
+		CoflSky.Wrapper.restartWebsocketConnection();
+		
+	}
+
+	
 		
 	
 	

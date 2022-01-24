@@ -26,6 +26,7 @@ public class WSClientWrapper {
     public WSClient socket;
    // public Thread thread;
     public boolean isRunning;
+    public boolean isStarting;
     
     private String[] uris;
 
@@ -59,15 +60,38 @@ public class WSClientWrapper {
     	if(isRunning)
     		return false;
     	
-    	for(String s : uris) {
+    	isStarting = true;
+    	int i = 0;
+    	while(!isRunning && isStarting) {
     		
-    		System.out.println("Trying connection with uri=" + s);
-    		
-    		if(initializeNewSocket(s)) {
-    			return true;
+    		if(i>0) {
+    			Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(
+    					"Cofl could not establish a connection to any server! Retrying for the " + i + " time. To Stop run ")
+    							.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED))
+    							.appendSibling(new ChatComponentText("/cofl stop")
+    									.setChatStyle(new ChatStyle().setUnderlined(true).setColor(EnumChatFormatting.BLUE)
+    											.setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl stop")))));
     		}
+    		
+	    	for(String s : uris) {
+	    		
+	    		System.out.println("Trying connection with uri=" + s);
+	    		
+	    		if(initializeNewSocket(s)) {
+	    			return true;
+	    		}
+	    	}
+	    	try {
+				Thread.sleep((long) (Math.pow(1.2, i)*1000));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    	i++;
     	}
     	
+		
+
     	Minecraft.getMinecraft().thePlayer.addChatMessage(
     			new ChatComponentText("Cofl could not establish a connection to any server!"+
     	"\nIf you think this is a bug. Please report it on our Discord and include the ")
@@ -107,6 +131,7 @@ public class WSClientWrapper {
 			boolean successfull = start();
 			if(successfull) {
 				socket.shouldRun = true;
+				isStarting = false;
 			}
 			return successfull;
     	} catch(IOException e) {
@@ -137,6 +162,7 @@ public class WSClientWrapper {
 			}
     		return false;
     	}
+    	isStarting = false;
 		return false;
     }
     
@@ -146,7 +172,8 @@ public class WSClientWrapper {
     		socket.stop();
     		isRunning = false;
     		socket = null;
-    	}
+    	} 
+    	isStarting = false;
     }
     
     public synchronized void SendMessage(RawCommand cmd){
