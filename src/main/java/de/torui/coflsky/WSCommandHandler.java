@@ -8,6 +8,7 @@ import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.ChatMessageData;
 import de.torui.coflsky.commands.models.FlipData;
 import de.torui.coflsky.commands.models.SoundData;
+import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -46,6 +47,10 @@ public class WSCommandHandler {
 			break;
 		case Flip:
 			Flip(cmd.GetAs(new TypeToken<FlipData>() {}));
+			break;
+		case PrivacySettings:
+			new ConfigurationManager().UpdateConfiguration(cmd.getData());
+			break;
 		default:
 			break;
 		}
