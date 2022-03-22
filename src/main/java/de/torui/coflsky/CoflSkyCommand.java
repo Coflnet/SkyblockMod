@@ -47,10 +47,11 @@ public class CoflSkyCommand extends CommandBase {
 	}
 	
 	public static final String HelpText = "Available local sub-commands:\n"
-			+ "start: starts a new connection\n"
-			+ "stop: stops the connection\n"
-			+ "reset: resets all local session information and stops the connection\n"
-			+ "status: Emits status information\nServer-Only Commands:";
+			+ "§bstart: §7starts a new connection\n"
+			+ "§bstop: §7stops the connection\n"
+			+ "§bconnect: §7Connects to a different server\n"
+			+ "§breset: §7resets all local session information and stops the connection\n"
+			+ "§bstatus: §7Emits status information\nServer-Only Commands:";
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
 		new Thread(()->{
@@ -109,6 +110,8 @@ public class CoflSkyCommand extends CommandBase {
 						} else {
 							sender.addChatMessage(new ChatComponentText("Could not open connection, please check the logs"));							
 						}
+					} else {
+						sender.addChatMessage(new ChatComponentText("§cPleace specify a server to connect to"));	
 					}
 					break;
 				default:
@@ -164,7 +167,9 @@ public class CoflSkyCommand extends CommandBase {
 		if(CoflSky.Wrapper.isRunning) {
 			CoflSky.Wrapper.SendMessage(rc);
 		} else {
-			sender.addChatMessage(new ChatComponentText("CoflSky not active. Server Commands are currently not available.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+			sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+			CoflSky.Wrapper.startConnection();
+			CoflSky.Wrapper.SendMessage(rc);
 		}
 		
 		

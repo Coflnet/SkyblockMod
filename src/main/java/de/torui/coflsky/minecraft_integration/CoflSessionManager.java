@@ -86,7 +86,7 @@ public class CoflSessionManager {
 	}
 	
 	public static boolean isValidSession(CoflSession session) {
-		if(session.timestampCreated.plus(Duration.ofDays(7)).isAfter(ZonedDateTime.now())) {
+		if(session.timestampCreated.plus(Duration.ofDays(14)).isAfter(ZonedDateTime.now())) {
 			return true;
 		}
 		return false;
