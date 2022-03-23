@@ -46,7 +46,7 @@ public class FlipperChatCommand extends CoflSkyCommand {
             String[] newArgs = new String[args.length +1];
 			System.arraycopy(args, 0, newArgs, 1, args.length);
             newArgs[0] = "chat";
-			CommandNotRecognized(newArgs, sender);
+			SendCommandToServer(newArgs, sender);
 		}).start();
 	}
 }

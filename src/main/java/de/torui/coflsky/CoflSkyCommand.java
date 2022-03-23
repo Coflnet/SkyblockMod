@@ -115,7 +115,7 @@ public class CoflSkyCommand extends CommandBase {
 					}
 					break;
 				default:
-					CommandNotRecognized(args, sender);
+					SendCommandToServer(args, sender);
 					return;
 				}
 			} 
@@ -159,7 +159,7 @@ public class CoflSkyCommand extends CommandBase {
 		return status;
 	}
 	
-	public void CommandNotRecognized(String[] args, ICommandSender sender) {
+	public void SendCommandToServer(String[] args, ICommandSender sender) {
 		String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 		
 		//JsonStringCommand sc = new JsonStringCommand(args[0], WSClient.gson.toJson(command));
