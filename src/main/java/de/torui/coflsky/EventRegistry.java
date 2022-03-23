@@ -56,18 +56,20 @@ public class EventRegistry {
 
 		}
 		if(CoflSky.keyBindings[1].isKeyDown()) {
-			if((System.currentTimeMillis() - LastClick) >= 500) {
+			if((System.currentTimeMillis() - LastClick) >= 400) {
 						
 				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 				
 				if(f != null) {
+					WSCommandHandler.Execute("/viewauction " + f.id, null);
 					LastClick = System.currentTimeMillis();		
 					String command =  WSClient.gson.toJson("/viewauction " + f.id);
-					WSCommandHandler.Execute("/viewauction " + f.id, null);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
 					
-						WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
+					WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
 					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
+				} else {
+					WSCommandHandler.Execute("/cofl dialog nobestflip", Minecraft.getMinecraft().thePlayer);
 				}			
 				
 			}
