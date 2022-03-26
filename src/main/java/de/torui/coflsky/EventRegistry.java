@@ -42,6 +42,12 @@ public class EventRegistry {
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
+	public void onMouseEvent(MouseInputEvent event) {
+		onEvent(null);
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
 	public void onEvent(KeyInputEvent event) {
 
 		if (CoflSky.keyBindings[0].isPressed()) {
