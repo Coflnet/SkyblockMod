@@ -26,6 +26,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class EventRegistry {
 
@@ -193,5 +194,10 @@ public class EventRegistry {
 
 		}
 
+	}
+
+	@SubscribeEvent
+    public void OnRenderTick(TickEvent.RenderTickEvent event) {
+		CountdownTimer.onRenderTick(event);
 	}
 }

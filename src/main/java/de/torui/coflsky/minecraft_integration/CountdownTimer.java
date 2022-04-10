@@ -1,3 +1,5 @@
+package de.torui.coflsky;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiChat;
@@ -8,6 +10,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import de.torui.coflsky.commands.models.TimerData;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Locale;
@@ -21,25 +24,15 @@ public class CountdownTimer {
     private static int currentHeight;
     private static double currentScale;
     private static String currentPrefix;
-
-    private KeyBinding pressy = new KeyBinding("Reset Timer", Keyboard.KEY_V, "Testing");
+    private static int currentPercission;
 
     public CountdownTimer() {
-        ClientRegistry.registerKeyBinding(pressy);
     }
 
-    @SubscribeEvent
-    public void onRenderTick(TickEvent.RenderTickEvent event) {
+    public static void onRenderTick(TickEvent.RenderTickEvent event) {
         if (mc.currentScreen == null || mc.currentScreen instanceof GuiChat) // will only draw the Timer while no GUI or the Chat is open
             if (currentEndTime - System.currentTimeMillis() > 0)
                 drawTimer();
-    }
-
-    @SubscribeEvent
-    public void onKeyPress(InputEvent.KeyInputEvent event) {
-        if (pressy.isPressed()) {
-            startCountdown(34.3, 33, 33, 1.5, "§1C§6ofl > §c");
-        }
     }
 
     /**
@@ -49,7 +42,7 @@ public class CountdownTimer {
      * @param fontScale        scales the text size by factor (1 = no change)
      */
     public static void startCountdown(double seconds, int widthPercentage, int heightPercentage, double fontScale) {
-        startCountdown(seconds, widthPercentage, heightPercentage, fontScale, "");
+        startCountdown(seconds, widthPercentage, heightPercentage, fontScale, "", 4);
     }
 
     /**
@@ -58,13 +51,20 @@ public class CountdownTimer {
      * @param heightPercentage height in correlation to the window size
      * @param fontScale        scales the text size by factor (1 = no change)
      * @param prefix           will put that text infront of the seconds (supports color codes using §)
+     * @param maxPercision     length of the seconds in the timer
      */
-    public static void startCountdown(double seconds, int widthPercentage, int heightPercentage, double fontScale, String prefix) {
+    public static void startCountdown(double seconds, int widthPercentage, int heightPercentage, double fontScale, String prefix, int maxPercision) {
+		System.out.println("###Starting countdown " + seconds);
         currentEndTime = (long) (System.currentTimeMillis() + (seconds * 1000));
         currentWidth = widthPercentage;
         currentHeight = heightPercentage;
         currentScale = fontScale;
         currentPrefix = prefix;
+        currentPercission = maxPercision;
+    }
+
+    public static void startCountdown(TimerData data) {
+        startCountdown(data.seconds, data.width, data.height, data.scale, data.prefix, data.maxPercision );
     }
 
     private static void drawTimer() {
@@ -87,7 +87,9 @@ public class CountdownTimer {
         if (seconds > 100) {
             render = String.valueOf((int) seconds);
         } else {
-            render = String.format(Locale.US, "%.3f", seconds).substring(0, 4);
+            render = String.format(Locale.US, "%.3f", seconds).substring(0, currentPercission);
+            if(render.charAt(render.length() - 1) == '.')
+                render = render.substring(0, currentPercission -1);
         }
 
         return render + "s";
