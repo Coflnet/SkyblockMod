@@ -24,7 +24,7 @@ public class CountdownTimer {
     private static int currentHeight;
     private static double currentScale;
     private static String currentPrefix;
-    private static int currentPercission;
+    private static int currentPrecision;
 
     public CountdownTimer() {
     }
@@ -51,20 +51,20 @@ public class CountdownTimer {
      * @param heightPercentage height in correlation to the window size
      * @param fontScale        scales the text size by factor (1 = no change)
      * @param prefix           will put that text infront of the seconds (supports color codes using §)
-     * @param maxPercision     length of the seconds in the timer
+     * @param maxPrecision     length of the seconds in the timer
      */
-    public static void startCountdown(double seconds, int widthPercentage, int heightPercentage, double fontScale, String prefix, int maxPercision) {
+    public static void startCountdown(double seconds, int widthPercentage, int heightPercentage, double fontScale, String prefix, int maxPrecision) {
 		System.out.println("###Starting countdown " + seconds);
         currentEndTime = (long) (System.currentTimeMillis() + (seconds * 1000));
         currentWidth = widthPercentage;
         currentHeight = heightPercentage;
         currentScale = fontScale;
         currentPrefix = prefix;
-        currentPercission = maxPercision;
+        currentPrecision = maxPrecision;
     }
 
     public static void startCountdown(TimerData data) {
-        startCountdown(data.seconds, data.width, data.height, data.scale, data.prefix, data.maxPercision );
+        startCountdown(data.seconds, data.width, data.height, data.scale, data.prefix, data.maxPrecision );
     }
 
     private static void drawTimer() {
@@ -87,9 +87,9 @@ public class CountdownTimer {
         if (seconds > 100) {
             render = String.valueOf((int) seconds);
         } else {
-            render = String.format(Locale.US, "%.3f", seconds).substring(0, currentPercission);
+            render = String.format(Locale.US, "%.3f", seconds).substring(0, currentPrecision);
             if(render.charAt(render.length() - 1) == '.')
-                render = render.substring(0, currentPercission -1);
+                render = render.substring(0, currentPrecision -1);
         }
 
         return render + "s";

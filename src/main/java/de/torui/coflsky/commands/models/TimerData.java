@@ -17,6 +17,6 @@ public class TimerData {
 	@SerializedName("prefix")
 	public String prefix;
 
-	@SerializedName("maxPercision")
-	public int maxPercision;
+	@SerializedName("maxPrecision")
+	public int maxPrecision;
 }
