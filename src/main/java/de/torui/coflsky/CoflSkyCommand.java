@@ -46,6 +46,8 @@ public class CoflSkyCommand extends CommandBase {
 	{
 		ArrayList<String> al = new ArrayList<String>();
 		al.add("Cofl");
+		al.add("coflnet");
+		al.add("cl");
 		return al;
 	}
 
