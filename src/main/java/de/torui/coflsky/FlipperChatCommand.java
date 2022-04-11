@@ -26,6 +26,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
+import java.util.ArrayList;
 
 public class FlipperChatCommand extends CoflSkyCommand {
 
@@ -33,6 +34,14 @@ public class FlipperChatCommand extends CoflSkyCommand {
 	@Override
 	public String getCommandName() {
 		return "fc";
+	}
+
+	@Override
+	public List getCommandAliases()
+	{
+		ArrayList<String> al = new ArrayList<String>();
+		al.add("coflchat");
+		return al;
 	}
 
 	@Override

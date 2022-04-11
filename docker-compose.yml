@@ -3,6 +3,7 @@ services:
   java:
     image: openjdk:8-jdk-slim
     command: bash -c "source /data/docker-build.sh"
+    user: "1000"
     volumes: 
         - .:/data
         - ../mod:/artifacts

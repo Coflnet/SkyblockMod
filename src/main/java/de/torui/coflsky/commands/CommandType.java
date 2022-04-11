@@ -35,6 +35,8 @@ public enum CommandType {
 	Reset,
 	@SerializedName("flip")
 	Flip,
+	@SerializedName("countdown")
+	Countdown, 
 ;
 	public static Map<CommandType,String> data;
 	static {

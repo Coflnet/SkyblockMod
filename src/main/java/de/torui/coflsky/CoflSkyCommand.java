@@ -26,6 +26,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
+import java.util.ArrayList;
 
 public class CoflSkyCommand extends CommandBase {
 
@@ -39,6 +40,15 @@ public class CoflSkyCommand extends CommandBase {
 	@Override
 	public String getCommandName() {
 		return "cofl";
+	}
+	@Override
+	public List getCommandAliases()
+	{
+		ArrayList<String> al = new ArrayList<String>();
+		al.add("Cofl");
+		al.add("coflnet");
+		al.add("cl");
+		return al;
 	}
 
 	@Override

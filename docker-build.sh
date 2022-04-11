@@ -1,13 +1,13 @@
 #! /bin/bash
-mkdir /app
+mkdir /tmp/app
 echo "Preparing to Copy"
 shopt -s extglob
-cp -r /data/!(run|eclipse|mock) /app
+cp -r /data/!(run|eclipse|mock) /tmp/app
 echo "Done Copying"
-cd /app/ || exit
+cd /tmp/app/ || exit
 ls -l
 echo "Beginning Build"
 ./gradlew build
 echo "Build finished"
-ls /app/build/libs
-cp /app/build/libs/* /artifacts/
+ls /tmp/app/build/libs
+cp /tmp/app/build/libs/* /artifacts/
