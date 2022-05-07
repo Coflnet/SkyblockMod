@@ -178,6 +178,7 @@ public class CoflSkyCommand extends CommandBase {
 			CoflSky.Wrapper.SendMessage(rc);
 		} else {
 			sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+			CoflSky.Wrapper.stop();
 			CoflSky.Wrapper.startConnection();
 			CoflSky.Wrapper.SendMessage(rc);
 		}
