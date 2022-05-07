@@ -23,9 +23,11 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.MouseInputEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class EventRegistry {
 
@@ -39,6 +41,12 @@ public class EventRegistry {
 	}
 	
 	public long LastClick = System.currentTimeMillis();
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
+	public void onMouseEvent(MouseInputEvent event) {
+		onEvent(null);
+	}
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
@@ -56,18 +64,20 @@ public class EventRegistry {
 
 		}
 		if(CoflSky.keyBindings[1].isKeyDown()) {
-			if((System.currentTimeMillis() - LastClick) >= 500) {
+			if((System.currentTimeMillis() - LastClick) >= 400) {
 						
 				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 				
 				if(f != null) {
+					WSCommandHandler.Execute("/viewauction " + f.id, null);
 					LastClick = System.currentTimeMillis();		
 					String command =  WSClient.gson.toJson("/viewauction " + f.id);
-					WSCommandHandler.Execute("/viewauction " + f.id, null);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
 					
-						WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
+					WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
 					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
+				} else {
+					WSCommandHandler.Execute("/cofl dialog nobestflip", Minecraft.getMinecraft().thePlayer);
 				}			
 				
 			}
@@ -191,5 +201,10 @@ public class EventRegistry {
 
 		}
 
+	}
+
+	@SubscribeEvent
+    public void OnRenderTick(TickEvent.RenderTickEvent event) {
+		CountdownTimer.onRenderTick(event);
 	}
 }

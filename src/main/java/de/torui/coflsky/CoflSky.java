@@ -53,6 +53,7 @@ public class CoflSky
         if(event.getSide() == Side.CLIENT) {
         	ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
         	ClientCommandHandler.instance.registerCommand(new ColfCommand());
+        	ClientCommandHandler.instance.registerCommand(new FlipperChatCommand());
         	
         	for (int i = 0; i < keyBindings.length; ++i) 
         	{

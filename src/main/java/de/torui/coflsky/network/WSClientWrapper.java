@@ -41,16 +41,18 @@ public class WSClientWrapper {
     	System.out.println("Sleeping...");
     	Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Lost connection to Coflnet, trying to reestablish the connection in 2 Seconds..."));
     	
-    	try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
     	socket = new WSClient(socket.uri);
-    	isRunning = false;    	
-    	start();
+    	isRunning = false;   
+		while(isRunning == false) {
+    		start();
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		socket.shouldRun = true;
     }
     
     

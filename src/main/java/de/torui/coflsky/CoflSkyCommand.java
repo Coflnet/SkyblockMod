@@ -26,6 +26,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
+import java.util.ArrayList;
 
 public class CoflSkyCommand extends CommandBase {
 
@@ -40,6 +41,15 @@ public class CoflSkyCommand extends CommandBase {
 	public String getCommandName() {
 		return "cofl";
 	}
+	@Override
+	public List getCommandAliases()
+	{
+		ArrayList<String> al = new ArrayList<String>();
+		al.add("Cofl");
+		al.add("coflnet");
+		al.add("cl");
+		return al;
+	}
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
@@ -47,10 +57,11 @@ public class CoflSkyCommand extends CommandBase {
 	}
 	
 	public static final String HelpText = "Available local sub-commands:\n"
-			+ "start: starts a new connection\n"
-			+ "stop: stops the connection\n"
-			+ "reset: resets all local session information and stops the connection\n"
-			+ "status: Emits status information\nServer-Only Commands:";
+			+ "§bstart: §7starts a new connection\n"
+			+ "§bstop: §7stops the connection\n"
+			+ "§bconnect: §7Connects to a different server\n"
+			+ "§breset: §7resets all local session information and stops the connection\n"
+			+ "§bstatus: §7Emits status information\nServer-Only Commands:";
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
 		new Thread(()->{
@@ -109,10 +120,12 @@ public class CoflSkyCommand extends CommandBase {
 						} else {
 							sender.addChatMessage(new ChatComponentText("Could not open connection, please check the logs"));							
 						}
+					} else {
+						sender.addChatMessage(new ChatComponentText("§cPleace specify a server to connect to"));	
 					}
 					break;
 				default:
-					CommandNotRecognized(args, sender);
+					SendCommandToServer(args, sender);
 					return;
 				}
 			} 
@@ -156,7 +169,7 @@ public class CoflSkyCommand extends CommandBase {
 		return status;
 	}
 	
-	public void CommandNotRecognized(String[] args, ICommandSender sender) {
+	public void SendCommandToServer(String[] args, ICommandSender sender) {
 		String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 		
 		//JsonStringCommand sc = new JsonStringCommand(args[0], WSClient.gson.toJson(command));
@@ -164,7 +177,10 @@ public class CoflSkyCommand extends CommandBase {
 		if(CoflSky.Wrapper.isRunning) {
 			CoflSky.Wrapper.SendMessage(rc);
 		} else {
-			sender.addChatMessage(new ChatComponentText("CoflSky not active. Server Commands are currently not available.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+			sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+			CoflSky.Wrapper.stop();
+			CoflSky.Wrapper.startConnection();
+			CoflSky.Wrapper.SendMessage(rc);
 		}
 		
 		

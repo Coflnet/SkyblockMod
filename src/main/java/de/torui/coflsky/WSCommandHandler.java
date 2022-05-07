@@ -9,6 +9,7 @@ import de.torui.coflsky.commands.models.ChatMessageData;
 import de.torui.coflsky.commands.models.FlipData;
 import de.torui.coflsky.commands.models.SoundData;
 import de.torui.coflsky.configuration.ConfigurationManager;
+import de.torui.coflsky.commands.models.TimerData;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -50,6 +51,8 @@ public class WSCommandHandler {
 			break;
 		case PrivacySettings:
 			new ConfigurationManager().UpdateConfiguration(cmd.getData());
+		case Countdown:
+			StartTimer(cmd.GetAs(new TypeToken<TimerData>() {}));
 			break;
 		default:
 			break;
@@ -88,9 +91,15 @@ public class WSCommandHandler {
 		Execute(cmd.getData(),sender);	
 	}
 
+	/**
+	 * Starts a countdown
+	 */
+	private static void StartTimer(Command<TimerData> cmd) {
+		CountdownTimer.startCountdown(cmd.getData());
+	}
+
 	public static void Execute(String cmd, Entity sender)
 	{
-		
 		if(cmd.startsWith("/viewauction")){
 			String[] args = cmd.split(" ");
 			

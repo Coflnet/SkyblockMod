@@ -37,6 +37,8 @@ public enum CommandType {
 	Flip,
 	@SerializedName("privacySettings")
 	PrivacySettings,
+	@SerializedName("countdown")
+	Countdown, 
 ;
 	public static Map<CommandType,String> data;
 	static {

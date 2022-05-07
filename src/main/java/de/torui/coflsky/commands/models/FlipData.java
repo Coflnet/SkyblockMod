@@ -21,6 +21,4 @@ public class FlipData {
 		Id = id;
 		Worth = worth;
 	}
-	
-	
 }
