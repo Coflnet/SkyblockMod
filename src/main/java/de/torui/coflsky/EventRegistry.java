@@ -15,6 +15,8 @@ import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.scoreboard.ScoreObjective;
+import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -31,6 +33,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class EventRegistry {
 
+	public boolean isInSkyblock = false;
 	@SubscribeEvent
 	public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
 		if(CoflSky.Wrapper.isRunning) {
@@ -206,5 +209,30 @@ public class EventRegistry {
 	@SubscribeEvent
     public void OnRenderTick(TickEvent.RenderTickEvent event) {
 		CountdownTimer.onRenderTick(event);
+	}
+
+	int UpdateThisTick = 0;
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onTick(TickEvent.ClientTickEvent event) {
+		UpdateThisTick++;
+		if (UpdateThisTick >= 200) UpdateThisTick = 0;
+		if (UpdateThisTick == 0) {
+			String s;
+			try {
+				Scoreboard scoreboard = Minecraft.getMinecraft().theWorld.getScoreboard();
+				ScoreObjective objective = scoreboard.getObjectiveInDisplaySlot(1);
+				s = objective.getDisplayName();
+			} catch (Exception e) {
+				s = "";
+			}
+			if (s.contains("SKYBLOCK") && isInSkyblock == false) {
+				CoflSky.Wrapper.stop();
+				CoflSky.Wrapper.startConnection();
+				isInSkyblock = true;
+			} else if (!s.contains("SKYBLOCK") && isInSkyblock == true) {
+				CoflSky.Wrapper.stop();
+				isInSkyblock = false;
+			}
+		}
 	}
 }
