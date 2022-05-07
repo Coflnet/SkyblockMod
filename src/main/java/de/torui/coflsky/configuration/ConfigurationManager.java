@@ -1,6 +1,7 @@
 package de.torui.coflsky.configuration;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
@@ -62,6 +63,12 @@ public class ConfigurationManager {
 				break;
 			case "java.lang.String":
 				if (f.get(old) != null && !f.get(old).equals(f.get(newConfiguration))) {
+					UpdatedProperty(f);
+					updatedProperties++;
+				}
+				break;
+			case "java.lang.String[]":
+				if(!Arrays.deepEquals((String[]) f.get(old), (String[]) f.get(newConfiguration))){
 					UpdatedProperty(f);
 					updatedProperties++;
 				}

@@ -17,20 +17,21 @@ public class Configuration {
 		instance = config;
 	}
 
-	public String chatRegex = "";
+	public String ChatRegex;
+	public boolean CollectChat;
+	public boolean CollectInventory;
+	public boolean CollectTab;
+	public boolean CollectScoreboard;
+	public boolean AllowProxy;
+	public boolean CollectInvClick;
+	public boolean CollectChatClicks;
+	public boolean CollectLobbyChanges;
+	public boolean CollectEntities;
 
-	public String commandPrefixes = "";
-	
-	public boolean collectChat;
-	public boolean collectInventories;
-	public boolean collectTab;
-	public boolean collectScoreboard;
-	public boolean allowProxyUsage;
-	public boolean collectInvClick;
-	public boolean collectChatClicks;
-	public boolean collectLobbyChanges;
-	public boolean collectCoordinates;
-	public boolean collectEntities;
-	public boolean extendDescriptions;
+	@Description("Wherever or not to send item descriptions for extending to the server")
+	public boolean ExtendDescriptions;
+
+	@Description("Chat input starting with one of these prefixes is sent to the server")
+	public String[] CommandPrefixes;
 
 }
