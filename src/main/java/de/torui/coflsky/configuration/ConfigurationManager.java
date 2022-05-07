@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
@@ -12,101 +13,107 @@ import net.minecraft.util.IChatComponent;
 
 public class ConfigurationManager {
 
-	public Configuration Config;
+    public Configuration Config;
 
-	public ConfigurationManager() {
-		this.Config = Configuration.getInstance();
-	}
+    public ConfigurationManager() {
+        this.Config = Configuration.getInstance();
+    }
 
-	public void UpdateConfiguration(String data) {
+    public void UpdateConfiguration(String data) {
 
-		Configuration newConfig = WSClient.gson.fromJson(data, Configuration.class);
-		
-		if(newConfig ==null)
-		{
-			System.out.println("Could not deserialize configuration "+ data);
-		}
-		
-		
-		try {
-			if(CompareProperties(Config, newConfig)) {
-				Configuration.setInstance(newConfig);
-			}
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+        Configuration newConfig = WSClient.gson.fromJson(data, Configuration.class);
 
-	public boolean CompareProperties(Configuration old, Configuration newConfiguration)
-			throws IllegalArgumentException, IllegalAccessException {
+        if (newConfig == null) {
+            System.out.println("Could not deserialize configuration " + data);
+        }
 
-		int updatedProperties = 0;
-		for (Field f : Configuration.class.getFields()) {
-			
-			switch (f.getGenericType().getTypeName()) {
 
-			case "int":
-				if (f.getInt(old) != f.getInt(newConfiguration)) {
-					UpdatedProperty(f);
-					updatedProperties++;
-				}
-				break;
-			case "boolean":
-				if (f.getBoolean(old) != f.getBoolean(newConfiguration)) {
-					UpdatedProperty(f);
-					updatedProperties++;
-				}
-				break;
-			case "java.lang.String":
-				if (f.get(old) != null && !f.get(old).equals(f.get(newConfiguration))) {
-					UpdatedProperty(f);
-					updatedProperties++;
-				}
-				break;
-			case "java.lang.String[]":
-				if(!Arrays.deepEquals((String[]) f.get(old), (String[]) f.get(newConfiguration))){
-					UpdatedProperty(f);
-					updatedProperties++;
-				}
-				break;
+        try {
+            if (CompareProperties(Config, newConfig)) {
+                Configuration.setInstance(newConfig);
+            }
+        } catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
-			default:
-				throw new RuntimeException("Invalid Configuration Type " + f.getGenericType().getTypeName());
-			}
+    public boolean CompareProperties(Configuration old, Configuration newConfiguration)
+            throws IllegalArgumentException, IllegalAccessException {
 
-		}
+        int updatedProperties = 0;
+        for (Field f : Configuration.class.getFields()) {
 
-		return updatedProperties > 0;
-	}
+            switch (f.getGenericType().getTypeName()) {
 
-	public void UpdatedProperty(Field propertyName) {
-		Description description = propertyName.getAnnotation(Description.class);
-		IChatComponent comp;
-		if (description != null) {
+                case "int":
+                    if (f.getInt(old) != f.getInt(newConfiguration)) {
+                        UpdatedProperty(f);
+                        updatedProperties++;
+                    }
+                    break;
+                case "boolean":
+                    if (f.getBoolean(old) != f.getBoolean(newConfiguration)) {
+                        UpdatedProperty(f);
+                        updatedProperties++;
+                    }
+                    break;
+                case "java.lang.String":
 
-			comp = new ChatComponentText("The Configuration Setting ")
-					.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE))
-					.appendSibling(new ChatComponentText(description.value())
-							.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.WHITE))
-					.appendSibling(new ChatComponentText(" has been updated")
-							.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE))));
-		} else {
-			comp = new ChatComponentText("The Configuration Setting ")
-					.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE))
-					.appendSibling(new ChatComponentText(propertyName.getName())
-							.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.WHITE))
-					.appendSibling(new ChatComponentText(" has been updated")
-							.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE))));
-			
-			
-			System.out.println("Field " + propertyName.getName() + " has no description!");
-		}
-		
-		Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
-	}
+                    if (f.get(old) != null && !f.get(old).equals(f.get(newConfiguration))) {
+                        UpdatedProperty(f);
+                        updatedProperties++;
+                    }
+                    break;
+                case "java.lang.String[]":
+                    if (!Arrays.deepEquals((String[]) f.get(old), (String[]) f.get(newConfiguration))) {
+                        UpdatedProperty(f);
+                        updatedProperties++;
+                    }
+                    break;
+
+                default:
+                    throw new RuntimeException("Invalid Configuration Type " + f.getGenericType().getTypeName());
+            }
+
+        }
+
+        return updatedProperties > 0;
+    }
+
+    private IChatComponent GetNameFormatted(Field propertyName) {
+        Description description = propertyName.getAnnotation(Description.class);
+        ChatComponentText toReturn = new ChatComponentText(propertyName.getName());
+
+        ChatStyle style = new ChatStyle();
+        style.setColor(EnumChatFormatting.WHITE);
+
+        if (description != null) {
+            style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    new ChatComponentText(description.value())));
+        }
+
+        return toReturn.setChatStyle(style);
+
+    }
+
+    public void UpdatedProperty(Field propertyName) {
+        IChatComponent comp;
+
+        comp = new ChatComponentText("The Configuration Setting ")
+                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE))
+                .appendSibling(GetNameFormatted(propertyName))
+                .appendSibling(new ChatComponentText(" has been updated")
+                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE)));
+
+
+        System.out.println("Field " + propertyName.getName() + " has no description!");
+
+
+        Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
+    }
 
 }

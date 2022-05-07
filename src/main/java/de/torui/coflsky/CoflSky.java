@@ -40,7 +40,6 @@ public class CoflSky
     @EventHandler
     public void init(FMLInitializationEvent event) throws URISyntaxException
     {
-        
 		System.out.println(">>>Started");
         
         CoflSky.Wrapper = new WSClientWrapper(webSocketURIPrefix);
