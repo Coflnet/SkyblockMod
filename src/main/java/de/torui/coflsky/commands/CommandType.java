@@ -35,6 +35,8 @@ public enum CommandType {
 	Reset,
 	@SerializedName("flip")
 	Flip,
+	@SerializedName("privacySettings")
+	PrivacySettings,
 	@SerializedName("countdown")
 	Countdown, 
 ;

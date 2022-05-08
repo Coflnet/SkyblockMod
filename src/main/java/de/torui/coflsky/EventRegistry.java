@@ -208,7 +208,7 @@ public class EventRegistry {
 
 	@SubscribeEvent
     public void OnRenderTick(TickEvent.RenderTickEvent event) {
-		CountdownTimer.onRenderTick(event);
+		de.torui.coflsky.CountdownTimer.onRenderTick(event);
 	}
 
 	int UpdateThisTick = 0;
