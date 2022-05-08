@@ -8,6 +8,7 @@ import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.ChatMessageData;
 import de.torui.coflsky.commands.models.FlipData;
 import de.torui.coflsky.commands.models.SoundData;
+import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.commands.models.TimerData;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
@@ -48,6 +49,8 @@ public class WSCommandHandler {
 		case Flip:
 			Flip(cmd.GetAs(new TypeToken<FlipData>() {}));
 			break;
+		case PrivacySettings:
+			new ConfigurationManager().UpdateConfiguration(cmd.getData());
 		case Countdown:
 			StartTimer(cmd.GetAs(new TypeToken<TimerData>() {}));
 			break;
@@ -92,7 +95,7 @@ public class WSCommandHandler {
 	 * Starts a countdown
 	 */
 	private static void StartTimer(Command<TimerData> cmd) {
-		CountdownTimer.startCountdown(cmd.getData());
+		de.torui.coflsky.CountdownTimer.startCountdown(cmd.getData());
 	}
 
 	public static void Execute(String cmd, Entity sender)
