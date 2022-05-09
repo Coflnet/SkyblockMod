@@ -11,6 +11,7 @@ import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.AuctionData;
+import de.torui.coflsky.configuration.Configuration;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -250,32 +251,34 @@ public class EventRegistry {
 				boolean hasFoundCatacombs = false;
 				for (int i = 0;i < scoreBoardLines.size();i++){
 					String line = EnumChatFormatting.getTextWithoutFormattingCodes(scoreBoardLines.get(size-i).toLowerCase());
-					System.out.println("In line:"+line);
 					if (line.contains("the catacombs")) {
 						hasFoundCatacombs = true;
-					} else if (line.contains("purse")) {
-						int purse_ = 0;
-						try {
-							purse_ = Integer.parseInt(line.split(": ")[1].replace(",",""));
-						} catch (NumberFormatException e){
-							e.printStackTrace();
-						}
-						if (purse != purse_){
-							purse = purse_;
-							Command<Integer> data = new Command<>(CommandType.updatePurse, purse);
-							CoflSky.Wrapper.SendMessage(data);
-						}
-					} else if (line.contains("bits")) {
-						int bits_ = 0;
-						try {
-							bits_ = Integer.parseInt(line.split(": ")[1].replace(",",""));
-						} catch (NumberFormatException e){
-							e.printStackTrace();
-						}
-						if (bits != bits_){
-							bits = bits_;
-							Command<Integer> data = new Command<>(CommandType.updateBits, bits);
-							CoflSky.Wrapper.SendMessage(data);
+					}
+					if (Configuration.getInstance().collectScoreboard) {
+						if (line.contains("purse")) {
+							int purse_ = 0;
+							try {
+								purse_ = Integer.parseInt(line.split(": ")[1].replace(",", ""));
+							} catch (NumberFormatException e) {
+								e.printStackTrace();
+							}
+							if (purse != purse_) {
+								purse = purse_;
+								Command<Integer> data = new Command<>(CommandType.updatePurse, purse);
+								CoflSky.Wrapper.SendMessage(data);
+							}
+						} else if (line.contains("bits")) {
+							int bits_ = 0;
+							try {
+								bits_ = Integer.parseInt(line.split(": ")[1].replace(",", ""));
+							} catch (NumberFormatException e) {
+								e.printStackTrace();
+							}
+							if (bits != bits_) {
+								bits = bits_;
+								Command<Integer> data = new Command<>(CommandType.updateBits, bits);
+								CoflSky.Wrapper.SendMessage(data);
+							}
 						}
 					}
 
@@ -290,8 +293,7 @@ public class EventRegistry {
 					Command<String> data = new Command<>(CommandType.set, "disableFlips false");
 					CoflSky.Wrapper.SendMessage(data);
 					isInTheCatacombs = false;
-				}
-				System.out.println("In Catacombs:"+isInTheCatacombs);
+				}	
 			}
 		}
 	}

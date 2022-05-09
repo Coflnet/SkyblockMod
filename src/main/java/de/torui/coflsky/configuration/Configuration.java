@@ -17,16 +17,16 @@ public class Configuration {
 		instance = config;
 	}
 
-	public String ChatRegex;
-	public boolean CollectChat;
-	public boolean CollectInventory;
-	public boolean CollectTab;
-	public boolean CollectScoreboard;
-	public boolean AllowProxy;
-	public boolean CollectInvClick;
-	public boolean CollectChatClicks;
-	public boolean CollectLobbyChanges;
-	public boolean CollectEntities;
+	public String chatRegex;
+	public boolean collectChat;
+	public boolean collectInventory;
+	public boolean collectTab;
+	public boolean collectScoreboard;
+	public boolean allowProxy;
+	public boolean collectInvClick;
+	public boolean collectChatClicks;
+	public boolean collectLobbyChanges;
+	public boolean collectEntities;
 
 	@Description("Wherever or not to send item descriptions for extending to the server")
 	public boolean ExtendDescriptions;
