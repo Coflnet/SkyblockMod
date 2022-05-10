@@ -161,7 +161,7 @@ public class EventHandler {
         }
     }
     private static void ProcessScoreboard(String line){
-        if (line.contains("purse")) {
+        if (line.contains("purse") || line.contains("piggy")) {
             int purse_ = 0;
             try {
                 purse_ = Integer.parseInt(line.split(": ")[1].replace(",", ""));
