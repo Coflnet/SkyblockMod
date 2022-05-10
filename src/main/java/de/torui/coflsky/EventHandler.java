@@ -25,7 +25,7 @@ public class EventHandler {
     private static String server = "";
 
     public static void TabMenuData() {
-        if (isInSkyblock ){
+        if (isInSkyblock && CoflSky.Wrapper.isRunning){
             List<String> tabdata = getTabList();
             int size = tabdata.size() - 1;
             for (int i = 0; i < tabdata.size(); i++) {
@@ -44,7 +44,7 @@ public class EventHandler {
             s = "";
         }
         checkIfInSkyblock(s);
-        if (isInSkyblock) {
+        if (isInSkyblock && CoflSky.Wrapper.isRunning) {
             List<String> scoreBoardLines = getScoreboard();
             int size = scoreBoardLines.size() - 1;
             boolean hasFoundCatacombs = false;
