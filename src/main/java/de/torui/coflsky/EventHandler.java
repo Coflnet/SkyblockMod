@@ -30,21 +30,7 @@ public class EventHandler {
             int size = tabdata.size() - 1;
             for (int i = 0; i < tabdata.size(); i++) {
                 String line = tabdata.get(size - i).toLowerCase();
-                if (line.contains("server:")) {
-                    String server_ = line.split("server: ")[1];
-                    if (!server.equals(server_)) {
-                        server = server_;
-                        Command<String> data = new Command<>(CommandType.updateServer, server);
-                        CoflSky.Wrapper.SendMessage(data);
-                    }
-                } else if (line.contains("area:")) {
-                    String location_ = line.split("area: ")[1];
-                    if (!location.equals(location_)) {
-                        location = location_;
-                        Command<String> data = new Command<>(CommandType.updateLocation, location);
-                        CoflSky.Wrapper.SendMessage(data);
-                    }
-                }
+                ProcessTabMenu(line);
             }
         }
     }
@@ -57,14 +43,7 @@ public class EventHandler {
         } catch (Exception e) {
             s = "";
         }
-        if (s.contains("SKYBLOCK") && !isInSkyblock) {
-            CoflSky.Wrapper.stop();
-            CoflSky.Wrapper.startConnection();
-            isInSkyblock = true;
-        } else if (!s.contains("SKYBLOCK") && isInSkyblock) {
-            CoflSky.Wrapper.stop();
-            isInSkyblock = false;
-        }
+        checkIfInSkyblock(s);
         if (isInSkyblock) {
             List<String> scoreBoardLines = getScoreboard();
             int size = scoreBoardLines.size() - 1;
@@ -75,31 +54,7 @@ public class EventHandler {
                     hasFoundCatacombs = true;
                 }
                 if (Configuration.getInstance().collectScoreboard) {
-                    if (line.contains("purse")) {
-                        int purse_ = 0;
-                        try {
-                            purse_ = Integer.parseInt(line.split(": ")[1].replace(",", ""));
-                        } catch (NumberFormatException e) {
-                            e.printStackTrace();
-                        }
-                        if (purse != purse_) {
-                            purse = purse_;
-                            Command<Integer> data = new Command<>(CommandType.updatePurse, purse);
-                            CoflSky.Wrapper.SendMessage(data);
-                        }
-                    } else if (line.contains("bits")) {
-                        int bits_ = 0;
-                        try {
-                            bits_ = Integer.parseInt(line.split(": ")[1].replace(",", ""));
-                        } catch (NumberFormatException e) {
-                            e.printStackTrace();
-                        }
-                        if (bits != bits_) {
-                            bits = bits_;
-                            Command<Integer> data = new Command<>(CommandType.updateBits, bits);
-                            CoflSky.Wrapper.SendMessage(data);
-                        }
-                    }
+                    ProcessScoreboard(line);
                 }
 
             }
@@ -115,7 +70,7 @@ public class EventHandler {
             }
         }
     }
-    public static List<String> getScoreboard() {
+    private static List<String> getScoreboard() {
         ArrayList<String> scoreboardAsText = new ArrayList<>();
         if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().theWorld == null) {
             return scoreboardAsText;
@@ -142,7 +97,7 @@ public class EventHandler {
         return scoreboardAsText;
     }
 
-    public static List<String> getTabList() {
+    private static List<String> getTabList() {
         ArrayList<String> tabListAsString = new ArrayList<>();
         if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().getNetHandler() == null) {
             return tabListAsString;
@@ -159,4 +114,59 @@ public class EventHandler {
         }
         return tabListAsString;
     }
+    private static void ProcessTabMenu(String line) {
+        if (line.contains("server:")) {
+            String server_ = line.split("server: ")[1];
+            if (!server.equals(server_)) {
+                server = server_;
+                Command<String> data = new Command<>(CommandType.updateServer, server);
+                CoflSky.Wrapper.SendMessage(data);
+            }
+        } else if (line.contains("area:")) {
+            String location_ = line.split("area: ")[1];
+            if (!location.equals(location_)) {
+                location = location_;
+                Command<String> data = new Command<>(CommandType.updateLocation, location);
+                CoflSky.Wrapper.SendMessage(data);
+            }
+        }
+    }
+    private static void checkIfInSkyblock(String s) {
+        if (s.contains("SKYBLOCK") && !isInSkyblock) {
+            CoflSky.Wrapper.stop();
+            CoflSky.Wrapper.startConnection();
+            isInSkyblock = true;
+        } else if (!s.contains("SKYBLOCK") && isInSkyblock) {
+            CoflSky.Wrapper.stop();
+            isInSkyblock = false;
+        }
+    }
+    private static void ProcessScoreboard(String line){
+        if (line.contains("purse")) {
+            int purse_ = 0;
+            try {
+                purse_ = Integer.parseInt(line.split(": ")[1].replace(",", ""));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+            if (purse != purse_) {
+                purse = purse_;
+                Command<Integer> data = new Command<>(CommandType.updatePurse, purse);
+                CoflSky.Wrapper.SendMessage(data);
+            }
+        } else if (line.contains("bits")) {
+            int bits_ = 0;
+            try {
+                bits_ = Integer.parseInt(line.split(": ")[1].replace(",", ""));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+            if (bits != bits_) {
+                bits = bits_;
+                Command<Integer> data = new Command<>(CommandType.updateBits, bits);
+                CoflSky.Wrapper.SendMessage(data);
+            }
+        }
+    }
+
 }
