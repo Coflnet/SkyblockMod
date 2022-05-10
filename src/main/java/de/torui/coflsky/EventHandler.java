@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static de.torui.coflsky.CoflSky.config;
+
 public class EventHandler {
 
     public static boolean isInSkyblock = false;
@@ -133,11 +135,15 @@ public class EventHandler {
     }
     private static void checkIfInSkyblock(String s) {
         if (s.contains("SKYBLOCK") && !isInSkyblock) {
-            CoflSky.Wrapper.stop();
-            CoflSky.Wrapper.startConnection();
+            if (config.autoStart){
+                CoflSky.Wrapper.stop();
+                CoflSky.Wrapper.startConnection();
+            }
             isInSkyblock = true;
         } else if (!s.contains("SKYBLOCK") && isInSkyblock) {
-            CoflSky.Wrapper.stop();
+            if (config.autoStart){
+                CoflSky.Wrapper.stop();
+            }
             isInSkyblock = false;
         }
     }
