@@ -39,7 +39,7 @@ public class EventHandler {
         try {
             Scoreboard scoreboard = Minecraft.getMinecraft().theWorld.getScoreboard();
             ScoreObjective objective = scoreboard.getObjectiveInDisplaySlot(1);
-            s = objective.getDisplayName();
+            s = EnumChatFormatting.getTextWithoutFormattingCodes(objective.getDisplayName());
         } catch (Exception e) {
             s = "";
         }
