@@ -45,6 +45,10 @@ public enum CommandType {
 	updatePurse,
 	@SerializedName("updateBits")
 	updateBits,
+	@SerializedName("updateServer")
+	updateServer,
+	@SerializedName("updateLocation")
+	updateLocation,
 	;
 	public static Map<CommandType,String> data;
 	static {
