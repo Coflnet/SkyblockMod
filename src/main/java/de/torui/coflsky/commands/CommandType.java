@@ -9,6 +9,8 @@ import com.google.gson.annotations.SerializedName;
 public enum CommandType {
 	@SerializedName("writeToChat")
 	WriteToChat,
+	@SerializedName("set")
+	set,
 
 	@SerializedName("execute")
 	Execute,
@@ -38,8 +40,18 @@ public enum CommandType {
 	@SerializedName("privacySettings")
 	PrivacySettings,
 	@SerializedName("countdown")
-	Countdown, 
-;
+	Countdown,
+	@SerializedName("updatePurse")
+	updatePurse,
+	@SerializedName("updateBits")
+	updateBits,
+	@SerializedName("updateServer")
+	updateServer,
+	@SerializedName("updateLocation")
+	updateLocation,
+	@SerializedName("chatBatch")
+	chatBatch,
+	;
 	public static Map<CommandType,String> data;
 	static {
 		data = new HashMap<>();

@@ -1,6 +1,11 @@
 package de.torui.coflsky;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.mojang.realmsclient.util.Pair;
 
 import de.torui.coflsky.FlipHandler.Flip;
@@ -8,6 +13,7 @@ import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.AuctionData;
+import de.torui.coflsky.configuration.Configuration;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -29,8 +35,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-public class EventRegistry {
+import static de.torui.coflsky.EventHandler.ScoreboardData;
+import static de.torui.coflsky.EventHandler.TabMenuData;
 
+public class EventRegistry {
+	public static Pattern chatpattern = Pattern.compile(Configuration.getInstance().chatRegex, Pattern.CASE_INSENSITIVE);
+	public final ExecutorService chatThreadPool = Executors.newFixedThreadPool(2);
+	public final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2);
 	@SubscribeEvent
 	public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
 		if(CoflSky.Wrapper.isRunning) {
@@ -123,26 +134,16 @@ public class EventRegistry {
 	
 	@SubscribeEvent
 	public void HandleChatEvent(ClientChatReceivedEvent sce) {
-		if(CoflSky.Wrapper.isRunning && last.first() != null) {
-			if(sce.message.getUnformattedText().startsWith("You claimed ")) {
-				
-				AuctionData ad = new AuctionData();
-				ad.setItemId(last.second().first());
-				
-				if((LastViewAuctionInvocation+60*1000) >=  System.currentTimeMillis()) {
-					ad.setAuctionId(LastViewAuctionUUID);
-				} else {
-					ad.setAuctionId("");
+		if(CoflSky.Wrapper.isRunning) {
+			chatThreadPool.submit(() -> {
+				String msg = sce.message.getUnformattedText();
+				Matcher matcher = chatpattern.matcher(msg);
+				boolean matchFound = matcher.find();
+				if (matchFound) {
+					Command<String[]> data = new Command<>(CommandType.chatBatch, new  String[]{msg});
+					CoflSky.Wrapper.SendMessage(data);
 				}
-				
-				Command<AuctionData> data = new Command<>(CommandType.PurchaseConfirm, ad);
-				CoflSky.Wrapper.SendMessage(data);
-				System.out.println("PurchaseConfirm");
-				last = EMPTY;
-			}
-			else if(last.second().second().plusSeconds(10).isBefore(LocalDateTime.now())) {
-				last = EMPTY;
-			}
+			});
 		}
 		
 	}
@@ -206,5 +207,18 @@ public class EventRegistry {
 	@SubscribeEvent
     public void OnRenderTick(TickEvent.RenderTickEvent event) {
 		de.torui.coflsky.CountdownTimer.onRenderTick(event);
+	}
+
+	int UpdateThisTick = 0;
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onTick(TickEvent.ClientTickEvent event) {
+		UpdateThisTick++;
+		if (UpdateThisTick >= 200) UpdateThisTick = 0;
+		if (UpdateThisTick == 0) {
+			tickThreadPool.submit(() -> {
+				ScoreboardData();
+				TabMenuData();
+			});
+		}
 	}
 }

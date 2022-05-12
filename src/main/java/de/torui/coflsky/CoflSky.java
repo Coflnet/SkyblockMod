@@ -1,12 +1,18 @@
 package de.torui.coflsky;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
+import com.google.gson.Gson;
+import de.torui.coflsky.configuration.LocalConfig;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
-import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.network.WSClientWrapper;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -27,6 +33,9 @@ public class CoflSky
     public static KeyBinding[] keyBindings;
 
     public static EventRegistry Events;
+    public static File configFile;
+    private File coflDir;
+    public static LocalConfig config;
     
     public static final String[] webSocketURIPrefix = new String [] {
         	"wss://sky.coflnet.com/modsocket",
@@ -36,7 +45,25 @@ public class CoflSky
     };
     
     public static String CommandUri = "https://sky-commands.coflnet.com/api/mod/commands";
-    
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        String configString = null;
+        Gson gson = new Gson();
+        coflDir = new File(event.getModConfigurationDirectory(), "CoflSky");
+        coflDir.mkdirs();
+        configFile = new File(coflDir, "config.json");
+        try {
+            if (configFile.isFile()) {
+                configString = new String(Files.readAllBytes(Paths.get(configFile.getPath())));
+                config = gson.fromJson(configString, LocalConfig.class);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (configString == null) {
+            config =  LocalConfig.createDefaultConfig();
+        }
+    }
     @EventHandler
     public void init(FMLInitializationEvent event) throws URISyntaxException
     {
@@ -62,7 +89,11 @@ public class CoflSky
         	
         }   
         Events = new EventRegistry();
-        MinecraftForge.EVENT_BUS.register(Events);	   
+        MinecraftForge.EVENT_BUS.register(Events);
+        Runtime.getRuntime()
+                .addShutdownHook(
+                        new Thread(
+                                () -> config.saveConfig(configFile , config)));
     }   
 
     
