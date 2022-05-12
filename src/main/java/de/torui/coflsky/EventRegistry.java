@@ -39,7 +39,7 @@ import static de.torui.coflsky.EventHandler.ScoreboardData;
 import static de.torui.coflsky.EventHandler.TabMenuData;
 
 public class EventRegistry {
-	Pattern chatpattern = Pattern.compile(Configuration.getInstance().chatRegex, Pattern.CASE_INSENSITIVE);
+	public static Pattern chatpattern = Pattern.compile(Configuration.getInstance().chatRegex, Pattern.CASE_INSENSITIVE);
 	public final ExecutorService chatThreadPool = Executors.newFixedThreadPool(2);
 	public final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2);
 	@SubscribeEvent

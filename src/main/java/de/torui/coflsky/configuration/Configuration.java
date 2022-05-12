@@ -1,6 +1,9 @@
 package de.torui.coflsky.configuration;
 
 import de.torui.coflsky.CoflSky;
+import de.torui.coflsky.EventRegistry;
+
+import java.util.regex.Pattern;
 
 public class Configuration {
 	public Configuration() {
@@ -18,6 +21,7 @@ public class Configuration {
 	public static void setInstance(Configuration config) {
 		instance = config;
 		CoflSky.config.autoStart = instance.autoStart;
+		EventRegistry.chatpattern = Pattern.compile(instance.chatRegex, Pattern.CASE_INSENSITIVE);;
 	}
 
 	public String chatRegex;
