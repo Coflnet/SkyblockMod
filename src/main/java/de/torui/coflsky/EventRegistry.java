@@ -156,52 +156,45 @@ public class EventRegistry {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void OnGuiClick(GuiScreenEvent.MouseInputEvent mie) {
-		if (CoflSky.Wrapper.isRunning) {
-			if (mie.gui instanceof GuiChest) { // verify that it's really a chest
+		if (!CoflSky.Wrapper.isRunning) return;
+		if (!(mie.gui instanceof GuiChest)) return; // verify that it's really a chest
+		if (!(((GuiChest) mie.gui).inventorySlots instanceof ContainerChest)) return;
+		ContainerChest chest = (ContainerChest) ((GuiChest) mie.gui).inventorySlots;
+		IInventory inv = chest.getLowerChestInventory();
+		if (inv.hasCustomName()) { // verify that the chest actually has a custom name
+			String chestName = inv.getName();
 
-				ContainerChest chest = (ContainerChest) ((GuiChest) mie.gui).inventorySlots;
+			if (chestName.equalsIgnoreCase("BIN Auction View") || chestName.equalsIgnoreCase("Ekwav")) {
 
-				IInventory inv = chest.getLowerChestInventory();
-				if (inv.hasCustomName()) { // verify that the chest actually has a custom name
-					String chestName = inv.getName();
+				ItemStack heldItem = Minecraft.getMinecraft().thePlayer.inventory.getItemStack();
 
-					if (chestName.equalsIgnoreCase("BIN Auction View") || chestName.equalsIgnoreCase("Ekwav")) {
-					
-						ItemStack heldItem = Minecraft.getMinecraft().thePlayer.inventory.getItemStack();
-						
-						if (heldItem != null) {
-							System.out.println("Clicked on: " + heldItem.getItem().getRegistryName());
-							
-							String itemUUID = ExtractUuidFromInventory(inv);
-							
-							if(System.currentTimeMillis() > lastStartTime) {
-								
-								if (heldItem.isItemEqual(GOLD_NUGGET)) {
-									AuctionData ad = new AuctionData();
-									ad.setItemId(itemUUID);
-														
-									if((LastViewAuctionInvocation+60*1000) >=  System.currentTimeMillis()) {
-										ad.setAuctionId(LastViewAuctionUUID);
-									} else {
-										ad.setAuctionId("");
-									}
-									
-									Command<AuctionData> data = new Command<>(CommandType.PurchaseStart, ad);
-									CoflSky.Wrapper.SendMessage(data);
-									System.out.println("PurchaseStart");
-									last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
-									lastStartTime = System.currentTimeMillis() + 200 /*ensure a small debounce*/;
-								} 
+				if (heldItem != null) {
+					System.out.println("Clicked on: " + heldItem.getItem().getRegistryName());
+
+					String itemUUID = ExtractUuidFromInventory(inv);
+
+					if(System.currentTimeMillis() > lastStartTime) {
+
+						if (heldItem.isItemEqual(GOLD_NUGGET)) {
+							AuctionData ad = new AuctionData();
+							ad.setItemId(itemUUID);
+
+							if((LastViewAuctionInvocation+60*1000) >=  System.currentTimeMillis()) {
+								ad.setAuctionId(LastViewAuctionUUID);
+							} else {
+								ad.setAuctionId("");
 							}
-						
-						}
 
+							Command<AuctionData> data = new Command<>(CommandType.PurchaseStart, ad);
+							CoflSky.Wrapper.SendMessage(data);
+							System.out.println("PurchaseStart");
+							last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
+							lastStartTime = System.currentTimeMillis() + 200 /*ensure a small debounce*/;
+						}
 					}
 				}
 			}
-
 		}
-
 	}
 
 	@SubscribeEvent
