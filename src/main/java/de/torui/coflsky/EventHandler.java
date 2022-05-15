@@ -3,9 +3,20 @@ package de.torui.coflsky;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.configuration.Configuration;
+import de.torui.coflsky.network.QueryServerCommands;
+import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.event.ClickEvent;
+import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
@@ -13,10 +24,12 @@ import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
 
 import static de.torui.coflsky.CoflSky.config;
 
@@ -188,4 +201,148 @@ public class EventHandler {
         }
     }
 
+    private static class InventoryWrapper {
+        public String chestName;
+        public String fullInventoryNbt;
+    }
+    private class DescModification {
+        public String type;
+        public String target;
+        public String value;
+    }
+
+    public static HashMap<ItemStack, DescModification[]> tooltipItemMap = new HashMap<ItemStack, DescModification[]>();
+    public static HashMap<String, DescModification[]> tooltipItemUuidMap = new HashMap<String, DescModification[]>();
+    public static HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<String, DescModification[]>();
+
+    public static final DescModification[] EMPTY_ARRAY = new DescModification[0];
+    public static final NBTTagCompound EMPTY_COMPOUND = new NBTTagCompound();
+
+    public static String ExtractStackableIdFromItemStack(ItemStack stack) {
+        if (stack != null) {
+            try {
+                String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes")
+                        .getString("id");
+                if (uuid.length() == 0) {
+                    throw new Exception();
+                }
+                return uuid;
+            } catch (Exception e) {
+            }
+        }
+        return "";
+    }
+    public static String ExtractUuidFromItemStack(ItemStack stack) {
+        if (stack != null) {
+            try {
+                String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes")
+                        .getString("uuid");
+                if (uuid.length() == 0) {
+                    throw new Exception();
+                }
+                return uuid;
+            } catch (Exception e) {
+            }
+        }
+        return "";
+    }
+
+    public static void GuiEventHandler(GuiOpenEvent event) {
+        if (event.gui instanceof GuiContainer/* && GuiScreen.isShiftKeyDown()*/) {
+            new Thread(() -> {
+                InventoryWrapper wrapper = new InventoryWrapper();
+
+                GuiContainer gc = (GuiContainer) event.gui;
+
+                if (event.gui instanceof GuiChest) {
+                    ContainerChest chest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
+
+                    IInventory inv = chest.getLowerChestInventory();
+                    if (inv.hasCustomName()) {
+                        // verify that the chest actually has a custom name
+                        String chestName = inv.getName();
+                        wrapper.chestName = chestName;
+                    }
+                }
+
+                NBTTagCompound compound = new NBTTagCompound();
+                NBTTagList tl = new NBTTagList();
+
+                for (Slot obj : gc.inventorySlots.inventorySlots) {
+                    ItemStack stack = obj.getStack();
+                    if (stack != null) {
+                        tl.appendTag(stack.serializeNBT());
+                    } else {
+                        tl.appendTag(EMPTY_COMPOUND);
+                    }
+                }
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                try {
+                    compound.setTag("i", tl);
+                    CompressedStreamTools.writeCompressed(compound, baos);
+
+                    wrapper.fullInventoryNbt = Base64.getEncoder().encodeToString(baos.toByteArray());
+
+                    String data = WSClient.gson.toJson(wrapper);
+                    String info = QueryServerCommands.PostRequest("https://sky.coflnet.com/api/mod/description/modifications", data);
+
+                    DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
+                    int i = 0;
+                    for (Slot obj : gc.inventorySlots.inventorySlots) {
+                        ItemStack stack = obj.getStack();
+                        if (stack != null) {
+                            tooltipItemMap.put(stack, arr[i]);
+                            String uuid = ExtractUuidFromItemStack(stack);
+                            if(uuid.length()>0){
+                                tooltipItemUuidMap.put(uuid, arr[i]);
+                            }
+
+                            String id = ExtractStackableIdFromItemStack(stack);
+                            if(id.length()>0){
+                                tooltipItemIdMap.put(id, arr[i]);
+                            }
+
+                        }
+                        i++;
+                    }
+
+                } catch (IOException e) {
+                }
+
+            }).start();
+        }
+    }
+
+    private static DescModification[] getTooltipData(ItemStack itemStack) {
+        if (tooltipItemMap.containsKey(itemStack)) {
+            return tooltipItemMap.getOrDefault(itemStack, EMPTY_ARRAY);
+        }
+        if(!itemStack.isStackable()){
+            String id = ExtractUuidFromItemStack(itemStack);
+            if (tooltipItemUuidMap.containsKey(id)) {
+                return tooltipItemUuidMap.getOrDefault(id, EMPTY_ARRAY);
+            }
+        } else {
+            String itemId = ExtractStackableIdFromItemStack(itemStack);
+            if(tooltipItemIdMap.containsKey(itemId)){
+                return tooltipItemIdMap.getOrDefault(itemId, EMPTY_ARRAY);
+            }
+        }
+
+        return EMPTY_ARRAY;
+    }
+
+    public static void onToolTipEventHandler(ItemTooltipEvent event) {
+        DescModification[] data = getTooltipData(event.itemStack);
+
+        if (data == null || data.length == 0)
+            return;
+
+        for (int i = 0; i < data.length; i++) {
+            if (data[i].type.equals("APPEND")){
+                event.toolTip.add(data[i].value);
+            }
+        }
+    }
 }

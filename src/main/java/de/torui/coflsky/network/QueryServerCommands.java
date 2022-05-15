@@ -1,9 +1,6 @@
 package de.torui.coflsky.network;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
@@ -37,7 +34,7 @@ public class QueryServerCommands {
 			
 		}
 		
-		return "§4ERROR: Could not connect to command server!";
+		return "ï¿½4ERROR: Could not connect to command server!";
 	}
 	
 	private static class CommandInfo {
@@ -100,6 +97,45 @@ public class QueryServerCommands {
 			e.printStackTrace();
 		}
 		
+		return null;
+	}
+	public static String PostRequest(String uri,  String data) {
+		try {
+			System.out.println("Get request");
+			URL url = new URL(uri);
+			HttpURLConnection con;
+			con = (HttpURLConnection) url.openConnection();
+			con.setRequestMethod("GET");
+
+			con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+			con.setRequestProperty("Accept", "application/json");
+			con.setRequestProperty("User-Agent", "CoflMod");
+			con.setDoInput(true);
+			con.setDoOutput(true);
+			// ...
+
+			OutputStream os = con.getOutputStream();
+			byte[] bytes = data.getBytes("UTF-8");
+			os.write(bytes);
+			os.close();
+
+			System.out.println("InputStream");
+			InputStream in = new BufferedInputStream(con.getInputStream());
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			for (int length; (length = in.read(buffer)) != -1; ) {
+				result.write(buffer, 0, length);
+			}
+			// StandardCharsets.UTF_8.name() > JDK 7
+			String resString =  result.toString("UTF-8");
+
+			System.out.println("Result= " + resString);
+			return resString;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 }

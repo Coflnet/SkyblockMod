@@ -13,7 +13,6 @@ import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.AuctionData;
-import de.torui.coflsky.configuration.Configuration;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -23,9 +22,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
@@ -35,8 +36,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import static de.torui.coflsky.EventHandler.ScoreboardData;
-import static de.torui.coflsky.EventHandler.TabMenuData;
+import static de.torui.coflsky.EventHandler.*;
 
 public class EventRegistry {
 	public static Pattern chatpattern = Pattern.compile("", Pattern.CASE_INSENSITIVE);
@@ -213,5 +213,14 @@ public class EventRegistry {
 				TabMenuData();
 			});
 		}
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onGuiOpen(GuiOpenEvent event) {
+		GuiEventHandler(event);
+	}
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void onItemTooltipEvent(ItemTooltipEvent event) {
+		onToolTipEventHandler(event);
 	}
 }
