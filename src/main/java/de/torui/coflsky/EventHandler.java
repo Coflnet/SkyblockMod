@@ -251,6 +251,11 @@ public class EventHandler {
     public static void GuiEventHandler(GuiOpenEvent event) {
         if (event.gui instanceof GuiContainer/* && GuiScreen.isShiftKeyDown()*/) {
             new Thread(() -> {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 InventoryWrapper wrapper = new InventoryWrapper();
 
                 GuiContainer gc = (GuiContainer) event.gui;
