@@ -120,7 +120,7 @@ public class EventHandler {
         return tabListAsString;
     }
     private static void ProcessTabMenu(String line) {
-        if (line.contains("server:") && Configuration.getInstance().collectLobbyChanges) {
+        if (Configuration.getInstance().collectLobbyChanges && line.contains("server:")) {
             String server_ = line.split("server: ")[1];
             if (!server.equals(server_)) {
                 server = server_;
