@@ -30,7 +30,7 @@ public class EventHandler {
     private static String server = "";
 
     public static void TabMenuData() {
-        if (isInSkyblock && CoflSky.Wrapper.isRunning){
+        if (isInSkyblock && CoflSky.Wrapper.isRunning && Configuration.getInstance().collectTab){
             List<String> tabdata = getTabList();
             int size = tabdata.size() - 1;
             for (int i = 0; i < tabdata.size(); i++) {
@@ -120,7 +120,7 @@ public class EventHandler {
         return tabListAsString;
     }
     private static void ProcessTabMenu(String line) {
-        if (line.contains("server:")) {
+        if (Configuration.getInstance().collectLobbyChanges && line.contains("server:")) {
             String server_ = line.split("server: ")[1];
             if (!server.equals(server_)) {
                 server = server_;
