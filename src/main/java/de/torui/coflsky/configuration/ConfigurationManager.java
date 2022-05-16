@@ -101,12 +101,7 @@ public class ConfigurationManager {
     }
 
     public void UpdatedProperty(Field propertyName) {
-        IChatComponent comp;
-        
         System.out.println("The Configuration Setting " + propertyName.getName() + " has been updated");
-
-
-        Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
     }
 
 }
