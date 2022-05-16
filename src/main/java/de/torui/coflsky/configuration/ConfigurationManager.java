@@ -51,26 +51,26 @@ public class ConfigurationManager {
 
                 case "int":
                     if (f.getInt(old) != f.getInt(newConfiguration)) {
-                        UpdatedProperty(f);
+                        UpdatedProperty(f,newConfiguration);
                         updatedProperties++;
                     }
                     break;
                 case "boolean":
                     if (f.getBoolean(old) != f.getBoolean(newConfiguration)) {
-                        UpdatedProperty(f);
+                        UpdatedProperty(f,newConfiguration);
                         updatedProperties++;
                     }
                     break;
                 case "java.lang.String":
 
                     if (f.get(old) != null && !f.get(old).equals(f.get(newConfiguration))) {
-                        UpdatedProperty(f);
+                        UpdatedProperty(f,newConfiguration);
                         updatedProperties++;
                     }
                     break;
                 case "java.lang.String[]":
                     if (!Arrays.deepEquals((String[]) f.get(old), (String[]) f.get(newConfiguration))) {
-                        UpdatedProperty(f);
+                        UpdatedProperty(f,newConfiguration);
                         updatedProperties++;
                     }
                     break;
@@ -100,8 +100,8 @@ public class ConfigurationManager {
 
     }
 
-    public void UpdatedProperty(Field propertyName) {
-        System.out.println("The Configuration Setting " + propertyName.getName() + " has been updated");
+    public void UpdatedProperty(Field propertyName,Configuration confignew) throws IllegalAccessException {
+        System.out.println("The Configuration Setting " + propertyName.getName() + " has been updated to " + propertyName.get(confignew));
     }
 
 }
