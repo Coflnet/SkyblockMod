@@ -102,15 +102,8 @@ public class ConfigurationManager {
 
     public void UpdatedProperty(Field propertyName) {
         IChatComponent comp;
-
-        comp = new ChatComponentText("The Configuration Setting ")
-                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE))
-                .appendSibling(GetNameFormatted(propertyName))
-                .appendSibling(new ChatComponentText(" has been updated")
-                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE)));
-
-
-        System.out.println("Field " + propertyName.getName() + " has no description!");
+        
+        System.out.println("The Configuration Setting " + propertyName.getName() + " has been updated");
 
 
         Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
