@@ -51,26 +51,26 @@ public class ConfigurationManager {
 
                 case "int":
                     if (f.getInt(old) != f.getInt(newConfiguration)) {
-                        UpdatedProperty(f);
+                        UpdatedProperty(f,newConfiguration);
                         updatedProperties++;
                     }
                     break;
                 case "boolean":
                     if (f.getBoolean(old) != f.getBoolean(newConfiguration)) {
-                        UpdatedProperty(f);
+                        UpdatedProperty(f,newConfiguration);
                         updatedProperties++;
                     }
                     break;
                 case "java.lang.String":
 
                     if (f.get(old) != null && !f.get(old).equals(f.get(newConfiguration))) {
-                        UpdatedProperty(f);
+                        UpdatedProperty(f,newConfiguration);
                         updatedProperties++;
                     }
                     break;
                 case "java.lang.String[]":
                     if (!Arrays.deepEquals((String[]) f.get(old), (String[]) f.get(newConfiguration))) {
-                        UpdatedProperty(f);
+                        UpdatedProperty(f,newConfiguration);
                         updatedProperties++;
                     }
                     break;
@@ -100,20 +100,8 @@ public class ConfigurationManager {
 
     }
 
-    public void UpdatedProperty(Field propertyName) {
-        IChatComponent comp;
-
-        comp = new ChatComponentText("The Configuration Setting ")
-                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE))
-                .appendSibling(GetNameFormatted(propertyName))
-                .appendSibling(new ChatComponentText(" has been updated")
-                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.BLUE)));
-
-
-        System.out.println("Field " + propertyName.getName() + " has no description!");
-
-
-        Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
+    public void UpdatedProperty(Field propertyName,Configuration confignew) throws IllegalAccessException {
+        System.out.println("The Configuration Setting " + propertyName.getName() + " has been updated to " + propertyName.get(confignew));
     }
 
 }
