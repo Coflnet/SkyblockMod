@@ -222,14 +222,11 @@ public class EventRegistry {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onGuiOpen(GuiOpenEvent event) {
+		emptyTooltipData();
 		if (!(event.gui instanceof GuiContainer)) return;
 		new Thread(() -> {
 			getTooltipDataFromBackend(event);
 		}).start();
-	}
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onGuiClose(){
-		emptyTooltipData();
 	}
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onItemTooltipEvent(ItemTooltipEvent event) {
