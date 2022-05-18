@@ -131,7 +131,6 @@ public class DescriptionHandler {
             int i = 0;
             for (Slot obj : gc.inventorySlots.inventorySlots) {
                 ItemStack stack = obj.getStack();
-                if (stack == null) continue;
                 tooltipItemMap.put(stack, arr[i]);
                 String uuid = ExtractUuidFromItemStack(stack);
                 if(uuid.length()>0) tooltipItemUuidMap.put(uuid, arr[i]);
