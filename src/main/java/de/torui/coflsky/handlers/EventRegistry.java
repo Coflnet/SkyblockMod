@@ -1,4 +1,4 @@
-package de.torui.coflsky;
+package de.torui.coflsky.handlers;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
@@ -8,7 +8,9 @@ import java.util.regex.Pattern;
 
 import com.mojang.realmsclient.util.Pair;
 
+import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.FlipHandler.Flip;
+import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
@@ -16,6 +18,7 @@ import de.torui.coflsky.commands.models.AuctionData;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -36,7 +39,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import static de.torui.coflsky.EventHandler.*;
+import static de.torui.coflsky.handlers.DescriptionHandler.getTooltipDataFromBackend;
+import static de.torui.coflsky.handlers.DescriptionHandler.setTooltips;
+import static de.torui.coflsky.handlers.EventHandler.*;
 
 public class EventRegistry {
 	public static Pattern chatpattern = Pattern.compile("", Pattern.CASE_INSENSITIVE);
@@ -120,7 +125,7 @@ public class EventRegistry {
 				return uuid;
 			} catch (Exception e) {
 				System.out.println("Clicked item " + stack.getDisplayName() + " has the following meta: "
-						+ stack.serializeNBT().toString());
+						+ stack.serializeNBT());
 			}
 		}
 		return "";
@@ -217,10 +222,13 @@ public class EventRegistry {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onGuiOpen(GuiOpenEvent event) {
-		GuiEventHandler(event);
+		if (!(event.gui instanceof GuiContainer)) return;
+		new Thread(() -> {
+			getTooltipDataFromBackend(event);
+		}).start();
 	}
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onItemTooltipEvent(ItemTooltipEvent event) {
-		onToolTipEventHandler(event);
+		setTooltips(event);
 	}
 }

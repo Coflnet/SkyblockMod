@@ -10,7 +10,7 @@ import de.torui.coflsky.commands.models.FlipData;
 import de.torui.coflsky.commands.models.SoundData;
 import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.commands.models.TimerData;
-import de.torui.coflsky.network.WSClient;
+import de.torui.coflsky.handlers.EventRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;

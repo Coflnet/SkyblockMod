@@ -1,7 +1,7 @@
 package de.torui.coflsky.configuration;
 
 import de.torui.coflsky.CoflSky;
-import de.torui.coflsky.EventRegistry;
+import de.torui.coflsky.handlers.EventRegistry;
 
 import java.util.regex.Pattern;
 
