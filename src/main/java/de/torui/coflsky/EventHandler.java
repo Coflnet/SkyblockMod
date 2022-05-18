@@ -223,7 +223,7 @@ public class EventHandler {
         if (stack != null) {
             try {
                 String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes")
-                        .getString("id");
+                        .getString("id") + ":" + stack.stackSize;
                 if (uuid.length() == 0) {
                     throw new Exception();
                 }
