@@ -168,4 +168,10 @@ public class DescriptionHandler {
             }
         }
     }
+
+    public static void emptyTooltipData(){
+        tooltipItemMap.clear();
+        tooltipItemIdMap.clear();
+        tooltipItemUuidMap.clear();
+    }
 }

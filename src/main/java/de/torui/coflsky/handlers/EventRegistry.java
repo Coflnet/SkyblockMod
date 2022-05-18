@@ -39,8 +39,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import static de.torui.coflsky.handlers.DescriptionHandler.getTooltipDataFromBackend;
-import static de.torui.coflsky.handlers.DescriptionHandler.setTooltips;
+import static de.torui.coflsky.handlers.DescriptionHandler.*;
 import static de.torui.coflsky.handlers.EventHandler.*;
 
 public class EventRegistry {
@@ -226,6 +225,10 @@ public class EventRegistry {
 		new Thread(() -> {
 			getTooltipDataFromBackend(event);
 		}).start();
+	}
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onGuiClose(){
+		emptyTooltipData();
 	}
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onItemTooltipEvent(ItemTooltipEvent event) {
