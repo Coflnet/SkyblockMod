@@ -43,7 +43,7 @@ import static de.torui.coflsky.handlers.DescriptionHandler.*;
 import static de.torui.coflsky.handlers.EventHandler.*;
 
 public class EventRegistry {
-	public static Pattern chatpattern = Pattern.compile("", Pattern.CASE_INSENSITIVE);
+	public static Pattern chatpattern = Pattern.compile("a^", Pattern.CASE_INSENSITIVE);
 	public final ExecutorService chatThreadPool = Executors.newFixedThreadPool(2);
 	public final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2);
 	@SubscribeEvent
@@ -138,7 +138,7 @@ public class EventRegistry {
 	
 	@SubscribeEvent
 	public void HandleChatEvent(ClientChatReceivedEvent sce) {
-		if(CoflSky.Wrapper.isRunning) {
+		if(CoflSky.Wrapper.isRunning && Configuration.getInstance().collectChat) {
 			chatThreadPool.submit(() -> {
 				String msg = sce.message.getUnformattedText();
 				Matcher matcher = chatpattern.matcher(msg);
