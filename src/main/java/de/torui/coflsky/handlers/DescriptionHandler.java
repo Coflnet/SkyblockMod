@@ -152,6 +152,7 @@ public class DescriptionHandler {
             return;
 
         for (DescModification datum : data) {
+            if (!(event.toolTip.size() >= datum.line)) return;
             switch (datum.type) {
                 case "APPEND":
                     event.toolTip.add(datum.value);
