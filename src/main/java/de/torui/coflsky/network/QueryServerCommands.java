@@ -9,6 +9,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import de.torui.coflsky.CoflSky;
+import de.torui.coflsky.minecraft_integration.CoflSessionManager;
+import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 
 public class QueryServerCommands {
 	
@@ -34,7 +36,7 @@ public class QueryServerCommands {
 			
 		}
 		
-		return "�4ERROR: Could not connect to command server!";
+		return "§4ERROR: Could not connect to command server!";
 	}
 	
 	private static class CommandInfo {
@@ -101,15 +103,18 @@ public class QueryServerCommands {
 	}
 	public static String PostRequest(String uri,  String data) {
 		try {
-			System.out.println("Get request");
+			String username = PlayerDataProvider.getUsername();
+			System.out.println("Post request");
 			URL url = new URL(uri);
 			HttpURLConnection con;
 			con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("GET");
+			con.setRequestMethod("POST");
 
 			con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 			con.setRequestProperty("Accept", "application/json");
 			con.setRequestProperty("User-Agent", "CoflMod");
+			con.setRequestProperty("conId", CoflSessionManager.GetCoflSession(username).SessionUUID);
+			con.setRequestProperty("uuid",username);
 			con.setDoInput(true);
 			con.setDoOutput(true);
 			// ...

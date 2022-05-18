@@ -208,8 +208,8 @@ public class EventHandler {
     }
     private class DescModification {
         public String type;
-        public String target;
         public String value;
+        public int line;
     }
 
     public static HashMap<ItemStack, DescModification[]> tooltipItemMap = new HashMap<ItemStack, DescModification[]>();
@@ -249,75 +249,69 @@ public class EventHandler {
     }
 
     public static void GuiEventHandler(GuiOpenEvent event) {
-        if (event.gui instanceof GuiContainer/* && GuiScreen.isShiftKeyDown()*/) {
-            new Thread(() -> {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        if (!(event.gui instanceof GuiContainer)) return;
+        new Thread(() -> {
+            try {
+                // delay a bit to wait for all inventory packages to arrive (each slot is sent individually)
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            InventoryWrapper wrapper = new InventoryWrapper();
+
+            GuiContainer gc = (GuiContainer) event.gui;
+
+            if (event.gui instanceof GuiChest) {
+                ContainerChest chest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
+
+                IInventory inv = chest.getLowerChestInventory();
+                if (inv.hasCustomName()) {
+                    String chestName = inv.getName();
+                    wrapper.chestName = chestName;
                 }
-                InventoryWrapper wrapper = new InventoryWrapper();
+            }
 
-                GuiContainer gc = (GuiContainer) event.gui;
+            NBTTagCompound compound = new NBTTagCompound();
+            NBTTagList tl = new NBTTagList();
 
-                if (event.gui instanceof GuiChest) {
-                    ContainerChest chest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
-
-                    IInventory inv = chest.getLowerChestInventory();
-                    if (inv.hasCustomName()) {
-                        // verify that the chest actually has a custom name
-                        String chestName = inv.getName();
-                        wrapper.chestName = chestName;
-                    }
+            for (Slot obj : gc.inventorySlots.inventorySlots) {
+                ItemStack stack = obj.getStack();
+                if (stack != null) {
+                    tl.appendTag(stack.serializeNBT());
+                } else {
+                    tl.appendTag(EMPTY_COMPOUND);
                 }
+            }
 
-                NBTTagCompound compound = new NBTTagCompound();
-                NBTTagList tl = new NBTTagList();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                compound.setTag("i", tl);
+                CompressedStreamTools.writeCompressed(compound, baos);
 
+                wrapper.fullInventoryNbt = Base64.getEncoder().encodeToString(baos.toByteArray());
+
+                String data = WSClient.gson.toJson(wrapper);
+                String info = QueryServerCommands.PostRequest("https://sky.coflnet.com/api/mod/description/modifications", data);
+
+                DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
+                int i = 0;
                 for (Slot obj : gc.inventorySlots.inventorySlots) {
                     ItemStack stack = obj.getStack();
-                    if (stack != null) {
-                        tl.appendTag(stack.serializeNBT());
-                    } else {
-                        tl.appendTag(EMPTY_COMPOUND);
-                    }
+                    if (stack == null) continue;
+                    tooltipItemMap.put(stack, arr[i]);
+                    String uuid = ExtractUuidFromItemStack(stack);
+                    if(uuid.length()>0) tooltipItemUuidMap.put(uuid, arr[i]);
+
+                    String id = ExtractStackableIdFromItemStack(stack);
+                    if(id.length()>0) tooltipItemIdMap.put(id, arr[i]);
+                    i++;
                 }
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                try {
-                    compound.setTag("i", tl);
-                    CompressedStreamTools.writeCompressed(compound, baos);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-                    wrapper.fullInventoryNbt = Base64.getEncoder().encodeToString(baos.toByteArray());
-
-                    String data = WSClient.gson.toJson(wrapper);
-                    String info = QueryServerCommands.PostRequest("https://sky.coflnet.com/api/mod/description/modifications", data);
-
-                    DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
-                    int i = 0;
-                    for (Slot obj : gc.inventorySlots.inventorySlots) {
-                        ItemStack stack = obj.getStack();
-                        if (stack != null) {
-                            tooltipItemMap.put(stack, arr[i]);
-                            String uuid = ExtractUuidFromItemStack(stack);
-                            if(uuid.length()>0){
-                                tooltipItemUuidMap.put(uuid, arr[i]);
-                            }
-
-                            String id = ExtractStackableIdFromItemStack(stack);
-                            if(id.length()>0){
-                                tooltipItemIdMap.put(id, arr[i]);
-                            }
-
-                        }
-                        i++;
-                    }
-
-                } catch (IOException e) {
-                }
-
-            }).start();
-        }
+        }).start();
     }
 
     private static DescModification[] getTooltipData(ItemStack itemStack) {
@@ -349,17 +343,11 @@ public class EventHandler {
             if (data[i].type.equals("APPEND")){
                 event.toolTip.add(data[i].value);
             } else if (data[i].type.equals("REPLACE")) {
-                try {
-                    for (int i2 = 0; i2 < event.toolTip.size(); i2++) {
-                        if (event.toolTip.get(i2).contains(data[i].target)) {
-                            event.toolTip.set(i2, data[i].value);
-                        }
-                    }
-                } catch (ArrayIndexOutOfBoundsException e){
-                    e.printStackTrace();
-                }
+                event.toolTip.set(data[i].line, data[i].value);
             } else if (data[i].type.equals("INSERT")) {
-                event.toolTip.add(parseInt(data[i].target),data[i].value);
+                event.toolTip.add(data[i].line,data[i].value);
+            } else if (data[i].type.equals("DELETE")) {
+                event.toolTip.remove(data[i].line);
             }
         }
     }
