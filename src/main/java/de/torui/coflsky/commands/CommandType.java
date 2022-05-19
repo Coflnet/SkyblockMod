@@ -51,6 +51,8 @@ public enum CommandType {
 	updateLocation,
 	@SerializedName("chatBatch")
 	chatBatch,
+	@SerializedName("uploadTab")
+	uploadTab,
 	;
 	public static Map<CommandType,String> data;
 	static {

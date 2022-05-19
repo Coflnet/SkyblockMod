@@ -38,6 +38,14 @@ public class EventHandler {
             }
         }
     }
+
+    public static void UploadTabData() {
+        if (CoflSky.Wrapper.isRunning)
+            return;
+        Command<List<String>> data = new Command<>(CommandType.tabContents, getTabList());
+        CoflSky.Wrapper.SendMessage(data);
+    }
+
     public static void ScoreboardData() {
         String s;
         try {
@@ -125,6 +133,7 @@ public class EventHandler {
                 server = server_;
                 Command<String> data = new Command<>(CommandType.updateServer, server);
                 CoflSky.Wrapper.SendMessage(data);
+                UploadTabData();
             }
         } else if (line.contains("area:")) {
             String location_ = line.split("area: ")[1];
