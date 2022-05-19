@@ -21,6 +21,7 @@ public class Configuration {
 	public static void setInstance(Configuration config) {
 		instance = config;
 		CoflSky.config.autoStart = instance.autoStart;
+		CoflSky.config.extendedtooltips = instance.ExtendDescriptions;
 		EventRegistry.chatpattern = Pattern.compile(instance.chatRegex, Pattern.CASE_INSENSITIVE);;
 	}
 
