@@ -104,7 +104,6 @@ public class QueryServerCommands {
 	public static String PostRequest(String uri,  String data) {
 		try {
 			String username = PlayerDataProvider.getUsername();
-			System.out.println("Post request");
 			URL url = new URL(uri);
 			HttpURLConnection con;
 			con = (HttpURLConnection) url.openConnection();
@@ -124,7 +123,6 @@ public class QueryServerCommands {
 			os.write(bytes);
 			os.close();
 
-			System.out.println("InputStream");
 			InputStream in = new BufferedInputStream(con.getInputStream());
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			byte[] buffer = new byte[1024];

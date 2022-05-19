@@ -85,18 +85,23 @@ public class DescriptionHandler {
         return EMPTY_ARRAY;
     }
     public static void getTooltipDataFromBackend(GuiOpenEvent event){
-        try {
-            // delay a bit to wait for all inventory packages to arrive (each slot is sent individually)
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        
         InventoryWrapper wrapper = new InventoryWrapper();
 
         GuiContainer gc = (GuiContainer) event.gui;
 
         if (event.gui instanceof GuiChest) {
             ContainerChest chest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
+            for(int i = 1; i < 10; i++) {
+                if(gc.inventorySlots.inventorySlots.get(gc.inventorySlots.inventorySlots.size()-37).getStack() != null)
+                    break;
+                try {
+                    // incremental backoff to wait for all inventory packages to arrive (each slot is sent individually)
+                    Thread.sleep(20 * i);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 
             IInventory inv = chest.getLowerChestInventory();
             if (inv.hasCustomName()) {

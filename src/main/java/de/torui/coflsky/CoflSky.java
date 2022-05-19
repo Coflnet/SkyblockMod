@@ -45,7 +45,7 @@ public class CoflSky
         	"ws://sky-mod.coflnet.com/modsocket",
     };
     
-    public static String CommandUri = "https://sky-commands.coflnet.com/api/mod/commands";
+    public static String CommandUri = "https://sky.coflnet.com/api/mod/commands";
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         String configString = null;

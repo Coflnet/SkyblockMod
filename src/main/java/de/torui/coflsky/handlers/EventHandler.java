@@ -40,9 +40,9 @@ public class EventHandler {
     }
 
     public static void UploadTabData() {
-        if (CoflSky.Wrapper.isRunning)
+        if (!CoflSky.Wrapper.isRunning)
             return;
-        Command<List<String>> data = new Command<>(CommandType.tabContents, getTabList());
+        Command<List<String>> data = new Command<>(CommandType.uploadTab, getTabList());
         CoflSky.Wrapper.SendMessage(data);
     }
 
@@ -172,7 +172,7 @@ public class EventHandler {
         if (line.contains("purse") || line.contains("piggy")) {
             int purse_ = 0;
             try {
-                purse_ = parseInt(line.split(": ")[1].replace(",", ""));
+                purse_ = parseInt(line.split(" ")[1].replace(",", ""));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
@@ -184,7 +184,7 @@ public class EventHandler {
         } else if (line.contains("bits")) {
             int bits_ = 0;
             try {
-                bits_ = parseInt(line.split(": ")[1].replace(",", ""));
+                bits_ = parseInt(line.split(" ")[1].replace(",", ""));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
