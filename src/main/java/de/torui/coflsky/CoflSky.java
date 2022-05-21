@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
+import de.torui.coflsky.handlers.EventRegistry;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -44,7 +45,7 @@ public class CoflSky
         	"ws://sky-mod.coflnet.com/modsocket",
     };
     
-    public static String CommandUri = "https://sky-commands.coflnet.com/api/mod/commands";
+    public static String CommandUri = "https://sky.coflnet.com/api/mod/commands";
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         String configString = null;

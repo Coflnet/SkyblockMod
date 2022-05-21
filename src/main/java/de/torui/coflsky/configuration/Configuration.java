@@ -1,7 +1,7 @@
 package de.torui.coflsky.configuration;
 
 import de.torui.coflsky.CoflSky;
-import de.torui.coflsky.EventRegistry;
+import de.torui.coflsky.handlers.EventRegistry;
 
 import java.util.regex.Pattern;
 
@@ -21,6 +21,7 @@ public class Configuration {
 	public static void setInstance(Configuration config) {
 		instance = config;
 		CoflSky.config.autoStart = instance.autoStart;
+		CoflSky.config.extendedtooltips = instance.extendDescriptions;
 		EventRegistry.chatpattern = Pattern.compile(instance.chatRegex, Pattern.CASE_INSENSITIVE);;
 	}
 
@@ -36,7 +37,7 @@ public class Configuration {
 	public boolean collectEntities;
 	public boolean autoStart;
 	@Description("Wherever or not to send item descriptions for extending to the server")
-	public boolean ExtendDescriptions;
+	public boolean extendDescriptions;
 
 	@Description("Chat input starting with one of these prefixes is sent to the server")
 	public String[] CommandPrefixes;

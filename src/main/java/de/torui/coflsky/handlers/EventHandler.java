@@ -1,5 +1,6 @@
-package de.torui.coflsky;
+package de.torui.coflsky.handlers;
 
+import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.configuration.Configuration;
@@ -13,12 +14,10 @@ import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static de.torui.coflsky.CoflSky.config;
+import static java.lang.Integer.parseInt;
 
 public class EventHandler {
 
@@ -39,6 +38,14 @@ public class EventHandler {
             }
         }
     }
+
+    public static void UploadTabData() {
+        if (!CoflSky.Wrapper.isRunning)
+            return;
+        Command<List<String>> data = new Command<>(CommandType.uploadTab, getTabList());
+        CoflSky.Wrapper.SendMessage(data);
+    }
+
     public static void ScoreboardData() {
         String s;
         try {
@@ -126,6 +133,7 @@ public class EventHandler {
                 server = server_;
                 Command<String> data = new Command<>(CommandType.updateServer, server);
                 CoflSky.Wrapper.SendMessage(data);
+                UploadTabData();
             }
         } else if (line.contains("area:")) {
             String location_ = line.split("area: ")[1];
@@ -164,7 +172,7 @@ public class EventHandler {
         if (line.contains("purse") || line.contains("piggy")) {
             int purse_ = 0;
             try {
-                purse_ = Integer.parseInt(line.split(": ")[1].replace(",", ""));
+                purse_ = parseInt(line.split(" ")[1].replace(",", ""));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
@@ -176,7 +184,7 @@ public class EventHandler {
         } else if (line.contains("bits")) {
             int bits_ = 0;
             try {
-                bits_ = Integer.parseInt(line.split(": ")[1].replace(",", ""));
+                bits_ = parseInt(line.split(" ")[1].replace(",", ""));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
@@ -187,5 +195,4 @@ public class EventHandler {
             }
         }
     }
-
 }

@@ -1,4 +1,4 @@
-package de.torui.coflsky;
+package de.torui.coflsky.handlers;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
@@ -8,7 +8,9 @@ import java.util.regex.Pattern;
 
 import com.mojang.realmsclient.util.Pair;
 
+import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.FlipHandler.Flip;
+import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
@@ -17,15 +19,18 @@ import de.torui.coflsky.configuration.Configuration;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
@@ -35,8 +40,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import static de.torui.coflsky.EventHandler.ScoreboardData;
-import static de.torui.coflsky.EventHandler.TabMenuData;
+import static de.torui.coflsky.CoflSky.config;
+import static de.torui.coflsky.handlers.DescriptionHandler.*;
+import static de.torui.coflsky.handlers.EventHandler.*;
 
 public class EventRegistry {
 	public static Pattern chatpattern = Pattern.compile("a^", Pattern.CASE_INSENSITIVE);
@@ -120,7 +126,7 @@ public class EventRegistry {
 				return uuid;
 			} catch (Exception e) {
 				System.out.println("Clicked item " + stack.getDisplayName() + " has the following meta: "
-						+ stack.serializeNBT().toString());
+						+ stack.serializeNBT());
 			}
 		}
 		return "";
@@ -213,5 +219,20 @@ public class EventRegistry {
 				TabMenuData();
 			});
 		}
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onGuiOpen(GuiOpenEvent event) {
+		if (!config.extendedtooltips) return;
+		emptyTooltipData();
+		if (!(event.gui instanceof GuiContainer)) return;
+		new Thread(() -> {
+			getTooltipDataFromBackend(event);
+		}).start();
+	}
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void onItemTooltipEvent(ItemTooltipEvent event) {
+		if (!config.extendedtooltips) return;
+		setTooltips(event);
 	}
 }

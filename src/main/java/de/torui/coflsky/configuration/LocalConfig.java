@@ -11,8 +11,10 @@ import java.nio.file.Paths;
 
 public class LocalConfig {
     public boolean autoStart;
-    public LocalConfig(boolean autoStart) {
+    public boolean extendedtooltips;
+    public LocalConfig(boolean autoStart,boolean extendedtooltips) {
         this.autoStart = autoStart;
+        this.extendedtooltips = extendedtooltips;
     }
     public static void saveConfig(File file, LocalConfig Config) {
         Gson gson = new Gson();
@@ -28,6 +30,6 @@ public class LocalConfig {
     }
 
     public static LocalConfig createDefaultConfig() {
-        return new LocalConfig(false);
+        return new LocalConfig(false,true);
     }
 }
