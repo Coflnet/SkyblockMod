@@ -30,7 +30,6 @@ public class CountdownTimer {
     }
 
     public static void onRenderTick(TickEvent.RenderTickEvent event) {
-        if (mc.currentScreen == null || mc.currentScreen instanceof GuiChat) // will only draw the Timer while no GUI or the Chat is open
             if (currentEndTime - System.currentTimeMillis() > 0)
                 drawTimer();
     }
