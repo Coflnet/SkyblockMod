@@ -53,7 +53,7 @@ public class EventHandler {
             ScoreObjective objective = scoreboard.getObjectiveInDisplaySlot(1);
             s = EnumChatFormatting.getTextWithoutFormattingCodes(objective.getDisplayName());
         } catch (Exception e) {
-            s = "";
+            return;
         }
         checkIfInSkyblock(s);
         if (isInSkyblock && CoflSky.Wrapper.isRunning) {
