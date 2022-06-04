@@ -68,8 +68,8 @@ public class WSCommandHandler {
 		ChatMessage(showCmd);
 		flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth));
 		
-		//just to be safe emit a event
-		CoflSky.Events.onEvent(null);
+		// trigger the keyevent to execute the event handler
+		CoflSky.Events.onKeyEvent(null);
 	}
 
 	private static void PlaySound(Command<SoundData> cmd, Entity sender) {
