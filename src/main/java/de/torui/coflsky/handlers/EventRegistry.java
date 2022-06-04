@@ -60,7 +60,7 @@ public class EventRegistry {
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
-	public void onEvent(KeyInputEvent event) {
+	public void onKeyEvent(KeyInputEvent event) {
 
 		if (CoflSky.keyBindings[0].isPressed()) {
 			if (WSCommandHandler.lastOnClickEvent != null) {
@@ -74,7 +74,7 @@ public class EventRegistry {
 
 		}
 		if(CoflSky.keyBindings[1].isKeyDown()) {
-			if((System.currentTimeMillis() - LastClick) >= 400) {
+			if((System.currentTimeMillis() - LastClick) >= 300) {
 						
 				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 				
@@ -87,12 +87,12 @@ public class EventRegistry {
 					WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
 					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
 				} else {
-					WSCommandHandler.Execute("/cofl dialog nobestflip", Minecraft.getMinecraft().thePlayer);
-				}			
-				
+					// only display message once (if this is the key down event)
+					if(CoflSky.keyBindings[1].isPressed())
+						WSCommandHandler.Execute("/cofl dialog nobestflip", Minecraft.getMinecraft().thePlayer);
+				}
 			}
 		}
-
 	}
 
 	@SideOnly(Side.CLIENT)
