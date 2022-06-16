@@ -30,6 +30,6 @@ public class LocalConfig {
     }
 
     public static LocalConfig createDefaultConfig() {
-        return new LocalConfig(false,true);
+        return new LocalConfig(true,true);
     }
 }
