@@ -28,7 +28,7 @@ import net.minecraftforge.fml.relauncher.Side;
 public class CoflSky
 {
     public static final String MODID = "CoflSky";
-    public static final String VERSION = "1.4-Alpha";
+    public static final String VERSION = "1.4.2-Alpha";
     
     public static WSClientWrapper Wrapper;
     public static KeyBinding[] keyBindings;
@@ -58,10 +58,10 @@ public class CoflSky
                 configString = new String(Files.readAllBytes(Paths.get(configFile.getPath())));
                 config = gson.fromJson(configString, LocalConfig.class);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        if (configString == null) {
+        if (config == null) {
             config =  LocalConfig.createDefaultConfig();
         }
     }

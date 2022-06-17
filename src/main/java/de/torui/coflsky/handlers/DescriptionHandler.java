@@ -156,7 +156,10 @@ public class DescriptionHandler {
             return;
 
         for (DescModification datum : data) {
-            if (!(event.toolTip.size() >= datum.line)) return;
+            if (event.toolTip.size() <= datum.line) {
+                System.out.println("Skipped line modification " + datum.line + " for " + event.itemStack.getDisplayName());
+                continue;
+            }
             switch (datum.type) {
                 case "APPEND":
                     event.toolTip.add(datum.value);
