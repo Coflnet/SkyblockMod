@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   java:
-    image: openjdk:8-jdk-slim
+    image: openjdk:17-jdk-slim
     command: bash -c "source /data/docker-build.sh"
     user: "1000"
     volumes: 
