@@ -95,8 +95,13 @@ public class CoflSkyCommand extends CommandBase {
 				//			+ "g º87,000 -> 13,999 ºg[BUY]\\\",\\\"onClick\\\":\\\"/viewauction f7d7295ca72f43e9876bf6da7424000c\\\",\\\"hover\\\":\\\"\\\"}\"}"), sender.getCommandSenderEntity());
 				//WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "{\"name\":\"random.orb\",\"pitch\":0.5}"), sender.getCommandSenderEntity());
 					break;	
-				case "callback":
-					CallbackCommand(args);
+					case "callback":
+						CallbackCommand(args);
+						break;
+				case "dev":
+					CoflSky.Wrapper.initializeNewSocket("ws://localhost:8009/modsocket");
+					Config.BaseUrl = "http://localhost:5005";
+					System.out.println("entered dev mode");
 					break;
 				case "status":
 					sender.addChatMessage(new ChatComponentText(StatusMessage()));
@@ -177,15 +182,17 @@ public class CoflSkyCommand extends CommandBase {
 		if(CoflSky.Wrapper.isRunning) {
 			CoflSky.Wrapper.SendMessage(rc);
 		} else {
-			sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
-			CoflSky.Wrapper.stop();
-			CoflSky.Wrapper.startConnection();
-			CoflSky.Wrapper.SendMessage(rc);
+			SendAfterStart(sender, rc);
 		}
-		
-		
 	}
-	
+
+	private static synchronized void SendAfterStart(ICommandSender sender, RawCommand rc) {
+		sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+		//CoflSky.Wrapper.stop();
+		CoflSky.Wrapper.startConnection();
+		CoflSky.Wrapper.SendMessage(rc);
+	}
+
 	public void ListHelp(ICommandSender sender) {
 		sender.addChatMessage(new ChatComponentText(HelpText));
 		sender.addChatMessage(new ChatComponentText(QueryServerCommands.QueryCommands()));

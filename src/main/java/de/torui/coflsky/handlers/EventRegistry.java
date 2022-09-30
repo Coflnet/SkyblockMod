@@ -57,6 +57,7 @@ public class EventRegistry {
 	}
 	
 	public long LastClick = System.currentTimeMillis();
+	private DescriptionHandler descriptionHandler;
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
@@ -162,8 +163,7 @@ public class EventRegistry {
 		IInventory inv = chest.getLowerChestInventory();
 		if (inv.hasCustomName()) { // verify that the chest actually has a custom name
 			String chestName = inv.getName();
-
-			if (chestName.equalsIgnoreCase("BIN Auction View") || chestName.equalsIgnoreCase("Ekwav")) {
+			if (chestName.equalsIgnoreCase("BIN Auction View")) {
 
 				ItemStack heldItem = Minecraft.getMinecraft().thePlayer.inventory.getItemStack();
 
@@ -217,15 +217,25 @@ public class EventRegistry {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onGuiOpen(GuiOpenEvent event) {
 		if (!config.extendedtooltips) return;
-		emptyTooltipData();
+		if(descriptionHandler != null)
+			descriptionHandler.Close();
+		if(event.gui == null)
+			emptyTooltipData();
+
 		if (!(event.gui instanceof GuiContainer)) return;
 		new Thread(() -> {
-			getTooltipDataFromBackend(event);
+			try {
+				descriptionHandler = new DescriptionHandler();
+				descriptionHandler.loadDescriptionAndListenForChanges(event);
+			} catch (Exception e)
+			{
+				System.out.println("failed to update description " + e);
+			}
 		}).start();
 	}
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onItemTooltipEvent(ItemTooltipEvent event) {
 		if (!config.extendedtooltips) return;
-		setTooltips(event);
+		descriptionHandler.setTooltips(event);
 	}
 }

@@ -35,7 +35,6 @@ public class WSClientWrapper {
     }
     
     public void restartWebsocketConnection() {
-    	socket.socket.clearListeners();
     	socket.stop();
     	
     	System.out.println("Sleeping...");
@@ -103,9 +102,11 @@ public class WSClientWrapper {
 			String coflSessionID = CoflSessionManager.GetCoflSession(username).SessionUUID;
 			
 			uri += "&SId=" + coflSessionID;	
-	    	
+
+			if(socket != null)
+				socket.stop();
 			socket = new WSClient(URI.create(uri));
-			
+			isRunning = false;
 			boolean successfull = start();
 			if(successfull) {
 				socket.shouldRun = true;

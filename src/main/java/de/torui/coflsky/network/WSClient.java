@@ -38,7 +38,7 @@ public class WSClient extends WebSocketAdapter {
 		})*/.create();
 	}
 	public URI uri;
-	public WebSocket socket;
+	private WebSocket socket;
 	public boolean shouldRun = false;
 	public WebSocketState currentState = WebSocketState.CLOSED;
 	
@@ -79,19 +79,10 @@ public class WSClient extends WebSocketAdapter {
 	
 	public void stop() {
 		System.out.println("Closing Socket");
-	//	socket.sendClose();
+		if(socket == null)
+			return;
 		socket.clearListeners();
-	
 		socket.disconnect();
-		/*try {
-			socket.getConnectedSocket().close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (WebSocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 		System.out.println("Socket closed");
 
 	}
