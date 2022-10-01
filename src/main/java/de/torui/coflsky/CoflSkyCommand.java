@@ -99,9 +99,14 @@ public class CoflSkyCommand extends CommandBase {
 						CallbackCommand(args);
 						break;
 				case "dev":
-					CoflSky.Wrapper.initializeNewSocket("ws://localhost:8009/modsocket");
-					Config.BaseUrl = "http://localhost:5005";
-					System.out.println("entered dev mode");
+					if(Config.BaseUrl.contains("localhost")) {
+						CoflSky.Wrapper.startConnection();
+						Config.BaseUrl = "https://sky.coflnet.com";
+					} else {
+						CoflSky.Wrapper.initializeNewSocket("ws://localhost:8009/modsocket");
+						Config.BaseUrl = "http://localhost:5005";
+					}
+					sender.addChatMessage(new ChatComponentText("toggled dev mode, now using " + Config.BaseUrl));
 					break;
 				case "status":
 					sender.addChatMessage(new ChatComponentText(StatusMessage()));
