@@ -1,5 +1,6 @@
 package de.torui.coflsky.handlers;
 
+import de.torui.coflsky.Config;
 import de.torui.coflsky.network.QueryServerCommands;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -16,8 +17,10 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 
 public class DescriptionHandler {
 
@@ -37,6 +40,14 @@ public class DescriptionHandler {
 
     public static final DescModification[] EMPTY_ARRAY = new DescModification[0];
     public static final NBTTagCompound EMPTY_COMPOUND = new NBTTagCompound();
+
+    private boolean IsOpen = true;
+    private boolean shouldUpdate = false;
+
+    public void Close()
+    {
+        IsOpen = false;
+    }
 
     public static String ExtractStackableIdFromItemStack(ItemStack stack) {
         if (stack != null) {
@@ -66,7 +77,7 @@ public class DescriptionHandler {
         }
         return "";
     }
-    private static DescModification[] getTooltipData(ItemStack itemStack) {
+    private DescModification[] getTooltipData(ItemStack itemStack) {
         if (tooltipItemMap.containsKey(itemStack)) {
             return tooltipItemMap.getOrDefault(itemStack, EMPTY_ARRAY);
         }
@@ -75,34 +86,55 @@ public class DescriptionHandler {
             if (tooltipItemUuidMap.containsKey(id)) {
                 return tooltipItemUuidMap.getOrDefault(id, EMPTY_ARRAY);
             }
+            shouldUpdate = true;
         } else {
             String itemId = ExtractStackableIdFromItemStack(itemStack);
             if(tooltipItemIdMap.containsKey(itemId)){
                 return tooltipItemIdMap.getOrDefault(itemId, EMPTY_ARRAY);
             }
+            shouldUpdate = true;
         }
 
         return EMPTY_ARRAY;
     }
-    public static void getTooltipDataFromBackend(GuiOpenEvent event){
-        
-        InventoryWrapper wrapper = new InventoryWrapper();
+    public void loadDescriptionAndListenForChanges(GuiOpenEvent event){
 
         GuiContainer gc = (GuiContainer) event.gui;
 
-        if (event.gui instanceof GuiChest) {
-            ContainerChest chest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
-            for(int i = 1; i < 10; i++) {
-                if(gc.inventorySlots.inventorySlots.get(gc.inventorySlots.inventorySlots.size()-37).getStack() != null)
-                    break;
-                try {
-                    // incremental backoff to wait for all inventory packages to arrive (each slot is sent individually)
-                    Thread.sleep(20 * i);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        loadDescriptionForInventory(event, gc, false);
+        int iteration = 0;
+        while(IsOpen)
+        {
+            iteration++;
+            try {
+                Thread.sleep(300 + iteration);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            if(shouldUpdate || iteration % 10 == 0 && hasAnyStackChanged(gc))
+            {
+                shouldUpdate = false;
+                loadDescriptionForInventory(event, gc, true);
+            }
+        }
+    }
 
+    private static boolean hasAnyStackChanged(GuiContainer gc) {
+        for (Slot obj : gc.inventorySlots.inventorySlots) {
+            ItemStack stack = obj.getStack();
+            if (stack != null && !tooltipItemMap.containsKey(stack)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void loadDescriptionForInventory(GuiOpenEvent event, GuiContainer gc, boolean skipLoadCheck) {
+        InventoryWrapper wrapper = new InventoryWrapper();
+        if (event.gui instanceof GuiChest && !skipLoadCheck){
+            waitForChestContentLoad(event, gc);
+
+            ContainerChest chest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
             IInventory inv = chest.getLowerChestInventory();
             if (inv.hasCustomName()) {
                 String chestName = inv.getName();
@@ -129,13 +161,17 @@ public class DescriptionHandler {
 
             wrapper.fullInventoryNbt = Base64.getEncoder().encodeToString(baos.toByteArray());
 
+            List<ItemStack> stacks = new ArrayList<>();
+            for (Slot obj : gc.inventorySlots.inventorySlots) {
+                stacks.add(obj.getStack());
+            }
+
             String data = WSClient.gson.toJson(wrapper);
-            String info = QueryServerCommands.PostRequest("https://sky.coflnet.com/api/mod/description/modifications", data);
+            String info = QueryServerCommands.PostRequest(Config.BaseUrl + "/api/mod/description/modifications", data);
 
             DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
             int i = 0;
-            for (Slot obj : gc.inventorySlots.inventorySlots) {
-                ItemStack stack = obj.getStack();
+            for (ItemStack stack : stacks) {
                 tooltipItemMap.put(stack, arr[i]);
                 String uuid = ExtractUuidFromItemStack(stack);
                 if(uuid.length()>0) tooltipItemUuidMap.put(uuid, arr[i]);
@@ -149,7 +185,21 @@ public class DescriptionHandler {
             e.printStackTrace();
         }
     }
-    public static void setTooltips(ItemTooltipEvent event) {
+
+    private static void waitForChestContentLoad(GuiOpenEvent event, GuiContainer gc) {
+        for(int i = 1; i < 10; i++) {
+            if(gc.inventorySlots.inventorySlots.get(gc.inventorySlots.inventorySlots.size()-37).getStack() != null)
+                break;
+            try {
+                // incremental backoff to wait for all inventory packages to arrive (each slot is sent individually)
+                Thread.sleep(20 * i);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void setTooltips(ItemTooltipEvent event) {
         DescModification[] data = getTooltipData(event.itemStack);
 
         if (data == null || data.length == 0)
@@ -177,6 +227,9 @@ public class DescriptionHandler {
         }
     }
 
+    /**
+     * Called when the inventory is closed
+     */
     public static void emptyTooltipData(){
         tooltipItemMap.clear();
         tooltipItemIdMap.clear();
