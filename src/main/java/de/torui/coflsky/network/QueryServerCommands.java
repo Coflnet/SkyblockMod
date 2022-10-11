@@ -132,7 +132,6 @@ public class QueryServerCommands {
 			// StandardCharsets.UTF_8.name() > JDK 7
 			String resString =  result.toString("UTF-8");
 
-			System.out.println("Result= " + resString);
 			return resString;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

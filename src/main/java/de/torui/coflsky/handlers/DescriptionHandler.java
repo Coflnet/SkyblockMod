@@ -131,8 +131,9 @@ public class DescriptionHandler {
 
     private static void loadDescriptionForInventory(GuiOpenEvent event, GuiContainer gc, boolean skipLoadCheck) {
         InventoryWrapper wrapper = new InventoryWrapper();
-        if (event.gui instanceof GuiChest && !skipLoadCheck){
-            waitForChestContentLoad(event, gc);
+        if (event.gui instanceof GuiChest) {
+            if(!skipLoadCheck)
+                waitForChestContentLoad(event, gc);
 
             ContainerChest chest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
             IInventory inv = chest.getLowerChestInventory();
