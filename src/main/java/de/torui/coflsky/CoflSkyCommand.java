@@ -30,7 +30,8 @@ import java.util.ArrayList;
 
 public class CoflSkyCommand extends CommandBase {
 
-	
+
+
 	@Override
 	public int getRequiredPermissionLevel() {
 		// TODO Auto-generated method stub
