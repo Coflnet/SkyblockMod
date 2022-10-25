@@ -1,6 +1,7 @@
 package de.torui.coflsky.bingui.helper;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -9,7 +10,7 @@ public class RenderUtils {
     public static Minecraft mc = Minecraft.getMinecraft();
 
     //draw a rectangle
-    public static void drawRect(float x, float y, int width, int height, int color) {
+    public static void drawRect(float x, float y, float width, float height, int color) {
         float alpha = (float) (color >> 24 & 255) / 255.0F;
         float red = (float) (color >> 16 & 255) / 255.0F;
         float green = (float) (color >> 8 & 255) / 255.0F;
@@ -236,7 +237,7 @@ public class RenderUtils {
         mc.fontRendererObj.drawStringWithShadow(text, x - mc.fontRendererObj.getStringWidth(text) / 2, y, color.getRGB());
     }
 
-    //draw string with custom scale
+    //draws a string with custom scale
     public static void drawString(String text, int x, int y, Color color, float scale) {
         GL11.glPushMatrix();
         GL11.glScalef(scale, scale, scale);
@@ -244,11 +245,34 @@ public class RenderUtils {
         GL11.glPopMatrix();
     }
 
-    //draw string with custom scale and shadow
+    //draws a string with custom scale and shadow
     public static void drawStringWithShadow(String text, int x, int y, Color color, float scale) {
         GL11.glPushMatrix();
         GL11.glScalef(scale, scale, scale);
         mc.fontRendererObj.drawStringWithShadow(text, x, y, color.getRGB());
+        GL11.glPopMatrix();
+    }
+
+    //draws an ItemStack at a given position with a given scale
+    public static void drawItemStack(ItemStack itemStack, int x, int y, float scale) {
+        GL11.glPushMatrix();
+        GL11.glScalef(scale, scale, scale);
+        mc.getRenderItem().renderItemIntoGUI(itemStack, x, y);
+        GL11.glPopMatrix();
+    }
+
+    public static void drawItemStack(ItemStack itemStack, int x, int y, float scaleX, float scaleY) {
+        GL11.glPushMatrix();
+        GL11.glScalef(scaleX, scaleY, 0);
+        mc.getRenderItem().renderItemIntoGUI(itemStack, x, y);
+        GL11.glPopMatrix();
+    }
+
+    //draw centered ItemStack at a given position with a given scale
+    public static void drawCenteredItemStack(ItemStack itemStack, int x, int y, float scale) {
+        GL11.glPushMatrix();
+        GL11.glScalef(scale, scale, scale);
+        mc.getRenderItem().renderItemIntoGUI(itemStack, (int) (x - (scale / 2)), (int) (y - (scale / 2)));
         GL11.glPopMatrix();
     }
 

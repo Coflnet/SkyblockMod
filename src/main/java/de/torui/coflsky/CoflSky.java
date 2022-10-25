@@ -3,6 +3,7 @@ package de.torui.coflsky;
 
 import com.google.gson.Gson;
 import de.torui.coflsky.bingui.gui.TestCommand;
+import de.torui.coflsky.bingui.helper.inputhandler.MouseHelper;
 import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.network.WSClientWrapper;
@@ -88,6 +89,7 @@ public class CoflSky {
         }
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);
+        MinecraftForge.EVENT_BUS.register(new MouseHelper());
         Runtime.getRuntime()
                 .addShutdownHook(
                         new Thread(
