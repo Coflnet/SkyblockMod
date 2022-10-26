@@ -2,7 +2,6 @@ package de.torui.coflsky;
 
 
 import com.google.gson.Gson;
-import de.torui.coflsky.bingui.gui.TestCommand;
 import de.torui.coflsky.bingui.helper.inputhandler.MouseHelper;
 import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.handlers.EventRegistry;
@@ -80,7 +79,6 @@ public class CoflSky {
             ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
             ClientCommandHandler.instance.registerCommand(new ColfCommand());
             ClientCommandHandler.instance.registerCommand(new FlipperChatCommand());
-            ClientCommandHandler.instance.registerCommand(new TestCommand());
             for (int i = 0; i < keyBindings.length; ++i) {
                 ClientRegistry.registerKeyBinding(keyBindings[i]);
             }

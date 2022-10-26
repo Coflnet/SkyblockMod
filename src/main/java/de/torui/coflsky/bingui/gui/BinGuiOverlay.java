@@ -4,7 +4,6 @@ import de.torui.coflsky.bingui.helper.ColorPallet;
 import de.torui.coflsky.bingui.helper.RenderUtils;
 import de.torui.coflsky.bingui.helper.inputhandler.InputHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
@@ -14,32 +13,19 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BinGuiScreen extends GuiScreen {
-
+public class BinGuiOverlay {
     private static Minecraft mc = Minecraft.getMinecraft();
+    private static InputHandler inputHandler = new InputHandler();
 
-    @Override
-    public void initGui() {
-        super.initGui();
-        System.out.println("init");
-    }
+    private int width = 100;
+    private int height = 100;
 
-
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        renderMainGui(mouseX, mouseY);
-        super.drawScreen(mouseX, mouseY, partialTicks);
-    }
-
-    @Override
-    public boolean doesGuiPauseGame() {
-        return false;
+    public BinGuiOverlay(int width, int height) {
+        this.width = width;
+        this.height = height;
     }
 
     public void renderMainGui(int mouseX, int mouseY) {
-        //handles input
-        InputHandler inputHandler = new InputHandler();
-
         //the item I use for testing
         ItemStack itemStack = new ItemStack(Items.item_frame);
         itemStack.setStackDisplayName("TestItem");
@@ -156,14 +142,18 @@ public class BinGuiScreen extends GuiScreen {
             lines.add(formattedMessage.substring(i, Math.min(formattedMessage.length(), i + 50)));
         }
 
+        //longest message
+        String longestMessage = "";
+        for (String s : lines) {
+            if (mc.fontRendererObj.getStringWidth(s) > mc.fontRendererObj.getStringWidth(longestMessage)) {
+                longestMessage = s;
+            }
+        }
+        //draw the background
+        RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(longestMessage), height * lines.size(), ColorPallet.SECONDARY.getColor().getRGB());
+
         //loop through the lines
         for (int i = 0; i < lines.size(); i++) {
-            //draw the background
-            if (i == 0) {
-                RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(lines.get(i)), height * lines.size(), ColorPallet.SECONDARY.getColor().getRGB());
-            } else {
-                RenderUtils.drawRect(x, y + height, mc.fontRendererObj.getStringWidth(lines.get(i)), height * lines.size(), ColorPallet.SECONDARY.getColor().getRGB());
-            }
             //draw the text
             RenderUtils.drawString(lines.get(i), x, (int) (y + (i * height)), ColorPallet.WHITE.getColor());
         }
@@ -190,5 +180,4 @@ public class BinGuiScreen extends GuiScreen {
     public boolean isMouseOverBuy(int mouseX, int mouseY) {
         return mouseX >= this.width / 2 - 100 && mouseX <= this.width / 2 + 100 && mouseY >= this.height / 2 - 20 && mouseY <= this.height / 2 + 20;
     }
-
 }
