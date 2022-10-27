@@ -23,7 +23,7 @@ public class EventHandler {
 
     public static boolean isInSkyblock = false;
     public static boolean isInTheCatacombs = false;
-    private static int purse = 0;
+    private static long purse = 0;
     private static int bits = 0;
     private static String location = "";
     private static String server = "";
@@ -170,7 +170,7 @@ public class EventHandler {
     }
     private static void ProcessScoreboard(String line){
         if (line.contains("purse") || line.contains("piggy")) {
-            int purse_ = 0;
+            long purse_ = 0;
             try {
                 purse_ = parseInt(line.split(" ")[1].replace(",", ""));
             } catch (NumberFormatException e) {
@@ -178,7 +178,7 @@ public class EventHandler {
             }
             if (purse != purse_) {
                 purse = purse_;
-                Command<Integer> data = new Command<>(CommandType.updatePurse, purse);
+                Command<Long> data = new Command<>(CommandType.updatePurse, purse);
                 CoflSky.Wrapper.SendMessage(data);
             }
         } else if (line.contains("bits")) {
