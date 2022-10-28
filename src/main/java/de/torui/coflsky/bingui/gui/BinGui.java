@@ -13,6 +13,7 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.lang.reflect.Field;
@@ -72,6 +73,20 @@ public class BinGui {
             renderBuyOverlay(event.mouseX, event.mouseY, gui.width, gui.height);
         }
 
+    }
+
+    @SubscribeEvent
+    public void onKeyEvent(GuiScreenEvent.KeyboardInputEvent event){
+        //check if it should render the gui
+        if (shouldRenderOverlay || shouldRenderBuyOverlay) {
+            //check if esc was pressed
+            if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+                //close the gui
+                shouldRenderOverlay = false;
+                shouldRenderBuyOverlay = false;
+                MinecraftForge.EVENT_BUS.unregister(this);
+            }
+        }
     }
 
     public void renderBuyOverlay(int mouseX, int mouseY, int width, int height) {
