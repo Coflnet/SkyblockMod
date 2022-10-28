@@ -18,10 +18,20 @@ java {
 loom {
     launchConfigs {
         "client" {
+            property("mixin.debug", "true")
+            property("asmhelper.verbose", "true")
+            arg("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
+            arg("--mixin", "mixins.cofl.json")
         }
     }
     forge {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
+        // If you don't want mixins, remove this lines
+        mixinConfig("mixins.cofl.json")
+    }
+    // If you don't want mixins, remove these lines
+    mixin {
+        defaultRefmapName.set("mixins.cofl.refmap.json")
     }
 }
 
@@ -46,7 +56,9 @@ dependencies {
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
-
+    shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT"){
+        isTransitive = false
+    }
     annotationProcessor("org.spongepowered:mixin:0.8.4-SNAPSHOT")
 
     shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
@@ -67,7 +79,11 @@ tasks.withType(Jar::class) {
     manifest.attributes.run {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
+
+        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
+        this["MixinConfigs"] = "mixins.cofl.json"
     }
+
 }
 
 

@@ -1,0 +1,11 @@
+{
+  "package": "de.torui.coflsky.mixins",
+  "minVersion": "0.7",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+
+  ],
+  "client": [
+
+  ]
+}

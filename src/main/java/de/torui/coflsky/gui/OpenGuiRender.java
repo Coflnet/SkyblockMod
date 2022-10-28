@@ -1,125 +1,175 @@
 package de.torui.coflsky.gui;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.event.ClickEvent;
-import net.minecraft.init.Items;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ContainerChest;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL14;
+
+import org.lwjgl.input.Mouse;
+
 
 import java.awt.*;
+import java.util.List;
+import java.util.Locale;
 
-public class OpenGuiRender {
-    boolean rendering = false;
+public class OpenGuiRender extends GuiScreen{
+
+    float alpha = (float) 0.3;
+    boolean lastClick = false;
+    boolean renderTooltips = false;
+
+
     @SubscribeEvent
-    public void onGuiOpen(GuiScreenEvent.DrawScreenEvent.Post event) {
+    public void onGuiOpen (GuiScreenEvent.DrawScreenEvent.Post event) {
+
         if (!(event.gui instanceof GuiChest)) {
-            rendering = false;
             return;
         }
 
-        final ContainerChest containerChest = (ContainerChest)((GuiChest)event.gui).inventorySlots;
+
+
+        final ContainerChest containerChest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
 
         final String s = containerChest.getLowerChestInventory().getName();
 
-        if (s.contains("Bin Auction View") && containerChest.inventorySlots.get(31).getStack().getItem() == Items.gold_nugget) {
-            rendering = true;
-           drawRectNoBlend(event.mouseX - 5, event.mouseY + 5, event.mouseX + 5, event.mouseY - 5,new Color(66, 182, 245).getRGB());
+        if (s.toLowerCase(Locale.ROOT).contains("bin auction view")) {
+
+            /*this.renderToolTip(containerChest.inventoryItemStacks.get(13), 0, 40);*/
+            /*if (renderTooltips) {
+                renderToolTip(((GuiChest) event.gui).inventorySlots.inventoryItemStacks.get(13), 40, 40);
+            }*/
+            if (Mouse.isButtonDown(0)) {
+                alpha = (float) 0.7;
+            } else if (Mouse.isButtonDown(1)) {
+                Minecraft.getMinecraft().thePlayer.closeScreen();
+            } else if (!Mouse.isButtonDown(0)) {
+                lastClick = false;
+                alpha = 0.3f;
+            }
+            if (((GuiChest) event.gui).inventorySlots.getSlot(13).getHasStack()) {
+            renderToolTip(((GuiChest) event.gui).inventorySlots.getSlot(13).getStack(), event.mouseX, event.mouseY);
+        }
+
+            drawRect(event.mouseX - 3, event.mouseY + 7, event.mouseX + 7, event.mouseY - 3, Color.YELLOW.getRGB(), alpha);
+            if (Mouse.isButtonDown(0) && !lastClick) {
+                lastClick = true;
+                Minecraft.getMinecraft().playerController.windowClick(containerChest.windowId, 31, 0, 3, (EntityPlayer) Minecraft.getMinecraft().thePlayer);
+            }
+
+        }
+        if (s.contains("Confirm Purchase")) {
+            if (Mouse.isButtonDown(0)) {
+                alpha = (float) 0.7;
+            } else if (Mouse.isButtonDown(1)) {
+                Minecraft.getMinecraft().thePlayer.closeScreen();
+            } else if (!Mouse.isButtonDown(0)) {
+                lastClick = false;
+                alpha = 0.3f;
+            }
+
+            drawRect(event.mouseX - 3, event.mouseY + 7, event.mouseX + 7, event.mouseY - 3, Color.GREEN.getRGB(), alpha);
+            if (Mouse.isButtonDown(0) && !lastClick) {
+                lastClick = true;
+                Minecraft.getMinecraft().playerController.windowClick(containerChest.windowId, 11, 0, 3, (EntityPlayer) Minecraft.getMinecraft().thePlayer);
+            }
 
         }
     }
-    @SubscribeEvent
-    public void onClick(GuiScreenEvent.MouseInputEvent.Post event) {
+
+
+        protected void renderToolTip(ItemStack stack, int x, int y) {
+        List<String> list = stack.getTooltip(Minecraft.getMinecraft().thePlayer, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
+
+        for(int i = 0; i < list.size(); ++i) {
+            if (i == 0) {
+                list.set(i, stack.getRarity().rarityColor + (String)list.get(i));
+            } else {
+                list.set(i, EnumChatFormatting.GRAY + (String)list.get(i));
+            }
+        }
+
+        FontRenderer font = stack.getItem().getFontRenderer(stack);
+        GuiUtils.drawHoveringText(list, x, y, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 100, font == null ? Minecraft.getMinecraft().fontRendererObj : font);
+    }
+
+
+
+    /*@SubscribeEvent
+    public void onGuiOpen (GuiOpenEvent event) {
+        renderTooltips = false;
+        if (!(event.gui instanceof GuiChest)) {
+            return;
+        }
+        final ContainerChest containerChest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
+
+        final String s = containerChest.getLowerChestInventory().getName();
+        if (s.toLowerCase().contains("bin auction view")) {
+            System.out.println("turning true");
+            renderTooltips = true;
+            return;
+
+        }
+    }*/
+
+
+  /*  @SubscribeEvent
+    public void onClick(GuiScreenEvent.MouseInputEvent event) {
         if (rendering && Minecraft.getMinecraft().thePlayer.openContainer.getSlot(31).getStack().getItem() == Items.gold_nugget) {
-            if (event =)
+            if (Mouse.isButtonDown(0)) {
+                alpha = (float) 0.7;
+            } else if (Mouse.isButtonDown(1)) {
+                Minecraft.getMinecraft().thePlayer.closeScreen();
+            } else if (!Mouse.isButtonDown(0)) {
+                alpha = 0.3f;
+            }
         }
-    }
+    }*/
 
-
-    public static void drawRectNoBlend(int left, int top, int right, int bottom, int color) {
+    public static void drawRect (int left, int top, int right, int bottom, int color, float alpha) {
+        int i;
         if (left < right) {
-            int i = left;
+            i = left;
             left = right;
             right = i;
         }
 
         if (top < bottom) {
-            int j = top;
+            i = top;
             top = bottom;
-            bottom = j;
+            bottom = i;
         }
 
-        float f3 = 40;
-        float f = (float) (color >> 16 & 255) / 255.0F;
-        float f1 = (float) (color >> 8 & 255) / 255.0F;
-        float f2 = (float) (color & 255) / 255.0F;
+        float f = (float) (color >> 24 & 255) / 255.0F;
+        float g = (float) (color >> 16 & 255) / 255.0F;
+        float h = (float) (color >> 8 & 255) / 255.0F;
+        float j = (float) (color & 255) / 255.0F;
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        GlStateManager.disableTexture2D();
-        GlStateManager.clearColor(f, f1, f2, f3);
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION);
-        worldrenderer.pos(left, bottom, 0.0D).endVertex();
-        worldrenderer.pos(right, bottom, 0.0D).endVertex();
-        worldrenderer.pos(right, top, 0.0D).endVertex();
-        worldrenderer.pos(left, top, 0.0D).endVertex();
-        tessellator.draw();
-        GlStateManager.enableTexture2D();
-    }
-
-    public static void drawTexturedRect(
-            float x,
-            float y,
-            float width,
-            float height,
-            float uMin,
-            float uMax,
-            float vMin,
-            float vMax,
-            int filter
-    ) {
-        GlStateManager.enableTexture2D();
+        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(
-                GL11.GL_SRC_ALPHA,
-                GL11.GL_ONE_MINUS_SRC_ALPHA,
-                GL11.GL_ONE,
-                GL11.GL_ONE_MINUS_SRC_ALPHA
-        );
-        GL14.glBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, filter);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, filter);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
-        worldrenderer
-                .pos(x, y + height, 0.0D)
-                .tex(uMin, vMax).endVertex();
-        worldrenderer
-                .pos(x + width, y + height, 0.0D)
-                .tex(uMax, vMax).endVertex();
-        worldrenderer
-                .pos(x + width, y, 0.0D)
-                .tex(uMax, vMin).endVertex();
-        worldrenderer
-                .pos(x, y, 0.0D)
-                .tex(uMin, vMin).endVertex();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.color(g, h, j, alpha);
+        worldRenderer.begin(7, DefaultVertexFormats.POSITION);
+        worldRenderer.pos((double) left, (double) bottom, 0.0).endVertex();
+        worldRenderer.pos((double) right, (double) bottom, 0.0).endVertex();
+        worldRenderer.pos((double) right, (double) top, 0.0).endVertex();
+        worldRenderer.pos((double) left, (double) top, 0.0).endVertex();
         tessellator.draw();
-
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-
+        GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
     }
 }
