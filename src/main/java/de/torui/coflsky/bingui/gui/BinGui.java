@@ -45,7 +45,7 @@ public class BinGui {
     }
 
     @SubscribeEvent
-    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Pre event) {
+    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Post event) {
         //first i get myself the gui
         GuiScreen gui = event.gui;
 
@@ -66,6 +66,11 @@ public class BinGui {
             //buy overlay
             renderBuyOverlay(event.mouseX, event.mouseY, gui.width, gui.height);
         }
+
+    }
+
+    @SubscribeEvent
+    public void onOpenGui(GuiScreenEvent.InitGuiEvent.Post event) {
 
     }
 
