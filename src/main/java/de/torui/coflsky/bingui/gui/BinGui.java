@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IChatComponent;
@@ -52,14 +53,7 @@ public class BinGui {
         GuiChest chest = (GuiChest) gui;
 
         //then i get the private field named lowerChestInventory
-        IInventory inventory = null;
-        try {
-            Field field = GuiChest.class.getDeclaredField("lowerChestInventory");
-            field.setAccessible(true);
-            inventory = (IInventory) field.get(chest);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        IInventory inventory = ((ContainerChest) chest.inventorySlots).getLowerChestInventory();
 
         //then a little null check
         if (inventory == null) return;

@@ -10,6 +10,7 @@ import com.mojang.realmsclient.util.Pair;
 
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.FlipHandler.Flip;
+import de.torui.coflsky.bingui.gui.BinGuiManager;
 import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
@@ -85,8 +86,8 @@ public class EventRegistry {
 					String command =  WSClient.gson.toJson("/viewauction " + f.id);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
 					
-					WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
-					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
+					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
+					WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);		
 				} else {
 					// only display message once (if this is the key down event)
 					if(CoflSky.keyBindings[1].isPressed())

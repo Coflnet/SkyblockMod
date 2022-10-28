@@ -2,6 +2,7 @@ package de.torui.coflsky;
 
 import com.google.gson.reflect.TypeToken;
 
+import de.torui.coflsky.bingui.gui.BinGuiManager;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
@@ -69,7 +70,9 @@ public class WSCommandHandler {
 		flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth));
 		
 		// trigger the keyevent to execute the event handler
-		CoflSky.Events.onKeyEvent(null);
+
+		BinGuiManager.openFlipGui(getChatMessage(showCmd), messages[0].Hover.split("\n"), cmd.getData().Id);
+		//CoflSky.Events.onKeyEvent(null);
 	}
 
 	private static void PlaySound(Command<SoundData> cmd, Entity sender) {
@@ -145,6 +148,11 @@ public class WSCommandHandler {
 	}
 	
 	private static void ChatMessage(Command<ChatMessageData[]> cmd) {		
+		IChatComponent master = getChatMessage(cmd);
+		Minecraft.getMinecraft().thePlayer.addChatMessage(master);
+	}
+
+	private static IChatComponent getChatMessage(Command<ChatMessageData[]> cmd) {
 		ChatMessageData[] list = cmd.getData() ;//WSClient.gson.fromJson(cmd.getData(), WriteToChatCommand[].class);
 
 		IChatComponent master = new ChatComponentText("");
@@ -154,7 +162,7 @@ public class WSCommandHandler {
 			if (comp != null)
 				master.appendSibling(comp);
 		}
-		Minecraft.getMinecraft().thePlayer.addChatMessage(master);
+		return master;
 	}
 
 	
