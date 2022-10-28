@@ -14,6 +14,7 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.lang.reflect.Field;
@@ -68,6 +69,20 @@ public class BinGui {
 
     }
 
+    @SubscribeEvent
+    public void onKeyEvent(GuiScreenEvent.KeyboardInputEvent event){
+        //check if it should render the gui
+        if (shouldRenderOverlay || shouldRenderBuyOverlay) {
+            //check if esc was pressed
+            if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+                //close the gui
+                shouldRenderOverlay = false;
+                shouldRenderBuyOverlay = false;
+                MinecraftForge.EVENT_BUS.unregister(this);
+            }
+        }
+    }
+
     public void renderBuyOverlay(int mouseX, int mouseY, int width, int height) {
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
         RenderUtils.drawRect(width / 2 - 100, height / 2 - 20, 200, 40, successAlpha.getRGB());
@@ -88,6 +103,7 @@ public class BinGui {
                     mc.playerController.windowClick(0, 11, 0, 0, mc.thePlayer);
                     shouldRenderOverlay = false;
                     shouldRenderBuyOverlay = false;
+                    MinecraftForge.EVENT_BUS.unregister(this);
                 }
             }
         }
@@ -120,6 +136,7 @@ public class BinGui {
                 shouldRenderBuyOverlay = false;
                 //close the gui
                 mc.displayGuiScreen(null);
+                MinecraftForge.EVENT_BUS.unregister(this);
             }
         }
 
@@ -154,6 +171,7 @@ public class BinGui {
                     mc.playerController.windowClick(0, 31, 0, 0, mc.thePlayer);
                     shouldRenderOverlay = false;
                     shouldRenderBuyOverlay = true;
+                    MinecraftForge.EVENT_BUS.unregister(this);
                 }
             }
         }
