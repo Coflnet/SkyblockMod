@@ -24,6 +24,8 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ClientCommandHandler;
 
+import static de.torui.coflsky.gui.OpenGuiRender.flips;
+
 public class WSCommandHandler {
 
 	public static transient String lastOnClickEvent;
@@ -48,6 +50,7 @@ public class WSCommandHandler {
 			break;
 		case Flip:
 			Flip(cmd.GetAs(new TypeToken<FlipData>() {}));
+			flips.add(cmd.GetAs(new TypeToken<FlipData>() {}).getData().Messages[0].Text.replaceAll("\n", ""));
 			break;
 		case PrivacySettings:
 			new ConfigurationManager().UpdateConfiguration(cmd.getData());

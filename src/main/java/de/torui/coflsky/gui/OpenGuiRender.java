@@ -1,5 +1,8 @@
 package de.torui.coflsky.gui;
 
+import com.neovisionaries.ws.client.WebSocket;
+import de.torui.coflsky.WSCommandHandler;
+import de.torui.coflsky.commands.JsonStringCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -19,10 +22,13 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import org.lwjgl.input.Mouse;
 
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -98,6 +104,26 @@ public class OpenGuiRender extends GuiScreen {
 
         FontRenderer font = stack.getItem().getFontRenderer(stack);
         GuiUtils.drawHoveringText(list, x, y, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 500, font == null ? Minecraft.getMinecraft().fontRendererObj : font);
+    }
+
+
+    public static ArrayList<String> flips = new ArrayList<>();
+
+    int renderTicks = 0;
+
+    @SubscribeEvent
+    public void render (RenderTickEvent event) {
+        int y = 5;
+        renderTicks++;
+        for (String flip : flips) {
+            y +=20;
+            GuiUtils.drawHoveringText(Collections.singletonList(flip), 0, y, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 500, Minecraft.getMinecraft().fontRendererObj);
+        }
+        if (renderTicks >= 2000 && flips.size() > 0) {
+            renderTicks = 0;
+            y = 5;
+            flips.clear();
+        }
     }
 
 

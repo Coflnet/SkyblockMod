@@ -3,6 +3,9 @@ package de.torui.coflsky.network;
 import java.io.IOException;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.net.ssl.SSLContext;
 
@@ -19,15 +22,23 @@ import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.RawCommand;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
+
+import static de.torui.coflsky.gui.OpenGuiRender.flips;
 
 public class WSClient extends WebSocketAdapter {
 
-	
-	public static Gson gson;
-	
-	
-	static {
-		gson = new GsonBuilder()/*.setFieldNamingStrategy(new FieldNamingStrategy() {
+
+    public static Gson gson;
+
+
+    static {
+        gson = new GsonBuilder()/*.setFieldNamingStrategy(new FieldNamingStrategy() {
 			@Override
 			public String translateName(Field f) {
 				
@@ -36,19 +47,20 @@ public class WSClient extends WebSocketAdapter {
 				return Character.toLowerCase(firstChar) + name.substring(1);
 			}
 		})*/.create();
-	}
-	public URI uri;
-	private WebSocket socket;
-	public boolean shouldRun = false;
-	public WebSocketState currentState = WebSocketState.CLOSED;
-	
-	public WSClient(URI uri) {
-		this.uri = uri;
-		
-	}
-	
-	public void start() throws IOException, WebSocketException, NoSuchAlgorithmException {
-		WebSocketFactory factory = new WebSocketFactory();
+    }
+
+    public URI uri;
+    private WebSocket socket;
+    public boolean shouldRun = false;
+    public WebSocketState currentState = WebSocketState.CLOSED;
+
+    public WSClient (URI uri) {
+        this.uri = uri;
+
+    }
+
+    public void start () throws IOException, WebSocketException, NoSuchAlgorithmException {
+        WebSocketFactory factory = new WebSocketFactory();
 		
 		/*// Create a custom SSL context.
 		SSLContext context = NaiveSSLContext.getInstance("TLS");
@@ -69,70 +81,86 @@ public class WSClient extends WebSocketAdapter {
 		// by calling WebSocketFactory.setVerifyHostname(false).
 		factory.setVerifyHostname(false);
 		factory.*/
-		factory.setVerifyHostname(false);
-		factory.setSSLContext(NaiveSSLContext.getInstance("TLSv1.2"));
-		factory.setConnectionTimeout(10*1000);
-		this.socket = factory.createSocket(uri);
-		this.socket.addListener(this);
-		this.socket.connect();
-	}
-	
-	public void stop() {
-		System.out.println("Closing Socket");
-		if(socket == null)
-			return;
-		socket.clearListeners();
-		socket.disconnect();
-		System.out.println("Socket closed");
+        factory.setVerifyHostname(false);
+        factory.setSSLContext(NaiveSSLContext.getInstance("TLSv1.2"));
+        factory.setConnectionTimeout(10 * 1000);
+        this.socket = factory.createSocket(uri);
+        this.socket.addListener(this);
+        this.socket.connect();
+    }
 
-	}
-	
-	@Override
-	public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
-		System.out.println("WebSocket Changed state to: " + newState);
-		currentState = newState;
-		
-		if(newState == WebSocketState.CLOSED && shouldRun) {
-			CoflSky.Wrapper.restartWebsocketConnection();
-		}
-		
-		super.onStateChanged(websocket, newState);
-	}
+    public void stop () {
+        System.out.println("Closing Socket");
+        if (socket == null)
+            return;
+        socket.clearListeners();
+        socket.disconnect();
+        System.out.println("Socket closed");
 
-	
-	
-	 @Override
-	    public void onTextMessage(WebSocket websocket, String text) throws Exception{
-		
-		//super.onTextMessage(websocket, text);
-		 System.out.println("Received: "+ text);
-		JsonStringCommand cmd = gson.fromJson(text, JsonStringCommand.class);
-		//System.out.println(cmd);
-		WSCommandHandler.HandleCommand(cmd, Minecraft.getMinecraft().thePlayer);
-		
-	}
+    }
 
-	public void SendCommand(Command cmd) {
-		SendCommand(new RawCommand(cmd.getType().ToJson(),gson.toJson(cmd.getData())));
-	}
-	public void SendCommand(RawCommand cmd) {
-		Send(cmd);
-	}
-	
-	public void Send(Object obj) {
-		String json = gson.toJson(obj);
-		System.out.println("###Sending message of json value " + json);
-		if(this.socket == null)
-			try 
-			{
-				start();
-			} catch(Exception e)
-			{
-		 		System.out.println("Ran into an error on implicit start for send: "+ e);
-			}
-		this.socket.sendText(json);
-	}
-		
-	
-	
+    @Override
+    public void onStateChanged (WebSocket websocket, WebSocketState newState) throws Exception {
+        System.out.println("WebSocket Changed state to: " + newState);
+        currentState = newState;
+
+        if (newState == WebSocketState.CLOSED && shouldRun) {
+            CoflSky.Wrapper.restartWebsocketConnection();
+        }
+
+        super.onStateChanged(websocket, newState);
+    }
+
+
+
+
+    @Override
+    public void onTextMessage (WebSocket websocket, String text) throws Exception {
+
+        //super.onTextMessage(websocket, text);
+        System.out.println("Received: " + text);
+        JsonStringCommand cmd = gson.fromJson(text, JsonStringCommand.class);
+
+
+        //System.out.println(cmd);
+        WSCommandHandler.HandleCommand(cmd, Minecraft.getMinecraft().thePlayer);
+    }
+
+
+    protected void renderToolTip (ItemStack stack, int x, int y) {
+        List<String> list = stack.getTooltip(Minecraft.getMinecraft().thePlayer, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
+
+        for (int i = 0; i < list.size(); ++i) {
+            if (i == 0) {
+                list.set(i, stack.getRarity().rarityColor + (String) list.get(i));
+            } else {
+                list.set(i, EnumChatFormatting.GRAY + (String) list.get(i));
+            }
+        }
+
+        FontRenderer font = stack.getItem().getFontRenderer(stack);
+        GuiUtils.drawHoveringText(list, x, y, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 500, font == null ? Minecraft.getMinecraft().fontRendererObj : font);
+    }
+
+    public void SendCommand (Command cmd) {
+        SendCommand(new RawCommand(cmd.getType().ToJson(), gson.toJson(cmd.getData())));
+    }
+
+    public void SendCommand (RawCommand cmd) {
+        Send(cmd);
+    }
+
+    public void Send (Object obj) {
+        String json = gson.toJson(obj);
+        System.out.println("###Sending message of json value " + json);
+        if (this.socket == null)
+            try {
+                start();
+            } catch (Exception e) {
+                System.out.println("Ran into an error on implicit start for send: " + e);
+            }
+        this.socket.sendText(json);
+    }
+
+
 }

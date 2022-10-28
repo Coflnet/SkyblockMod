@@ -12,6 +12,8 @@ import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.gui.OpenGuiRender;
 import de.torui.coflsky.handlers.EventRegistry;
+import de.torui.coflsky.network.WSClient;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
