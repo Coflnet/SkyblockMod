@@ -7,6 +7,7 @@ import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.ChatMessageData;
 import de.torui.coflsky.commands.models.FlipData;
+import de.torui.coflsky.commands.models.LoadingGui;
 import de.torui.coflsky.commands.models.SoundData;
 import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.commands.models.TimerData;
@@ -14,15 +15,25 @@ import de.torui.coflsky.handlers.EventRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.ClickEvent.Action;
 import net.minecraft.event.HoverEvent;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.fml.client.config.GuiUtils;
+
+import java.awt.*;
+import java.util.Collections;
 
 import static de.torui.coflsky.gui.OpenGuiRender.flips;
 
@@ -109,12 +120,15 @@ public class WSCommandHandler {
 			String uuid = args[args.length-1];
 			EventRegistry.LastViewAuctionUUID = uuid;
 			EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
+			Minecraft.getMinecraft().displayGuiScreen(new LoadingGui());
+
+
 		}
 		
 		if(cmd.startsWith("/cofl") || cmd.startsWith("http")) {
 			ClientCommandHandler.instance.executeCommand(sender, cmd);
 		} else {
-			Minecraft.getMinecraft().thePlayer.sendChatMessage(cmd);
+
 		}
 	}
 

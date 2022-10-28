@@ -115,15 +115,16 @@ public class OpenGuiRender extends GuiScreen {
     public void render (RenderTickEvent event) {
         int y = 5;
         renderTicks++;
-        for (String flip : flips) {
-            y +=20;
-            GuiUtils.drawHoveringText(Collections.singletonList(flip), 0, y, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 500, Minecraft.getMinecraft().fontRendererObj);
-        }
         if (renderTicks >= 2000 && flips.size() > 0) {
             renderTicks = 0;
             y = 5;
             flips.clear();
         }
+        for (String flip : flips) {
+            y +=20;
+            GuiUtils.drawHoveringText(Collections.singletonList(flip), 0, y, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 500, Minecraft.getMinecraft().fontRendererObj);
+        }
+
     }
 
 
