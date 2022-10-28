@@ -70,7 +70,7 @@ public class BinGui {
     }
 
     @SubscribeEvent
-    public void onKeyEvent(GuiScreenEvent.KeyboardInputEvent event) {
+    public void onKeyEvent(GuiScreenEvent.KeyboardInputEvent.Pre event) {
         //check if it should render the gui
         if (shouldRenderOverlay || shouldRenderBuyOverlay) {
             //check if esc was pressed
