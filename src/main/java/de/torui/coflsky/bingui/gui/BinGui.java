@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Locale;
 
 public class BinGui {
-    private static Minecraft mc = Minecraft.getMinecraft();
+    private static final Minecraft mc = Minecraft.getMinecraft();
     private static boolean shouldRenderOverlay = false;
     private static boolean shouldRenderBuyOverlay = false;
-    private static InputHandler inputHandler = new InputHandler();
+    private static final InputHandler inputHandler = new InputHandler();
 
     private IChatComponent message;
     private String[] lore;
@@ -160,10 +160,8 @@ public class BinGui {
 
             //check if you double clicked
             if (inputHandler.isClicked()) {
-
                 //buy the item
                 if (inputHandler.isClicked()) {
-
                     //click at slot 31
                     mc.playerController.windowClick(0, 31, 0, 0, mc.thePlayer);
                     shouldRenderOverlay = false;
