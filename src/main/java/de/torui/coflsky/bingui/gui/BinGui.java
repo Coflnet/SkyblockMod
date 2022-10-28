@@ -44,7 +44,7 @@ public class BinGui {
     }
 
     @SubscribeEvent
-    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Post event) {
+    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Pre event) {
         //first i get myself the gui
         GuiScreen gui = event.gui;
 
@@ -76,7 +76,7 @@ public class BinGui {
     }
 
     @SubscribeEvent
-    public void onKeyEvent(GuiScreenEvent.KeyboardInputEvent event){
+    public void onKeyEvent(GuiScreenEvent.KeyboardInputEvent event) {
         //check if it should render the gui
         if (shouldRenderOverlay || shouldRenderBuyOverlay) {
             //check if esc was pressed
