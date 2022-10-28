@@ -109,6 +109,7 @@ public class BinGui {
                     mc.playerController.windowClick(0, 11, 0, 0, mc.thePlayer);
                     shouldRenderOverlay = false;
                     shouldRenderBuyOverlay = false;
+                    MinecraftForge.EVENT_BUS.unregister(this);
                 }
             }
         }
@@ -141,6 +142,7 @@ public class BinGui {
                 shouldRenderBuyOverlay = false;
                 //close the gui
                 mc.displayGuiScreen(null);
+                MinecraftForge.EVENT_BUS.unregister(this);
             }
         }
 
@@ -175,6 +177,7 @@ public class BinGui {
                     mc.playerController.windowClick(0, 31, 0, 0, mc.thePlayer);
                     shouldRenderOverlay = false;
                     shouldRenderBuyOverlay = true;
+                    MinecraftForge.EVENT_BUS.unregister(this);
                 }
             }
         }
