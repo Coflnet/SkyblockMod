@@ -54,7 +54,7 @@ public class BinGui {
         //then i get the private field named lowerChestInventory
         IInventory inventory = null;
         try {
-            Field field = GuiChest.class.getDeclaredField("lowerChestInventory");
+            Field field = chest.getClass().getDeclaredField("lowerChestInventory");
             field.setAccessible(true);
             inventory = (IInventory) field.get(chest);
         } catch (Exception e) {
