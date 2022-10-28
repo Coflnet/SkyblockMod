@@ -17,9 +17,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class BinGui {
     private static Minecraft mc = Minecraft.getMinecraft();
@@ -62,15 +62,10 @@ public class BinGui {
         if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && shouldRenderOverlay) {
             //now i render my overlay
             renderMainGui(event.mouseX, event.mouseY, gui.width, gui.height);
-        } else if (inventory.getDisplayName().getFormattedText().contains("confirm") && shouldRenderBuyOverlay) {
+        } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && shouldRenderBuyOverlay) {
             //buy overlay
             renderBuyOverlay(event.mouseX, event.mouseY, gui.width, gui.height);
         }
-
-    }
-
-    @SubscribeEvent
-    public void onOpenGui(GuiScreenEvent.InitGuiEvent.Post event) {
 
     }
 
@@ -81,22 +76,20 @@ public class BinGui {
             //check if esc was pressed
             if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
                 //close the gui
-                shouldRenderOverlay = false;
-                shouldRenderBuyOverlay = false;
-                MinecraftForge.EVENT_BUS.unregister(this);
+                close();
             }
         }
     }
 
     public void renderBuyOverlay(int mouseX, int mouseY, int width, int height) {
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
-        RenderUtils.drawRect(width / 2 - 100, height / 2 - 20, 200, 40, successAlpha.getRGB());
+        RenderUtils.drawRect(width - 200, height / 2 - 20, 200, 40, successAlpha.getRGB());
 
         //if mouse button is hovered over the rectangle, draw a darker rectangle
         if (isMouseOverBuy(mouseX, mouseY, width, height)) {
 
             //draws the rectangle again, but now it is darker because of the alpha
-            RenderUtils.drawRect(width / 2 - 100, height / 2 - 20, 200, 40, successAlpha.getRGB());
+            RenderUtils.drawRect(width - 200, height / 2 - 20, 200, 40, successAlpha.getRGB());
 
             //check if you double clicked
             if (inputHandler.isClicked()) {
@@ -106,13 +99,12 @@ public class BinGui {
 
                     //click at slot 31
                     mc.playerController.windowClick(0, 11, 0, 0, mc.thePlayer);
-                    shouldRenderOverlay = false;
-                    shouldRenderBuyOverlay = false;
-                    MinecraftForge.EVENT_BUS.unregister(this);
+                    close();
                 }
             }
         }
     }
+
 
     public void renderMainGui(int mouseX, int mouseY, int width, int height) {
         //the item I use for testing
@@ -158,13 +150,13 @@ public class BinGui {
 
         //now I draw a big transparent green button in the middle of the screen that if clicked twice, buys the item
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
-        RenderUtils.drawRect(width / 2 - 100, height / 2 - 20, 200, 40, successAlpha.getRGB());
+        RenderUtils.drawRect(width - 200, height / 2 - 20, 200, 40, successAlpha.getRGB());
 
         //if mouse button is hovered over the rectangle, draw a darker rectangle
         if (isMouseOverBuy(mouseX, mouseY, width, height)) {
 
             //draws the rectangle again, but now it is darker because of the alpha
-            RenderUtils.drawRect(width / 2 - 100, height / 2 - 20, 200, 40, successAlpha.getRGB());
+            RenderUtils.drawRect(width - 200, height / 2 - 20, 200, 40, successAlpha.getRGB());
 
             //check if you double clicked
             if (inputHandler.isClicked()) {
@@ -176,10 +168,16 @@ public class BinGui {
                     mc.playerController.windowClick(0, 31, 0, 0, mc.thePlayer);
                     shouldRenderOverlay = false;
                     shouldRenderBuyOverlay = true;
-                    MinecraftForge.EVENT_BUS.unregister(this);
                 }
             }
         }
+    }
+
+    private void close() {
+        shouldRenderOverlay = false;
+        shouldRenderBuyOverlay = false;
+        MinecraftForge.EVENT_BUS.unregister(this);
+        BinGuiManager.currentGui = null;
     }
 
     //Draw tooltip
@@ -205,6 +203,7 @@ public class BinGui {
 
     public void drawFlipMessage(IChatComponent message, int x, int y) {
         float height = mc.fontRendererObj.FONT_HEIGHT;
+
         //every 50 chars, the message will be split into more lines
         List<String> lines = new ArrayList<>();
         String formattedMessage = message.getFormattedText();
@@ -222,6 +221,7 @@ public class BinGui {
                 longestMessage = s;
             }
         }
+
         //draw the background
         RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(longestMessage), height * lines.size(), ColorPallet.SECONDARY.getColor().getRGB());
 
@@ -249,6 +249,6 @@ public class BinGui {
     }
 
     public boolean isMouseOverBuy(int mouseX, int mouseY, int width, int height) {
-        return mouseX >= width / 2 - 100 && mouseX <= width / 2 + 100 && mouseY >= height / 2 - 20 && mouseY <= height / 2 + 20;
+        return mouseX >= width - 200 && mouseX <= width + 200 && mouseY >= height / 2 - 20 && mouseY <= height / 2 + 20;
     }
 }
