@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
+import de.torui.coflsky.gui.OpenGuiRender;
 import de.torui.coflsky.handlers.EventRegistry;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
@@ -54,10 +55,10 @@ public class CoflSky
         coflDir.mkdirs();
         configFile = new File(coflDir, "config.json");
         try {
-            if (configFile.isFile()) {
+            /*if (configFile.isFile()) {
                 configString = new String(Files.readAllBytes(Paths.get(configFile.getPath())));
                 config = gson.fromJson(configString, LocalConfig.class);
-            }
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,6 +92,7 @@ public class CoflSky
         }   
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);
+        MinecraftForge.EVENT_BUS.register(new OpenGuiRender());
         Runtime.getRuntime()
                 .addShutdownHook(
                         new Thread(
