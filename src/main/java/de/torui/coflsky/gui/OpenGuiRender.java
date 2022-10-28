@@ -26,7 +26,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Locale;
 
-public class OpenGuiRender extends GuiScreen{
+public class OpenGuiRender extends GuiScreen {
 
     float alpha = (float) 0.3;
     boolean lastClick = false;
@@ -40,18 +40,12 @@ public class OpenGuiRender extends GuiScreen{
             return;
         }
 
-
-
         final ContainerChest containerChest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
 
         final String s = containerChest.getLowerChestInventory().getName();
 
         if (s.toLowerCase(Locale.ROOT).contains("bin auction view")) {
 
-            /*this.renderToolTip(containerChest.inventoryItemStacks.get(13), 0, 40);*/
-            /*if (renderTooltips) {
-                renderToolTip(((GuiChest) event.gui).inventorySlots.inventoryItemStacks.get(13), 40, 40);
-            }*/
             if (Mouse.isButtonDown(0)) {
                 alpha = (float) 0.7;
             } else if (Mouse.isButtonDown(1)) {
@@ -61,8 +55,8 @@ public class OpenGuiRender extends GuiScreen{
                 alpha = 0.3f;
             }
             if (((GuiChest) event.gui).inventorySlots.getSlot(13).getHasStack()) {
-            renderToolTip(((GuiChest) event.gui).inventorySlots.getSlot(13).getStack(), event.mouseX, event.mouseY);
-        }
+                renderToolTip(((GuiChest) event.gui).inventorySlots.getSlot(13).getStack(), event.mouseX, event.mouseY);
+            }
 
             drawRect(event.mouseX - 3, event.mouseY + 7, event.mouseX + 7, event.mouseY - 3, Color.YELLOW.getRGB(), alpha);
             if (Mouse.isButtonDown(0) && !lastClick) {
@@ -91,53 +85,21 @@ public class OpenGuiRender extends GuiScreen{
     }
 
 
-        protected void renderToolTip(ItemStack stack, int x, int y) {
+    protected void renderToolTip (ItemStack stack, int x, int y) {
         List<String> list = stack.getTooltip(Minecraft.getMinecraft().thePlayer, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
 
-        for(int i = 0; i < list.size(); ++i) {
+        for (int i = 0; i < list.size(); ++i) {
             if (i == 0) {
-                list.set(i, stack.getRarity().rarityColor + (String)list.get(i));
+                list.set(i, stack.getRarity().rarityColor + (String) list.get(i));
             } else {
-                list.set(i, EnumChatFormatting.GRAY + (String)list.get(i));
+                list.set(i, EnumChatFormatting.GRAY + (String) list.get(i));
             }
         }
 
         FontRenderer font = stack.getItem().getFontRenderer(stack);
-        GuiUtils.drawHoveringText(list, x, y, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 100, font == null ? Minecraft.getMinecraft().fontRendererObj : font);
+        GuiUtils.drawHoveringText(list, x, y, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 500, font == null ? Minecraft.getMinecraft().fontRendererObj : font);
     }
 
-
-
-    /*@SubscribeEvent
-    public void onGuiOpen (GuiOpenEvent event) {
-        renderTooltips = false;
-        if (!(event.gui instanceof GuiChest)) {
-            return;
-        }
-        final ContainerChest containerChest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
-
-        final String s = containerChest.getLowerChestInventory().getName();
-        if (s.toLowerCase().contains("bin auction view")) {
-            System.out.println("turning true");
-            renderTooltips = true;
-            return;
-
-        }
-    }*/
-
-
-  /*  @SubscribeEvent
-    public void onClick(GuiScreenEvent.MouseInputEvent event) {
-        if (rendering && Minecraft.getMinecraft().thePlayer.openContainer.getSlot(31).getStack().getItem() == Items.gold_nugget) {
-            if (Mouse.isButtonDown(0)) {
-                alpha = (float) 0.7;
-            } else if (Mouse.isButtonDown(1)) {
-                Minecraft.getMinecraft().thePlayer.closeScreen();
-            } else if (!Mouse.isButtonDown(0)) {
-                alpha = 0.3f;
-            }
-        }
-    }*/
 
     public static void drawRect (int left, int top, int right, int bottom, int color, float alpha) {
         int i;
