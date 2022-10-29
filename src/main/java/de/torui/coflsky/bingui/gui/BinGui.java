@@ -100,13 +100,13 @@ public class BinGui {
 
     public void renderBuyOverlay(int mouseX, int mouseY, int width, int height) {
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
-        RenderUtils.drawRect(width - 200, height / 2 - 100, 200, 200, successAlpha.getRGB());
+        RenderUtils.drawRect(width / 2 - 100, height / 2 - 100, 200, 200, successAlpha.getRGB());
 
         //if mouse button is hovered over the rectangle, draw a darker rectangle
         if (isMouseOverBuy(mouseX, mouseY, width, height)) {
 
             //draws the rectangle again, but now it is darker because of the alpha
-            RenderUtils.drawRect(width - 200, height / 2 - 100, 200, 200, successAlpha.getRGB());
+            RenderUtils.drawRect(width / 2 - 100, height / 2 - 100, 200, 200, successAlpha.getRGB());
 
             //check if you double clicked
             if (inputHandler.isClicked()) {
@@ -167,13 +167,13 @@ public class BinGui {
 
         //now I draw a big transparent green button in the middle of the screen that if clicked twice, buys the item
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
-        RenderUtils.drawRect(width - 200, height / 2 - 100, 200, 200, successAlpha.getRGB());
+        RenderUtils.drawRect(width / 2 - 100, height / 2 - 100, 200, 200, successAlpha.getRGB());
 
         //if mouse button is hovered over the rectangle, draw a darker rectangle
         if (isMouseOverBuy(mouseX, mouseY, width, height)) {
 
             //draws the rectangle again, but now it is darker because of the alpha
-            RenderUtils.drawRect(width - 200, height / 2 - 100, 200, 200, successAlpha.getRGB());
+            RenderUtils.drawRect(width / 2 - 100, height / 2 - 100, 200, 200, successAlpha.getRGB());
 
             //check if you double clicked
             if (inputHandler.isClicked()) {
@@ -265,6 +265,6 @@ public class BinGui {
     }
 
     public boolean isMouseOverBuy(int mouseX, int mouseY, int width, int height) {
-        return mouseX >= width - 200 && mouseX <= width + 200 && mouseY >= height / 2 - 100 && mouseY <= height / 2 + 100;
+        return mouseX >= width / 2 - 100 && mouseX <= width / 2 + 100 && mouseY >= height / 2 - 100 && mouseY <= height / 2 + 100;
     }
 }
