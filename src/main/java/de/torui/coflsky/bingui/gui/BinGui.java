@@ -6,11 +6,8 @@ import de.torui.coflsky.bingui.helper.inputhandler.InputHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.C0EPacketClickWindow;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -109,8 +106,8 @@ public class BinGui {
 
     public void renderMainGui(int mouseX, int mouseY, int width, int height) {
         //the item I use for testing
-        ItemStack itemStack = new ItemStack(Items.item_frame);
-        itemStack.setStackDisplayName("Item Name");
+        //ItemStack itemStack = new ItemStack(Items.item_frame);
+        //itemStack.setStackDisplayName("Item Name");
 
         //just to clear things up for myself
 
@@ -141,10 +138,10 @@ public class BinGui {
         drawToolTip(width, 0, lore);
 
         //draw a title at the top of the screen
-        RenderUtils.drawCenteredString("Item Name", width / 2, 5, ColorPallet.WHITE.getColor());
+        //RenderUtils.drawCenteredString("Item Name", width / 2, 5, ColorPallet.WHITE.getColor());
 
         //Draw the item icon directly under the title
-        RenderUtils.drawItemStack(itemStack, width / 2 - 8, 15, 1);
+        //RenderUtils.drawItemStack(itemStack, width / 2 - 8, 15, 1);
 
         //draw the flip message in the top left corner
         drawFlipMessage(message, 0, 0);
@@ -206,7 +203,7 @@ public class BinGui {
         //every 50 chars, the message will be split into more lines
         List<String> lines = new ArrayList<>();
         String formattedMessage = message.getFormattedText();
-        String unFormattedMessage = message.getUnformattedText();
+        //String unFormattedMessage = message.getUnformattedText();
 
         //split the message into lines
         for (int i = 0; i < formattedMessage.length(); i += 50) {
