@@ -121,14 +121,14 @@ public class WSCommandHandler {
 			EventRegistry.LastViewAuctionUUID = uuid;
 			EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
 			Minecraft.getMinecraft().displayGuiScreen(new LoadingGui());
-
+			Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + uuid);
 
 		}
 		
 		if(cmd.startsWith("/cofl") || cmd.startsWith("http")) {
 			ClientCommandHandler.instance.executeCommand(sender, cmd);
 		} else {
-
+			Minecraft.getMinecraft().thePlayer.sendChatMessage(cmd);
 		}
 	}
 
