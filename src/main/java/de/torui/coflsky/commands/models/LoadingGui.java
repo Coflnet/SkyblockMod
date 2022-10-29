@@ -39,7 +39,7 @@ public class LoadingGui extends GuiScreen {
                 lastClick = true;
                 Minecraft.getMinecraft().getNetHandler().getNetworkManager().sendPacket(new C0EPacketClickWindow(5, 31, 1, 2, new ItemStack(Items.gold_nugget), (short) new Random().nextInt(Short.MAX_VALUE)));
             }
-        System.out.println(Minecraft.getMinecraft().currentScreen.width/2);
+
         this.drawString(Minecraft.getMinecraft().fontRendererObj, "BIN Auction View Loading", Minecraft.getMinecraft().currentScreen.width/2 - (fontRendererObj.getStringWidth("BIN Auction View Loading")/2), Minecraft.getMinecraft().currentScreen.height/2- (fontRendererObj.getStringWidth("BIN Auction View Loading")/2), Color.GREEN.getRGB());
     }
     public static void drawRect (int left, int top, int right, int bottom, int color, float alpha) {
