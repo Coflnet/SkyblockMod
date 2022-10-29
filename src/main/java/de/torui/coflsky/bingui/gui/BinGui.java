@@ -9,6 +9,7 @@ import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.IChatComponent;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -73,6 +74,24 @@ public class BinGui {
         if (shouldRenderOverlay || shouldRenderBuyOverlay) {
             //check if esc was pressed
             if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+                //close the gui
+                close();
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onChatEvent(ClientChatReceivedEvent event) {
+        //check if it should render the gui
+        if (shouldRenderOverlay || shouldRenderBuyOverlay) {
+            String message = event.message.getFormattedText().toLowerCase(Locale.ROOT);
+            if (
+                    message.contains("you have bought") ||
+                            message.contains("you don't have enough coins") ||
+                            message.contains("this auction wasn't found") ||
+                            message.contains("there was an error with the auction house") ||
+                            message.contains("you didn't participate in this auction")
+            ) {
                 //close the gui
                 close();
             }
@@ -174,6 +193,7 @@ public class BinGui {
         shouldRenderBuyOverlay = false;
         MinecraftForge.EVENT_BUS.unregister(this);
         BinGuiManager.currentGui = null;
+        mc.thePlayer.closeScreen();
     }
 
     //Draw tooltip
@@ -203,11 +223,11 @@ public class BinGui {
         //every 50 chars, the message will be split into more lines
         List<String> lines = new ArrayList<>();
         String formattedMessage = message.getFormattedText();
-        //String unFormattedMessage = message.getUnformattedText();
+        String unFormattedMessage = message.getUnformattedText();
 
         //split the message into lines
-        for (int i = 0; i < formattedMessage.length(); i += 50) {
-            lines.add(formattedMessage.substring(i, Math.min(formattedMessage.length(), i + 50)));
+        for (int i = 0; i < unFormattedMessage.length(); i += 50) {
+            lines.add(unFormattedMessage.substring(i, Math.min(unFormattedMessage.length(), i + 50)));
         }
 
         //longest message
