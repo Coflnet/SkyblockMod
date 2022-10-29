@@ -10,6 +10,7 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.C0EPacketClickWindow;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -83,13 +84,13 @@ public class BinGui {
 
     public void renderBuyOverlay(int mouseX, int mouseY, int width, int height) {
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
-        RenderUtils.drawRect(width - 200, height / 2 - 20, 200, 40, successAlpha.getRGB());
+        RenderUtils.drawRect(width - 200, height / 2 - 100, 200, 200, successAlpha.getRGB());
 
         //if mouse button is hovered over the rectangle, draw a darker rectangle
         if (isMouseOverBuy(mouseX, mouseY, width, height)) {
 
             //draws the rectangle again, but now it is darker because of the alpha
-            RenderUtils.drawRect(width - 200, height / 2 - 20, 200, 40, successAlpha.getRGB());
+            RenderUtils.drawRect(width - 200, height / 2 - 100, 200, 200, successAlpha.getRGB());
 
             //check if you double clicked
             if (inputHandler.isClicked()) {
@@ -98,7 +99,7 @@ public class BinGui {
                 if (inputHandler.isClicked()) {
 
                     //click at slot 31
-                    mc.playerController.windowClick(0, 11, 0, 0, mc.thePlayer);
+                    mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
                     close();
                 }
             }
@@ -150,20 +151,20 @@ public class BinGui {
 
         //now I draw a big transparent green button in the middle of the screen that if clicked twice, buys the item
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
-        RenderUtils.drawRect(width - 200, height / 2 - 20, 200, 40, successAlpha.getRGB());
+        RenderUtils.drawRect(width - 200, height / 2 - 100, 200, 200, successAlpha.getRGB());
 
         //if mouse button is hovered over the rectangle, draw a darker rectangle
         if (isMouseOverBuy(mouseX, mouseY, width, height)) {
 
             //draws the rectangle again, but now it is darker because of the alpha
-            RenderUtils.drawRect(width - 200, height / 2 - 20, 200, 40, successAlpha.getRGB());
+            RenderUtils.drawRect(width - 200, height / 2 - 100, 200, 200, successAlpha.getRGB());
 
             //check if you double clicked
             if (inputHandler.isClicked()) {
                 //buy the item
                 if (inputHandler.isClicked()) {
-                    //click at slot 31
-                    mc.playerController.windowClick(0, 31, 0, 0, mc.thePlayer);
+                    //click at slot 31 by sending a packet
+                    mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
                     shouldRenderOverlay = false;
                     shouldRenderBuyOverlay = true;
                 }
@@ -247,6 +248,6 @@ public class BinGui {
     }
 
     public boolean isMouseOverBuy(int mouseX, int mouseY, int width, int height) {
-        return mouseX >= width - 200 && mouseX <= width + 200 && mouseY >= height / 2 - 20 && mouseY <= height / 2 + 20;
+        return mouseX >= width - 200 && mouseX <= width + 200 && mouseY >= height / 2 - 100 && mouseY <= height / 2 + 100;
     }
 }
