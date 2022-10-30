@@ -7,9 +7,10 @@ public class BinGuiManager {
 
     //this can be used to open the gui
     public static void openFlipGui(IChatComponent message, String[] lore, String auctionId) {
-        if (currentGui == null) {
-            currentGui = new BinGui(message, lore);
-            currentGui.open(auctionId);
+        if (currentGui != null) {
+            currentGui.close();
         }
+        currentGui = new BinGui(message, lore);
+        currentGui.open(auctionId);
     }
 }

@@ -44,7 +44,7 @@ public class BinGui {
     }
 
     @SubscribeEvent
-    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Post event) {
+    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Pre event) {
         //first i get myself the gui
         GuiScreen gui = event.gui;
 
@@ -117,6 +117,7 @@ public class BinGui {
                     //click at slot 31
                     mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
                     close();
+                    mc.thePlayer.closeScreen();
                 }
             }
         }
@@ -145,12 +146,8 @@ public class BinGui {
 
             //check if mouse button is pressed
             if (inputHandler.isMouseDown(0)) {
-
-                shouldRenderOverlay = false;
-                shouldRenderBuyOverlay = false;
-                //close the gui
-                mc.displayGuiScreen(null);
-                MinecraftForge.EVENT_BUS.unregister(this);
+                close();
+                mc.thePlayer.closeScreen();
             }
         }
 
@@ -188,12 +185,11 @@ public class BinGui {
         }
     }
 
-    private void close() {
+    public void close() {
         shouldRenderOverlay = false;
         shouldRenderBuyOverlay = false;
         MinecraftForge.EVENT_BUS.unregister(this);
         BinGuiManager.currentGui = null;
-        mc.thePlayer.closeScreen();
     }
 
     //Draw tooltip
