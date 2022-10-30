@@ -16,6 +16,8 @@ import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.AuctionData;
+import de.torui.coflsky.commands.models.ChatMessageData;
+import de.torui.coflsky.commands.models.FlipData;
 import de.torui.coflsky.configuration.Configuration;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
@@ -78,16 +80,18 @@ public class EventRegistry {
 		if(CoflSky.keyBindings[1].isKeyDown()) {
 			if((System.currentTimeMillis() - LastClick) >= 300) {
 						
-				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
+				FlipData f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 				
 				if(f != null) {
-					WSCommandHandler.Execute("/viewauction " + f.id, null);
+					WSCommandHandler.Execute("/viewauction " + f.Id, null);
+					Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, f.Messages);
+					BinGuiManager.openFlipGui(WSCommandHandler.getChatMessage(showCmd), f.Messages[0].Hover.split("\n"), f.Id);
 					LastClick = System.currentTimeMillis();		
-					String command =  WSClient.gson.toJson("/viewauction " + f.id);
+					String command =  WSClient.gson.toJson("/viewauction " + f.Id);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
 					
 					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
-					WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);		
+					WSCommandHandler.Execute("/cofl track besthotkey " + f.Id, Minecraft.getMinecraft().thePlayer);		
 				} else {
 					// only display message once (if this is the key down event)
 					if(CoflSky.keyBindings[1].isPressed())

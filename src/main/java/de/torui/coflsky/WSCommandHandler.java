@@ -67,12 +67,11 @@ public class WSCommandHandler {
 		ChatMessageData[] messages = cmd.getData().Messages;
 		Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
 		ChatMessage(showCmd);
-		flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth));
+		flipHandler.fds.Insert(cmd.getData());
 		
 		// trigger the keyevent to execute the event handler
 
-		BinGuiManager.openFlipGui(getChatMessage(showCmd), messages[0].Hover.split("\n"), cmd.getData().Id);
-		//CoflSky.Events.onKeyEvent(null);
+		CoflSky.Events.onKeyEvent(null);
 	}
 
 	private static void PlaySound(Command<SoundData> cmd, Entity sender) {
@@ -152,7 +151,7 @@ public class WSCommandHandler {
 		Minecraft.getMinecraft().thePlayer.addChatMessage(master);
 	}
 
-	private static IChatComponent getChatMessage(Command<ChatMessageData[]> cmd) {
+	public static IChatComponent getChatMessage(Command<ChatMessageData[]> cmd) {
 		ChatMessageData[] list = cmd.getData() ;//WSClient.gson.fromJson(cmd.getData(), WriteToChatCommand[].class);
 
 		IChatComponent master = new ChatComponentText("");
