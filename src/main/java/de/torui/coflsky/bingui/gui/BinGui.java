@@ -44,7 +44,7 @@ public class BinGui {
     }
 
     @SubscribeEvent
-    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Pre event) {
+    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Post event) {
         //first i get myself the gui
         GuiScreen gui = event.gui;
 
@@ -153,6 +153,7 @@ public class BinGui {
 
         drawToolTip(width, 0, lore);
 
+
         //draw a title at the top of the screen
         //RenderUtils.drawCenteredString("Item Name", width / 2, 5, ColorPallet.WHITE.getColor());
 
@@ -160,7 +161,11 @@ public class BinGui {
         //RenderUtils.drawItemStack(itemStack, width / 2 - 8, 15, 1);
 
         //draw the flip message in the top left corner
-        drawFlipMessage(message, 0, 0);
+        //drawFlipMessage(message, 0, 0);
+        String unFormattedMessage = message.getUnformattedText();
+        //draw background for the flip message
+        RenderUtils.drawRect(0, 0, mc.fontRendererObj.getStringWidth(unFormattedMessage) + 10, mc.fontRendererObj.FONT_HEIGHT+2, ColorPallet.PRIMARY.getColor().getRGB());
+        RenderUtils.drawString(unFormattedMessage, 1, 1, ColorPallet.WHITE.getColor());
 
         //now I draw a big transparent green button in the middle of the screen that if clicked twice, buys the item
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
@@ -222,8 +227,8 @@ public class BinGui {
         String unFormattedMessage = message.getUnformattedText();
 
         //split the message into lines
-        for (int i = 0; i < unFormattedMessage.length(); i += 50) {
-            lines.add(unFormattedMessage.substring(i, Math.min(unFormattedMessage.length(), i + 50)));
+        for (int i = 0; i < unFormattedMessage.length(); i += 100) {
+            lines.add(unFormattedMessage.substring(i, Math.min(unFormattedMessage.length(), i + 100)));
         }
 
         //longest message
