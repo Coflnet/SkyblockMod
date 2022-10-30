@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Vector;
 
 public class OpenGuiRender extends GuiScreen {
 
@@ -107,7 +108,7 @@ public class OpenGuiRender extends GuiScreen {
     }
 
 
-    public static ArrayList<String> flips = new ArrayList<>();
+    public static Vector<String> flips = new Vector<>();
 
     int renderTicks = 0;
 
