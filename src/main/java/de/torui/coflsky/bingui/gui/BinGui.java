@@ -94,6 +94,7 @@ public class BinGui {
             ) {
                 //close the gui
                 close();
+                mc.thePlayer.closeScreen();
             }
         }
     }
