@@ -12,6 +12,9 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0EPacketClickWindow;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Mouse;
 import scala.collection.parallel.ParIterableLike.Min;
@@ -22,12 +25,23 @@ import java.util.Random;
 public class LoadingGui extends GuiScreen {
     float alpha = (float) 0.3;
     boolean lastClick = false;
+    @SubscribeEvent
+    public void onMessage(ClientChatReceivedEvent event) {
+        if (event.message.getUnformattedText().startsWith("This auction wasn't found")) {
+            Minecraft.getMinecraft().thePlayer.closeScreen();
+        }
+    }
+    @Override
+    public void onGuiClosed() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         if (Mouse.isButtonDown(0)) {
                 alpha = (float) 0.7;
             } else if (Mouse.isButtonDown(1)) {
                 Minecraft.getMinecraft().thePlayer.closeScreen();
+                return;
             } else if (!Mouse.isButtonDown(0)) {
                 lastClick = false;
                 alpha = 0.3f;

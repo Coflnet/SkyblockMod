@@ -30,6 +30,7 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
 
 import java.awt.*;
@@ -120,7 +121,9 @@ public class WSCommandHandler {
 			String uuid = args[args.length-1];
 			EventRegistry.LastViewAuctionUUID = uuid;
 			EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
-			Minecraft.getMinecraft().displayGuiScreen(new LoadingGui());
+			LoadingGui gui = new LoadingGui();
+			MinecraftForge.EVENT_BUS.register(gui);
+			Minecraft.getMinecraft().displayGuiScreen(gui);
 			Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + uuid);
 
 		}
