@@ -161,11 +161,11 @@ public class BinGui {
         //RenderUtils.drawItemStack(itemStack, width / 2 - 8, 15, 1);
 
         //draw the flip message in the top left corner
-        //drawFlipMessage(message, 0, 0);
-        String unFormattedMessage = message.getUnformattedText();
+        //remove everything after ✥
+        String flipMessage = message.getUnformattedText().split("✥")[0];
         //draw background for the flip message
-        RenderUtils.drawRect(0, 0, mc.fontRendererObj.getStringWidth(unFormattedMessage) + 10, mc.fontRendererObj.FONT_HEIGHT+2, ColorPallet.PRIMARY.getColor().getRGB());
-        RenderUtils.drawString(unFormattedMessage, 1, 1, ColorPallet.WHITE.getColor());
+        RenderUtils.drawRect(0, 0, mc.fontRendererObj.getStringWidth(flipMessage) + 10, mc.fontRendererObj.FONT_HEIGHT+2, ColorPallet.PRIMARY.getColor().getRGB());
+        RenderUtils.drawString(flipMessage, 1, 1, ColorPallet.WHITE.getColor());
 
         //now I draw a big transparent green button in the middle of the screen that if clicked twice, buys the item
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
