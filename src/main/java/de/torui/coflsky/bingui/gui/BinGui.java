@@ -150,14 +150,25 @@ public class BinGui {
         drawToolTip(width / 2 - 100 + 200, height / 2 - 100, lore);
 
 
-        //remove everything after ✥ and remove the first character
-        String flipMessage = message.getFormattedText().split("✥")[0].substring(3);
+        //remove everything after ✥ and remove the first 3 character also remove last 3 characters
+        String flipMessage = message.getFormattedText().split("✥")[0].substring(3);//.substring(0, message.getFormattedText().split("✥")[0].length() - 3);
 
         //draw the flip message centered above the buy button with a background
         int flipMessageWidth = mc.fontRendererObj.getStringWidth(flipMessage);
         int flipMessageHeight = mc.fontRendererObj.FONT_HEIGHT;
-        RenderUtils.drawRect(width / 2 - flipMessageWidth / 2 - 5, height / 2 - 100 - flipMessageHeight, flipMessageWidth + 10, flipMessageHeight + 2, ColorPallet.PRIMARY.getColor().getRGB());
-        RenderUtils.drawString(flipMessage, width / 2 - flipMessageWidth / 2 - 5 + 1, height / 2 - 100 - flipMessageHeight + 1, ColorPallet.WHITE.getColor());
+        RenderUtils.drawRect(
+                width / 2 - flipMessageWidth / 2 - 1,
+                height / 2 - 100 - flipMessageHeight - 1,
+                flipMessageWidth + 1,
+                flipMessageHeight + 1,
+                ColorPallet.PRIMARY.getColor().getRGB()
+        );
+        RenderUtils.drawString(
+                flipMessage,
+                width / 2 - flipMessageWidth / 2 + 1,
+                height / 2 - 100 - flipMessageHeight,
+                ColorPallet.WHITE.getColor()
+        );
 
 
         //now I draw a big transparent green button in the middle of the screen that if clicked twice, buys the item
@@ -203,11 +214,11 @@ public class BinGui {
         }
 
         //draw the background
-        RenderUtils.drawRect(x, y, width, height, ColorPallet.SECONDARY.getColor().getRGB());
+        RenderUtils.drawRect(x, y, width + 1, height, ColorPallet.SECONDARY.getColor().getRGB());
 
         //draw the text
         for (int i = 0; i < text.length; i++) {
-            RenderUtils.drawString(text[i], (int) x, (int) (y + (i * 10)), ColorPallet.WHITE.getColor());
+            RenderUtils.drawString(text[i], (int) x, (int) (y + 1 + (i * 10)), ColorPallet.WHITE.getColor());
         }
     }
 
