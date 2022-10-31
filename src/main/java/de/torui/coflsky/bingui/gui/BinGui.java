@@ -109,7 +109,7 @@ public class BinGui {
             //draws the rectangle again, but now it is darker because of the alpha
             RenderUtils.drawRect(width / 2 - 100, height / 2 - 100, 200, 100, successAlpha.getRGB());
 
-            //check if you double clicked
+            //check if you clicked
             if (inputHandler.isClicked()) {
 
                 //buy the item
@@ -126,12 +126,6 @@ public class BinGui {
 
 
     public void renderMainGui(int mouseX, int mouseY, int width, int height) {
-        //the item I use for testing
-        //ItemStack itemStack = new ItemStack(Items.item_frame);
-        //itemStack.setStackDisplayName("Item Name");
-
-        //just to clear things up for myself
-
         //now I draw a cancel button at the right bottom corner
         RenderUtils.drawRect((float) width - 40, (float) height - 40, 40, 40, ColorPallet.ERROR.getColor().getRGB());
 
@@ -152,21 +146,19 @@ public class BinGui {
             }
         }
 
-        drawToolTip(width, 0, lore);
+        //draw the tooltip
+        drawToolTip(width / 2 - 100 + 200, height / 2 - 100, lore);
 
 
-        //draw a title at the top of the screen
-        //RenderUtils.drawCenteredString("Item Name", width / 2, 5, ColorPallet.WHITE.getColor());
+        //remove everything after ✥ and remove the first character
+        String flipMessage = message.getFormattedText().split("✥")[0].substring(3);
 
-        //Draw the item icon directly under the title
-        //RenderUtils.drawItemStack(itemStack, width / 2 - 8, 15, 1);
+        //draw the flip message centered above the buy button with a background
+        int flipMessageWidth = mc.fontRendererObj.getStringWidth(flipMessage);
+        int flipMessageHeight = mc.fontRendererObj.FONT_HEIGHT;
+        RenderUtils.drawRect(width / 2 - flipMessageWidth / 2 - 5, height / 2 - 100 - flipMessageHeight, flipMessageWidth + 10, flipMessageHeight + 2, ColorPallet.PRIMARY.getColor().getRGB());
+        RenderUtils.drawString(flipMessage, width / 2 - flipMessageWidth / 2 - 5 + 1, height / 2 - 100 - flipMessageHeight + 1, ColorPallet.WHITE.getColor());
 
-        //draw the flip message in the top left corner
-        //remove everything after ✥
-        String flipMessage = message.getUnformattedText().split("✥")[0];
-        //draw background for the flip message
-        RenderUtils.drawRect(0, 0, mc.fontRendererObj.getStringWidth(flipMessage) + 10, mc.fontRendererObj.FONT_HEIGHT+2, ColorPallet.PRIMARY.getColor().getRGB());
-        RenderUtils.drawString(flipMessage, 1, 1, ColorPallet.WHITE.getColor());
 
         //now I draw a big transparent green button in the middle of the screen that if clicked twice, buys the item
         Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
@@ -211,11 +203,11 @@ public class BinGui {
         }
 
         //draw the background
-        RenderUtils.drawRect(x - width, y, width, height, ColorPallet.SECONDARY.getColor().getRGB());
+        RenderUtils.drawRect(x, y, width, height, ColorPallet.SECONDARY.getColor().getRGB());
 
         //draw the text
         for (int i = 0; i < text.length; i++) {
-            RenderUtils.drawString(text[i], (int) x - width, (int) (y + (i * 10)), ColorPallet.WHITE.getColor());
+            RenderUtils.drawString(text[i], (int) x, (int) (y + (i * 10)), ColorPallet.WHITE.getColor());
         }
     }
 
@@ -267,6 +259,6 @@ public class BinGui {
     }
 
     public boolean isMouseOverBuy(int mouseX, int mouseY, int width, int height) {
-        return mouseX >= width / 2 - 100 && mouseX <= width / 2 + 100 && mouseY >= height / 2 - 100 && mouseY <= height / 2 + 100;
+        return mouseX >= width / 2 - 100 && mouseX <= width / 2 + 100 && mouseY >= height / 2 - 100 && mouseY <= height / 2;
     }
 }
