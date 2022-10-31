@@ -126,21 +126,20 @@ public class BinGui {
 
 
     public void renderMainGui(int mouseX, int mouseY, int width, int height) {
-        //now I draw a cancel button at the right bottom corner
-        RenderUtils.drawRect((float) width - 40, (float) height - 40, 40, 40, ColorPallet.ERROR.getColor().getRGB());
+        //now I draw a cancel button under the buy button
+        Color cancelAlpha = new Color(ColorPallet.ERROR.getColor().getRed(), ColorPallet.ERROR.getColor().getGreen(), ColorPallet.ERROR.getColor().getBlue(), 140);
+        RenderUtils.drawRect(width / 2 - 100, height / 2, 200, 100, cancelAlpha.getRGB());
 
         //draw an x in the rectangle using lines
-        RenderUtils.drawLine((float) width - 35, (float) height - 35, (float) width - 5, (float) height - 5, 4, ColorPallet.WHITE.getColor());
-        RenderUtils.drawLine((float) width - 35, (float) height - 5, (float) width - 5, (float) height - 35, 4, ColorPallet.WHITE.getColor());
+        RenderUtils.drawLine(width / 2 - 100, height / 2, width / 2 + 100, height / 2 + 100, 2, ColorPallet.WHITE.getColor());
+        RenderUtils.drawLine(width / 2 - 100, height / 2 + 100, width / 2 + 100, height / 2, 2, ColorPallet.WHITE.getColor());
 
         //if mouse button is hovered over the rectangle, draw a darker rectangle
         if (isMouseOverClose(mouseX, mouseY, width, height)) {
-            //error color but with less alpha
-            Color errorAlpha = new Color(ColorPallet.ERROR.getColor().getRed(), ColorPallet.ERROR.getColor().getGreen(), ColorPallet.ERROR.getColor().getBlue(), 140);
-            RenderUtils.drawRect((float) width - 40, (float) height - 40, 40, 40, errorAlpha.getRGB());
+            RenderUtils.drawRect(width / 2 - 100, height / 2, 200, 100, cancelAlpha.getRGB());
 
             //check if mouse button is pressed
-            if (inputHandler.isMouseDown(0)) {
+            if (inputHandler.isClicked()) {
                 close();
                 mc.thePlayer.closeScreen();
             }
@@ -266,7 +265,7 @@ public class BinGui {
     }
 
     public boolean isMouseOverClose(int mouseX, int mouseY, int width, int height) {
-        return mouseX >= (float) width - 40 && mouseX <= (float) width && mouseY >= (float) height - 40 && mouseY <= (float) height;
+        return mouseX >= width / 2 - 100 && mouseX <= width / 2 + 100 && mouseY >= height / 2 && mouseY <= height / 2 + 100;
     }
 
     public boolean isMouseOverBuy(int mouseX, int mouseY, int width, int height) {
