@@ -160,7 +160,7 @@ public class BinGui {
                 height / 2 - 100 - flipMessageHeight - 1,
                 flipMessageWidth + 1,
                 flipMessageHeight + 1,
-                ColorPallet.PRIMARY.getColor().getRGB()
+                ColorPallet.SECONDARY.getColor().getRGB()
         );
         RenderUtils.drawString(
                 flipMessage,
