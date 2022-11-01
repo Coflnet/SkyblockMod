@@ -1,7 +1,7 @@
 package de.torui.coflsky.bingui.helper;
 
-import de.torui.coflsky.bingui.helper.fontrenderer.FontRenderer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
@@ -10,10 +10,6 @@ import java.awt.*;
 
 public class RenderUtils {
     public static Minecraft mc = Minecraft.getMinecraft();
-    private static Font currentFont = new Font("Moon Light", Font.PLAIN, 20);
-    public static FontRenderer fr = new FontRenderer(currentFont, true, true);
-
-
 
     //draw a rectangle
     public static void drawRect(float x, float y, float width, float height, int color) {
@@ -168,11 +164,16 @@ public class RenderUtils {
         //draw the two rectangles
         drawRect(x + radius, y, width - radius - radius, height, color.getRGB());
         drawRect(x, y + radius, width, height - radius - radius, color.getRGB());
-        //draw the two circles
-        drawCircle(x + radius, y + radius, radius, color);
-        drawCircle(x + width - radius, y + radius, radius, color);
-        drawCircle(x + radius, y + height - radius, radius, color);
-        drawCircle(x + width - radius, y + height - radius, radius, color);
+        //draw the circles
+        drawArc(x + radius, y + radius, radius, 180, 270, color);
+        drawArc(x + width - radius, y + radius, radius, 90, 180, color);
+        drawArc(x + radius, y + height - radius, radius, 270, 360, color);
+        drawArc(x + width - radius, y + height - radius, radius, 0, 90, color);
+
+        //drawCircle(x + radius, y + radius, radius, color);
+        //drawCircle(x + width - radius, y + radius, radius, color);
+        //drawCircle(x + radius, y + height - radius, radius, color);
+        //drawCircle(x + width - radius, y + height - radius, radius, color);
 
         //drawRectOutline(x, y, width, height, 1, Color.GREEN);
     }
@@ -199,54 +200,54 @@ public class RenderUtils {
 
     public static void drawString(String text, int x, int y, Color color) {
         setColor(color);
-        fr.drawString(text, x, y, color.getRGB());
+        mc.fontRendererObj.drawString(text, x, y, color.getRGB());
     }
 
     public static void drawStringWithShadow(String text, int x, int y, Color color) {
         setColor(color);
-        fr.drawStringWithShadow(text, x, y, color.getRGB());
+        mc.fontRendererObj.drawStringWithShadow(text, x, y, color.getRGB());
     }
 
     public static void drawCenteredString(String text, int x, int y, Color color) {
         setColor(color);
-        fr.drawString(text, x - mc.fontRendererObj.getStringWidth(text) / 2, y, color.getRGB());
+        mc.fontRendererObj.drawString(text, x - mc.fontRendererObj.getStringWidth(text) / 2, y, color.getRGB());
     }
 
     public static void drawCenteredStringWithShadow(String text, int x, int y, Color color) {
         setColor(color);
-        fr.drawStringWithShadow(text, x - mc.fontRendererObj.getStringWidth(text) / 2, y, color.getRGB());
+        mc.fontRendererObj.drawStringWithShadow(text, x - mc.fontRendererObj.getStringWidth(text) / 2, y, color.getRGB());
     }
 
     //draws a string with custom scale
     public static void drawString(String text, int x, int y, Color color, int scale) {
         setColor(color);
-        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
+        FontRenderer fr = mc.fontRendererObj;
         fr.drawString(text, x, y, color.getRGB());
     }
 
     //draws a string with custom scale and shadow
     public static void drawStringWithShadow(String text, int x, int y, Color color, int scale) {
         setColor(color);
-        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
+        FontRenderer fr = mc.fontRendererObj;
         fr.drawStringWithShadow(text, x, y, color.getRGB());
     }
 
     public static void drawCenteredString(String text, int x, int y, Color color, int scale) {
         setColor(color);
-        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
+        FontRenderer fr = mc.fontRendererObj;
         fr.drawString(text, x - fr.getStringWidth(text) / 2, y, color.getRGB());
     }
 
     public static void drawCenteredStringWithShadow(String text, int x, int y, Color color, int scale) {
         setColor(color);
-        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
+        FontRenderer fr = mc.fontRendererObj;
         fr.drawStringWithShadow(text, x - fr.getStringWidth(text) / 2, y, color.getRGB());
     }
 
     public static void drawCenteredStringWithShadow(String text, int x, int y, Color color, int scale, boolean centered) {
         setColor(color);
-        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
-        if(centered) {
+        FontRenderer fr = mc.fontRendererObj;
+        if (centered) {
             fr.drawStringWithShadow(text, x - fr.getStringWidth(text) / 2, y, color.getRGB());
         } else {
             fr.drawStringWithShadow(text, x, y, color.getRGB());

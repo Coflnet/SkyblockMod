@@ -41,7 +41,7 @@ public class BinGuiNew extends GuiScreen {
 
         //next i draw the title
         RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5, 490, 14, 5, ColorPallet.SECONDARY.getColor());
-        RenderUtils.drawString(message.getFormattedText().replaceAll("FLIP:", "").replaceAll(" sellers ah", ""), screenWidth / 2 - 250 + 9, 10 + 9, ColorPallet.WHITE.getColor());
+        RenderUtils.drawString(message.getFormattedText().replaceAll("FLIP:", "").replaceAll(" sellers ah", ""), screenWidth / 2 - 250 + 7, 10 + 8, ColorPallet.WHITE.getColor());
 
         //now i draw the backround of the icon
         RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5 + 14 + 5, 20, 20, 5, ColorPallet.TERTIARY.getColor());
@@ -53,21 +53,42 @@ public class BinGuiNew extends GuiScreen {
         RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 20 + 5, 10 + 5 + 14 + 5, 490 - 25, 200, 5, ColorPallet.SECONDARY.getColor());
 
 
-        //now i draw the lore
-        int y = 10 + 5 + 14 + 5 + 5;
-        for (String line : lore) {
-            RenderUtils.drawString(line, screenWidth / 2 - 250 + 5 + 20 + 5 + 5, y, ColorPallet.WHITE.getColor(), 15);
-            y += 7;
+        //now i draw the lore if its longer than 10 lines i draw a scrollbar
+        if (lore.length > 10) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 20 + 5 + 490 - 25 + 5, 10 + 5 + 14 + 5, 10, 200, 5, ColorPallet.TERTIARY.getColor());
+        }
+
+        //draw the lore
+        for (int i = 0; i < lore.length; i++) {
+            RenderUtils.drawString(lore[i], screenWidth / 2 - 250 + 5 + 20 + 5 + 5, 10 + 5 + 14 + 5 + 5 + 10 * i, ColorPallet.WHITE.getColor());
+        }
+
+        //scrollbar
+        if (lore.length > 10) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 20 + 5 + 490 - 25 + 5 + 1, 10 + 5 + 14 + 5 + 1, 8, 198, 5, ColorPallet.SECONDARY.getColor());
         }
 
 
         //now i draw the buttons buy and sell under the lore
-
         //buy button
-        RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 - 5, 60, 5, ColorPallet.SUCCESS.getColor());
-        RenderUtils.drawString(buyText, screenWidth / 2 - 250 + 5 + 5, 10 + 5 + 14 + 5 + 200 + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (mouseX > screenWidth / 2 - 250 + 5 && mouseX < screenWidth / 2 - 250 + 5 + 490 / 2 - 5 && mouseY > 10 + 5 + 14 + 5 + 200 + 5 && mouseY < 10 + 5 + 14 + 5 + 200 + 5 + 60) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 - 5, 60, 5, RenderUtils.setAlpha(ColorPallet.SUCCESS.getColor(), 100));
+        RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 - 25, 60, 5, ColorPallet.ERROR.getColor());
+        RenderUtils.drawString("Cancel", screenWidth / 2 - 250 + 5 + 5, 10 + 5 + 14 + 5 + 200 + 5 + 5, ColorPallet.WHITE.getColor(), 40);
+        if (mouseX > screenWidth / 2 - 250 + 5 && mouseX < screenWidth / 2 - 250 + 5 + 490 / 2 - 25 && mouseY > 10 + 5 + 14 + 5 + 200 + 5 && mouseY < 10 + 5 + 14 + 5 + 200 + 5 + 60) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 - 25, 60, 5, RenderUtils.setAlpha(ColorPallet.ERROR.getColor(), 100));
+            if (inputHandler.isClicked()) {
+                buyState = 0;
+                buyText = "Buy";
+                MinecraftForge.EVENT_BUS.unregister(this);
+                mc.displayGuiScreen(null);
+            }
+        }
+
+
+        //cancel button
+        RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 490 / 2 - 20, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
+        RenderUtils.drawString(buyText, screenWidth / 2 - 250 + 5 + 490 / 2 + 5 - 20, 10 + 5 + 14 + 5 + 200 + 5 + 5, ColorPallet.WHITE.getColor(), 40);
+        if (mouseX > screenWidth / 2 - 250 + 5 + 490 / 2 - 20 && mouseX < screenWidth / 2 - 250 + 5 + 490 && mouseY > 10 + 5 + 14 + 5 + 200 + 5 && mouseY < 10 + 5 + 14 + 5 + 200 + 5 + 60) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 490 / 2 - 20, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.SUCCESS.getColor(), 140));
             if (inputHandler.isClicked()) {
                 if (buyState == 0) {
                     buyText = "Click again to confirm";
@@ -77,20 +98,6 @@ public class BinGuiNew extends GuiScreen {
                     buyState = 2;
                     buy();
                 }
-            }
-        }
-
-
-        //cancel button
-        RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 490 / 2, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2, 60, 5, ColorPallet.ERROR.getColor());
-        RenderUtils.drawString("Cancel", screenWidth / 2 - 250 + 5 + 490 / 2 + 5, 10 + 5 + 14 + 5 + 200 + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (mouseX > screenWidth / 2 - 250 + 5 + 490 / 2 && mouseX < screenWidth / 2 - 250 + 5 + 490 && mouseY > 10 + 5 + 14 + 5 + 200 + 5 && mouseY < 10 + 5 + 14 + 5 + 200 + 5 + 60) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 490 / 2, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2, 60, 5, RenderUtils.setAlpha(ColorPallet.ERROR.getColor(), 100));
-            if (inputHandler.isClicked()) {
-                buyState = 0;
-                buyText = "Buy";
-                MinecraftForge.EVENT_BUS.unregister(this);
-                mc.displayGuiScreen(null);
             }
         }
 
@@ -164,5 +171,7 @@ public class BinGuiNew extends GuiScreen {
         }
         super.onGuiClosed();
     }
+
+
 
 }
