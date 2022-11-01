@@ -9,7 +9,7 @@ public enum ColorPallet {
     TERTIARY(new Color(0, 173, 181, 255)),
     WHITE(new Color(238, 238, 238, 255)),
     ERROR(new Color(178, 30, 30, 255)),
-    SUCCESS(new Color(149, 208, 0, 255)),
+    SUCCESS(new Color(114, 208, 0, 255)),
     WARNING(new Color(208, 121, 22, 255)),
     INFO(new Color(204, 253, 233, 255));
 

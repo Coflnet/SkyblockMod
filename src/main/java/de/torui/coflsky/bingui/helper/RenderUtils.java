@@ -1,13 +1,19 @@
 package de.torui.coflsky.bingui.helper;
 
+import de.torui.coflsky.bingui.helper.fontrenderer.FontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
 public class RenderUtils {
     public static Minecraft mc = Minecraft.getMinecraft();
+    private static Font currentFont = new Font("Moon Light", Font.PLAIN, 20);
+    public static FontRenderer fr = new FontRenderer(currentFont, true, true);
+
+
 
     //draw a rectangle
     public static void drawRect(float x, float y, float width, float height, int color) {
@@ -123,21 +129,22 @@ public class RenderUtils {
         GL11.glDisable(GL11.GL_BLEND);
     }
 
-    //draws an arc with a given radius, thickness, start angle, and end angle
-    public static void drawArc(float x, float y, float radius, float thickness, float startAngle, float endAngle, Color color) {
+    //draws an arc with a given radius, start angle, and end angle
+    public static void drawArc(int x, int y, int radius, int startAngle, int endAngle, Color color) {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         setColor(color);
-        GL11.glLineWidth(thickness);
-        GL11.glBegin(GL11.GL_LINE_STRIP);
-        for (int i = (int) startAngle; i <= endAngle; i++) {
+        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+        GL11.glVertex2d(x, y);
+        for (int i = startAngle; i <= endAngle; i++) {
             GL11.glVertex2d(x + Math.sin(i * Math.PI / 180) * radius, y + Math.cos(i * Math.PI / 180) * radius);
         }
         GL11.glEnd();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_BLEND);
     }
+
 
     //draw a loading circle with a given radius, thickness, and speed
     public static void drawLoadingCircle(float x, float y, float radius, float thickness, float speed, Color color) {
@@ -156,50 +163,19 @@ public class RenderUtils {
     }
 
     //draws a rounded rectangle with a given radius and color and size
-    /* i dont what i did wrong
-    public static void drawRoundedRect(int x, int y, int width, int height, int radius, Color color) {
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        setColor(color);
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glVertex2d(x + radius, y);
-        GL11.glVertex2d(x + width - radius, y);
-        GL11.glVertex2d(x + width - radius, y + height);
-        GL11.glVertex2d(x + radius, y + height);
-        GL11.glVertex2d(x, y + radius);
-        GL11.glVertex2d(x + width, y + radius);
-        GL11.glVertex2d(x + width, y + height - radius);
-        GL11.glVertex2d(x, y + height - radius);
-        GL11.glEnd();
-        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
-        GL11.glVertex2d(x + radius, y + radius);
-        for (int i = 0; i <= 90; i++) {
-            GL11.glVertex2d(x + radius + Math.sin(i * Math.PI / 180) * radius, y + radius + Math.cos(i * Math.PI / 180) * radius);
-        }
-        GL11.glEnd();
-        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
-        GL11.glVertex2d(x + width - radius, y + radius);
-        for (int i = 90; i <= 180; i++) {
-            GL11.glVertex2d(x + width - radius + Math.sin(i * Math.PI / 180) * radius, y + radius + Math.cos(i * Math.PI / 180) * radius);
-        }
-        GL11.glEnd();
-        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
-        GL11.glVertex2d(x + width - radius, y + height - radius);
-        for (int i = 180; i <= 270; i++) {
-            GL11.glVertex2d(x + width - radius + Math.sin(i * Math.PI / 180) * radius, y + height - radius + Math.cos(i * Math.PI / 180) * radius);
-        }
-        GL11.glEnd();
-        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
-        GL11.glVertex2d(x + radius, y + height - radius);
-        for (int i = 270; i <= 360; i++) {
-            GL11.glVertex2d(x + radius + Math.sin(i * Math.PI / 180) * radius, y + height - radius + Math.cos(i * Math.PI / 180) * radius);
-        }
-        GL11.glEnd();
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_BLEND);
+    public static void drawRoundedRect(int x, int y, int width, int height, int radius, @NotNull Color color) {
+
+        //draw the two rectangles
+        drawRect(x + radius, y, width - radius - radius, height, color.getRGB());
+        drawRect(x, y + radius, width, height - radius - radius, color.getRGB());
+        //draw the two circles
+        drawCircle(x + radius, y + radius, radius, color);
+        drawCircle(x + width - radius, y + radius, radius, color);
+        drawCircle(x + radius, y + height - radius, radius, color);
+        drawCircle(x + width - radius, y + height - radius, radius, color);
+
+        //drawRectOutline(x, y, width, height, 1, Color.GREEN);
     }
-     */
 
     //draws a gradient rectangle with a given color and size
     public static void drawGradientRect(int x, int y, int width, int height, Color color1, Color color2) {
@@ -222,35 +198,59 @@ public class RenderUtils {
 
 
     public static void drawString(String text, int x, int y, Color color) {
-        mc.fontRendererObj.drawString(text, x, y, color.getRGB());
+        setColor(color);
+        fr.drawString(text, x, y, color.getRGB());
     }
 
     public static void drawStringWithShadow(String text, int x, int y, Color color) {
-        mc.fontRendererObj.drawStringWithShadow(text, x, y, color.getRGB());
+        setColor(color);
+        fr.drawStringWithShadow(text, x, y, color.getRGB());
     }
 
     public static void drawCenteredString(String text, int x, int y, Color color) {
-        mc.fontRendererObj.drawString(text, x - mc.fontRendererObj.getStringWidth(text) / 2, y, color.getRGB());
+        setColor(color);
+        fr.drawString(text, x - mc.fontRendererObj.getStringWidth(text) / 2, y, color.getRGB());
     }
 
     public static void drawCenteredStringWithShadow(String text, int x, int y, Color color) {
-        mc.fontRendererObj.drawStringWithShadow(text, x - mc.fontRendererObj.getStringWidth(text) / 2, y, color.getRGB());
+        setColor(color);
+        fr.drawStringWithShadow(text, x - mc.fontRendererObj.getStringWidth(text) / 2, y, color.getRGB());
     }
 
     //draws a string with custom scale
-    public static void drawString(String text, int x, int y, Color color, float scale) {
-        GL11.glPushMatrix();
-        GL11.glScalef(scale, scale, scale);
-        mc.fontRendererObj.drawString(text, x, y, color.getRGB());
-        GL11.glPopMatrix();
+    public static void drawString(String text, int x, int y, Color color, int scale) {
+        setColor(color);
+        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
+        fr.drawString(text, x, y, color.getRGB());
     }
 
     //draws a string with custom scale and shadow
-    public static void drawStringWithShadow(String text, int x, int y, Color color, float scale) {
-        GL11.glPushMatrix();
-        GL11.glScalef(scale, scale, scale);
-        mc.fontRendererObj.drawStringWithShadow(text, x, y, color.getRGB());
-        GL11.glPopMatrix();
+    public static void drawStringWithShadow(String text, int x, int y, Color color, int scale) {
+        setColor(color);
+        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
+        fr.drawStringWithShadow(text, x, y, color.getRGB());
+    }
+
+    public static void drawCenteredString(String text, int x, int y, Color color, int scale) {
+        setColor(color);
+        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
+        fr.drawString(text, x - fr.getStringWidth(text) / 2, y, color.getRGB());
+    }
+
+    public static void drawCenteredStringWithShadow(String text, int x, int y, Color color, int scale) {
+        setColor(color);
+        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
+        fr.drawStringWithShadow(text, x - fr.getStringWidth(text) / 2, y, color.getRGB());
+    }
+
+    public static void drawCenteredStringWithShadow(String text, int x, int y, Color color, int scale, boolean centered) {
+        setColor(color);
+        FontRenderer fr = new FontRenderer(new Font(currentFont.getFontName(), currentFont.getStyle(), scale), true, true);
+        if(centered) {
+            fr.drawStringWithShadow(text, x - fr.getStringWidth(text) / 2, y, color.getRGB());
+        } else {
+            fr.drawStringWithShadow(text, x, y, color.getRGB());
+        }
     }
 
     //draws an ItemStack at a given position with a given scale
@@ -274,6 +274,50 @@ public class RenderUtils {
         GL11.glScalef(scale, scale, scale);
         mc.getRenderItem().renderItemIntoGUI(itemStack, (int) (x - (scale / 2)), (int) (y - (scale / 2)));
         GL11.glPopMatrix();
+    }
+
+    //draw a check mar with a given color and size using lines
+    public static void drawCheckMark(int x, int y, int size, Color color) {
+        GL11.glPushMatrix();
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glLineWidth(2);
+        setColor(color);
+        GL11.glBegin(GL11.GL_LINES);
+        GL11.glVertex2d(x, y + size / 2);
+        GL11.glVertex2d(x + size / 2, y + size);
+        GL11.glVertex2d(x + size / 2, y + size);
+        GL11.glVertex2d(x + size, y);
+        GL11.glEnd();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glPopMatrix();
+    }
+
+    //draw a cross mark with a given color and start and end points
+    public static void drawCrossMark(int x, int y, int x2, int y2, Color color) {
+        GL11.glPushMatrix();
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glLineWidth(2);
+        setColor(color);
+        GL11.glBegin(GL11.GL_LINES);
+        GL11.glVertex2d(x, y);
+        GL11.glVertex2d(x2, y2);
+        GL11.glVertex2d(x2, y);
+        GL11.glVertex2d(x, y2);
+        GL11.glEnd();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glPopMatrix();
+    }
+
+
+    //set alpha of color
+    public static Color setAlpha(Color color, int alpha) {
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
     }
 
     //set color

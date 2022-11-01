@@ -16,8 +16,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class BinGui {
@@ -126,71 +124,13 @@ public class BinGui {
 
 
     public void renderMainGui(int mouseX, int mouseY, int width, int height) {
-        //now I draw a cancel button under the buy button
-        Color cancelAlpha = new Color(ColorPallet.ERROR.getColor().getRed(), ColorPallet.ERROR.getColor().getGreen(), ColorPallet.ERROR.getColor().getBlue(), 140);
-        RenderUtils.drawRect(width / 2 - 100, height / 2, 200, 100, cancelAlpha.getRGB());
+        drawCloseButton(width / 2 - 50, height / 2 + 5, 50, 50, mouseX, mouseY);
 
-        //draw an x in the rectangle using lines
-        RenderUtils.drawLine(width / 2 - 100, height / 2, width / 2 + 100, height / 2 + 100, 2, ColorPallet.WHITE.getColor());
-        RenderUtils.drawLine(width / 2 - 100, height / 2 + 100, width / 2 + 100, height / 2, 2, ColorPallet.WHITE.getColor());
-
-        //if mouse button is hovered over the rectangle, draw a darker rectangle
-        if (isMouseOverClose(mouseX, mouseY, width, height)) {
-            RenderUtils.drawRect(width / 2 - 100, height / 2, 200, 100, cancelAlpha.getRGB());
-
-            //check if mouse button is pressed
-            if (inputHandler.isClicked()) {
-                close();
-                mc.thePlayer.closeScreen();
-            }
-        }
-
-        //draw the tooltip
         drawToolTip(width / 2 - 100 + 200, height / 2 - 100, lore);
 
+        drawFlipMessage(message, width, height);
 
-        //remove everything after ✥ and remove the first 3 character also remove last 3 characters
-        String flipMessage = message.getFormattedText().split("✥")[0].substring(3);//.substring(0, message.getFormattedText().split("✥")[0].length() - 3);
-
-        //draw the flip message centered above the buy button with a background
-        int flipMessageWidth = mc.fontRendererObj.getStringWidth(flipMessage);
-        int flipMessageHeight = mc.fontRendererObj.FONT_HEIGHT;
-        RenderUtils.drawRect(
-                width / 2 - flipMessageWidth / 2 - 1,
-                height / 2 - 100 - flipMessageHeight - 1,
-                flipMessageWidth + 1,
-                flipMessageHeight + 1,
-                ColorPallet.SECONDARY.getColor().getRGB()
-        );
-        RenderUtils.drawString(
-                flipMessage,
-                width / 2 - flipMessageWidth / 2 + 1,
-                height / 2 - 100 - flipMessageHeight,
-                ColorPallet.WHITE.getColor()
-        );
-
-
-        //now I draw a big transparent green button in the middle of the screen that if clicked twice, buys the item
-        Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
-        RenderUtils.drawRect(width / 2 - 100, height / 2 - 100, 200, 100, successAlpha.getRGB());
-
-        //if mouse button is hovered over the rectangle, draw a darker rectangle
-        if (isMouseOverBuy(mouseX, mouseY, width, height)) {
-
-            //draws the rectangle again, but now it is darker because of the alpha
-            RenderUtils.drawRect(width / 2 - 100, height / 2 - 100, 200, 100, successAlpha.getRGB());
-
-            //check if you double clicked
-            if (inputHandler.isClicked()) {
-                //buy the item
-                if (inputHandler.isClicked()) {
-                    //click at slot 31 by sending a packet
-                    mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
-                    shouldRenderOverlay = false;
-                    shouldRenderBuyOverlay = true;
-                }
-            }
-        }
+        drawBuyButton(width / 2, height / 2 + 5, 50, 50, mouseX, mouseY);
     }
 
     public void close() {
@@ -221,35 +161,68 @@ public class BinGui {
         }
     }
 
-    public void drawFlipMessage(IChatComponent message, int x, int y) {
-        float height = mc.fontRendererObj.FONT_HEIGHT;
+    public void drawBuyButton(int x, int y, int width, int height, int mouseX, int mouseY) {
+        //now I draw a big transparent green button in the middle of the screen that if clicked twice, buys the item
+        Color successAlpha = new Color(ColorPallet.SUCCESS.getColor().getRed(), ColorPallet.SUCCESS.getColor().getGreen(), ColorPallet.SUCCESS.getColor().getBlue(), 140);
+        RenderUtils.drawRect(x, y, width, height, successAlpha.getRGB());
 
-        //every 50 chars, the message will be split into more lines
-        List<String> lines = new ArrayList<>();
-        String formattedMessage = message.getFormattedText();
-        String unFormattedMessage = message.getUnformattedText();
+        //if mouse button is hovered over the rectangle, draw a darker rectangle
+        if (inputHandler.isAreaHovered(x, y, width, height)) {
 
-        //split the message into lines
-        for (int i = 0; i < unFormattedMessage.length(); i += 100) {
-            lines.add(unFormattedMessage.substring(i, Math.min(unFormattedMessage.length(), i + 100)));
-        }
+            //draws the rectangle again, but now it is darker because of the alpha
+            RenderUtils.drawRect(x, y, width, height, successAlpha.getRGB());
 
-        //longest message
-        String longestMessage = "";
-        for (String s : lines) {
-            if (mc.fontRendererObj.getStringWidth(s) > mc.fontRendererObj.getStringWidth(longestMessage)) {
-                longestMessage = s;
+            //first click
+            if (inputHandler.isClicked()) {
+                //click at slot 31 by sending a packet
+                mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
+                shouldRenderOverlay = false;
+                shouldRenderBuyOverlay = true;
             }
         }
+    }
 
-        //draw the background
-        RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(longestMessage), height * lines.size(), ColorPallet.SECONDARY.getColor().getRGB());
+    public void drawCloseButton(int x, int y, int width, int height, int mouseX, int mouseY) {
+        //now I draw a cancel button under the buy button
+        Color cancelAlpha = new Color(ColorPallet.ERROR.getColor().getRed(), ColorPallet.ERROR.getColor().getGreen(), ColorPallet.ERROR.getColor().getBlue(), 140);
+        RenderUtils.drawRect(x, y, width, height, cancelAlpha.getRGB());
 
-        //loop through the lines
-        for (int i = 0; i < lines.size(); i++) {
-            //draw the text
-            RenderUtils.drawString(lines.get(i), x, (int) (y + (i * height)), ColorPallet.WHITE.getColor());
+        //draw an x in the rectangle using lines
+        RenderUtils.drawLine(x, y, x + width, y + height, 2, ColorPallet.WHITE.getColor());
+        RenderUtils.drawLine(x + width, y, x, y + height, 2, ColorPallet.WHITE.getColor());
+
+        //if mouse button is hovered over the rectangle, draw a darker rectangle
+        if (inputHandler.isAreaHovered(x, y, width, height)) {
+            RenderUtils.drawRect(x, y, width, height, cancelAlpha.getRGB());
+
+            //check if mouse button is pressed
+            if (inputHandler.isClicked()) {
+                close();
+                mc.thePlayer.closeScreen();
+            }
         }
+    }
+
+    public void drawFlipMessage(IChatComponent message, int baseWidth, int baseHeight) {
+        //remove everything after ✥ and remove the first 3 character also remove last 3 characters
+        String flipMessage = message.getFormattedText().split("✥")[0].substring(3);//.substring(0, message.getFormattedText().split("✥")[0].length() - 3);
+
+        //draw the flip message centered above the buy button with a background
+        int flipMessageWidth = mc.fontRendererObj.getStringWidth(flipMessage);
+        int flipMessageHeight = mc.fontRendererObj.FONT_HEIGHT;
+        RenderUtils.drawRect(
+                baseWidth / 2 - flipMessageWidth / 2 - 1,
+                baseHeight / 2 - 100 - flipMessageHeight - 1,
+                flipMessageWidth + 1,
+                flipMessageHeight + 1,
+                ColorPallet.SECONDARY.getColor().getRGB()
+        );
+        RenderUtils.drawString(
+                flipMessage,
+                baseWidth / 2 - flipMessageWidth / 2 + 1,
+                baseHeight / 2 - 100 - flipMessageHeight,
+                ColorPallet.WHITE.getColor()
+        );
     }
 
     public void drawColorPallet() {
