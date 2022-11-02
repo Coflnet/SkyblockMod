@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -19,11 +20,12 @@ public class BinGuiNew extends GuiScreen {
     private IChatComponent message;
     private String[] lore;
     private String auctionId;
+    private ItemStack itemStack;
 
     private String buyText = "Buy";
     private int buyState = 0;
 
-    public BinGuiNew(IChatComponent message, String[] lore, String auctionId) {
+    public BinGuiNew(IChatComponent message, String[] lore, String auctionId, ItemStack itemStack) {
         this.message = message;
         this.lore = lore;
         this.auctionId = auctionId;
@@ -46,8 +48,14 @@ public class BinGuiNew extends GuiScreen {
         //now i draw the backround of the icon
         RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5 + 14 + 5, 20, 20, 5, ColorPallet.TERTIARY.getColor());
 
-        //draw a question mark in the icon
-        RenderUtils.drawString("?", screenWidth / 2 - 250 + 5 + 5, 10 + 5 + 14 + 5 + 2, ColorPallet.WHITE.getColor(), 40);
+        //now i draw the icon
+        if (itemStack == null) {
+            //draw a question mark in the icon
+            RenderUtils.drawString("?", screenWidth / 2 - 250 + 5 + 5, 10 + 5 + 14 + 5 + 2, ColorPallet.WHITE.getColor(), 40);
+        } else {
+            RenderUtils.drawItemStack(itemStack, screenWidth / 2 - 250 + 5 + 2, 10 + 5 + 14 + 5 + 2, 16, 16);
+        }
+
 
         //draw the backorund for the lore
         RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 20 + 5, 10 + 5 + 14 + 5, 490 - 25, 200, 5, ColorPallet.SECONDARY.getColor());
@@ -171,7 +179,6 @@ public class BinGuiNew extends GuiScreen {
         }
         super.onGuiClosed();
     }
-
 
 
 }
