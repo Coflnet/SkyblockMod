@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -25,11 +26,17 @@ public class BinGuiNew extends GuiScreen {
     private String buyText = "Buy";
     private int buyState = 0;
 
-    public BinGuiNew(IChatComponent message, String[] lore, String auctionId, ItemStack itemStack) {
+    public BinGuiNew(IChatComponent message, String[] lore, String auctionId, String itemId, String skullTexture) {
         this.message = message;
         this.lore = lore;
         this.auctionId = auctionId;
-        if (message == null || lore == null) return;
+        //if the item is a skull, we need to set the texture
+        if (itemId.equals("minecraft:skull")) {
+            //ItemStack temp
+        } else {
+            //itemStack = new ItemStack(RenderUtils.getItem(itemId));
+        }
+
     }
 
     @Override
@@ -37,6 +44,8 @@ public class BinGuiNew extends GuiScreen {
         InputHandler inputHandler = new InputHandler();
         int screenWidth = this.width;
         int screenHeight = this.height;
+
+        String parsedMessage = message.getFormattedText();
 
         //first i draw the main background
         RenderUtils.drawRoundedRect(screenWidth / 2 - 250, 10, 500, 300, 10, ColorPallet.PRIMARY.getColor());
@@ -111,6 +120,12 @@ public class BinGuiNew extends GuiScreen {
 
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    private void drawLore(int mouseX, int mousey, int screenWidth, int screenHeight) {
+        for (int i = 0; i < lore.length; i++) {
+            RenderUtils.drawString(lore[i], screenWidth / 2 - 250 + 5 + 20 + 5 + 5, 10 + 5 + 14 + 5 + 5 + 10 * i, ColorPallet.WHITE.getColor());
+        }
     }
 
     private void buy() {
