@@ -9,6 +9,7 @@ import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -32,9 +33,15 @@ public class BinGuiNew extends GuiScreen {
         this.auctionId = auctionId;
         //if the item is a skull, we need to set the texture
         if (itemId.equals("minecraft:skull")) {
-            //ItemStack temp
+            ItemStack tempItemStack = new ItemStack(Item.getByNameOrId(itemId));
+
+            //set the texture
+            tempItemStack.setTagCompound(new NBTTagCompound());
+            tempItemStack.getTagCompound().setString("SkullOwner", skullTexture);
+
+            this.itemStack = tempItemStack;
         } else {
-            //itemStack = new ItemStack(RenderUtils.getItem(itemId));
+            itemStack = new ItemStack(Item.getByNameOrId(itemId));
         }
 
     }
