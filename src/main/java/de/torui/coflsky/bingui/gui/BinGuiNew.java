@@ -5,6 +5,7 @@ import de.torui.coflsky.bingui.helper.RenderUtils;
 import de.torui.coflsky.bingui.helper.inputhandler.InputHandler;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -52,53 +53,48 @@ public class BinGuiNew extends GuiScreen {
         int screenWidth = this.width;
         int screenHeight = this.height;
 
-        String parsedMessage = message.getFormattedText();
+        String parsedMessage = message.getFormattedText().toString();
+
+        int width = mc.fontRendererObj.getStringWidth(parsedMessage);
+        int height = 300;
+
+        if (lore.length > 25) {
+            height = 300 + (lore.length - 25) * 10;
+        }
 
         //first i draw the main background
-        RenderUtils.drawRoundedRect(screenWidth / 2 - 250, 10, 500, 300, 10, ColorPallet.PRIMARY.getColor());
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2, 10, width, height, 10, ColorPallet.PRIMARY.getColor());
 
         //next i draw the title
-        RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5, 490, 14, 5, ColorPallet.SECONDARY.getColor());
-        RenderUtils.drawString(message.getFormattedText().replaceAll("FLIP:", "").replaceAll(" sellers ah", ""), screenWidth / 2 - 250 + 7, 10 + 8, ColorPallet.WHITE.getColor());
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5, (width - 10), 14, 5, ColorPallet.SECONDARY.getColor());
+        RenderUtils.drawString(message.getFormattedText().replaceAll("FLIP:", "").replaceAll(" sellers ah", ""), screenWidth / 2 - width / 2 + 7, 10 + 8, ColorPallet.WHITE.getColor());
 
         //now i draw the backround of the icon
-        RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5 + 14 + 5, 20, 20, 5, ColorPallet.TERTIARY.getColor());
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5, 20, 20, 5, ColorPallet.TERTIARY.getColor());
 
         //now i draw the icon
         if (itemStack == null) {
             //draw a question mark in the icon
-            RenderUtils.drawString("?", screenWidth / 2 - 250 + 5 + 5, 10 + 5 + 14 + 5 + 2, ColorPallet.WHITE.getColor(), 40);
+            RenderUtils.drawString("?", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + 2, ColorPallet.WHITE.getColor(), 40);
         } else {
-            RenderUtils.drawItemStack(itemStack, screenWidth / 2 - 250 + 5 + 2, 10 + 5 + 14 + 5 + 2, 16, 16);
+            RenderUtils.drawItemStack(itemStack, screenWidth / 2 - width / 2 + 5 + 2, 10 + 5 + 14 + 5 + 2, 16, 16);
         }
 
 
         //draw the backorund for the lore
-        RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 20 + 5, 10 + 5 + 14 + 5, 490 - 25, 200, 5, ColorPallet.SECONDARY.getColor());
-
-
-        //now i draw the lore if its longer than 10 lines i draw a scrollbar
-        if (lore.length > 10) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 20 + 5 + 490 - 25 + 5, 10 + 5 + 14 + 5, 10, 200, 5, ColorPallet.TERTIARY.getColor());
-        }
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + 20 + 5, 10 + 5 + 14 + 5, (width - 10) - 25, (height - 100), 5, ColorPallet.SECONDARY.getColor());
 
         //draw the lore
         for (int i = 0; i < lore.length; i++) {
-            RenderUtils.drawString(lore[i], screenWidth / 2 - 250 + 5 + 20 + 5 + 5, 10 + 5 + 14 + 5 + 5 + 10 * i, ColorPallet.WHITE.getColor());
+            RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5 + 5, 10 + 5 + 14 + 5 + 5 + 10 * i, ColorPallet.WHITE.getColor());
         }
-
-        //scrollbar
-        if (lore.length > 10) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 20 + 5 + 490 - 25 + 5 + 1, 10 + 5 + 14 + 5 + 1, 8, 198, 5, ColorPallet.SECONDARY.getColor());
-        }
-
 
         //now i draw the buttons buy and sell under the lore
-        //buy button
-        RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 - 25, 60, 5, ColorPallet.ERROR.getColor());
-        RenderUtils.drawString("Cancel", screenWidth / 2 - 250 + 5 + 5, 10 + 5 + 14 + 5 + 200 + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (mouseX > screenWidth / 2 - 250 + 5 && mouseX < screenWidth / 2 - 250 + 5 + 490 / 2 - 25 && mouseY > 10 + 5 + 14 + 5 + 200 + 5 && mouseY < 10 + 5 + 14 + 5 + 200 + 5 + 60) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 - 25, 60, 5, RenderUtils.setAlpha(ColorPallet.ERROR.getColor(), 100));
+        //cancel button
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, ColorPallet.ERROR.getColor());
+        RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
+        if (mouseX > screenWidth / 2 - width / 2 + 5 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 25 && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, RenderUtils.setAlpha(ColorPallet.ERROR.getColor(), 100));
             if (inputHandler.isClicked()) {
                 buyState = 0;
                 buyText = "Buy";
@@ -108,11 +104,11 @@ public class BinGuiNew extends GuiScreen {
         }
 
 
-        //cancel button
-        RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 490 / 2 - 20, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
-        RenderUtils.drawString(buyText, screenWidth / 2 - 250 + 5 + 490 / 2 + 5 - 20, 10 + 5 + 14 + 5 + 200 + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (mouseX > screenWidth / 2 - 250 + 5 + 490 / 2 - 20 && mouseX < screenWidth / 2 - 250 + 5 + 490 && mouseY > 10 + 5 + 14 + 5 + 200 + 5 && mouseY < 10 + 5 + 14 + 5 + 200 + 5 + 60) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - 250 + 5 + 490 / 2 - 20, 10 + 5 + 14 + 5 + 200 + 5, 490 / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.SUCCESS.getColor(), 140));
+        //buy button
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
+        RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
+        if (mouseX > screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.SUCCESS.getColor(), 140));
             if (inputHandler.isClicked()) {
                 if (buyState == 0) {
                     buyText = "Click again to confirm";
@@ -127,12 +123,6 @@ public class BinGuiNew extends GuiScreen {
 
 
         super.drawScreen(mouseX, mouseY, partialTicks);
-    }
-
-    private void drawLore(int mouseX, int mousey, int screenWidth, int screenHeight) {
-        for (int i = 0; i < lore.length; i++) {
-            RenderUtils.drawString(lore[i], screenWidth / 2 - 250 + 5 + 20 + 5 + 5, 10 + 5 + 14 + 5 + 5 + 10 * i, ColorPallet.WHITE.getColor());
-        }
     }
 
     private void buy() {
