@@ -5,7 +5,6 @@ import de.torui.coflsky.bingui.helper.RenderUtils;
 import de.torui.coflsky.bingui.helper.inputhandler.InputHandler;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
