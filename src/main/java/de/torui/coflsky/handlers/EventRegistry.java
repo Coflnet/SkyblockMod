@@ -58,7 +58,7 @@ public class EventRegistry {
 			System.out.println("CoflSky stopped");
 		}
 	}
-	
+
 	public long LastClick = System.currentTimeMillis();
 	private DescriptionHandler descriptionHandler;
 
@@ -79,19 +79,19 @@ public class EventRegistry {
 		}
 		if(CoflSky.keyBindings[1].isKeyDown()) {
 			if((System.currentTimeMillis() - LastClick) >= 300) {
-						
+
 				FlipData f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
-				
+
 				if(f != null) {
 					WSCommandHandler.Execute("/viewauction " + f.Id, null);
 					Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, f.Messages);
-					BinGuiManager.openOldFlipGui(WSCommandHandler.getChatMessage(showCmd), f.Messages[0].Hover.split("\n"), f.Id);
-					LastClick = System.currentTimeMillis();		
+					BinGuiManager.openNewFlipGui(WSCommandHandler.getChatMessage(showCmd), f.Messages[0].Hover.split("\n"), f.Id,"here should be the render string");
+					LastClick = System.currentTimeMillis();
 					String command =  WSClient.gson.toJson("/viewauction " + f.Id);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
-					
-					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
-					WSCommandHandler.Execute("/cofl track besthotkey " + f.Id, Minecraft.getMinecraft().thePlayer);		
+
+					//CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
+					WSCommandHandler.Execute("/cofl track besthotkey " + f.Id, Minecraft.getMinecraft().thePlayer);
 				} else {
 					// only display message once (if this is the key down event)
 					if(CoflSky.keyBindings[1].isPressed())
@@ -136,7 +136,7 @@ public class EventRegistry {
 
 	public static final Pair<String, Pair<String, LocalDateTime>> EMPTY = Pair.of(null, Pair.of("",LocalDateTime.MIN));
 	public static Pair<String, Pair<String, LocalDateTime>> last = EMPTY;
-	
+
 	@SubscribeEvent
 	public void HandleChatEvent(ClientChatReceivedEvent sce) {
 		if(CoflSky.Wrapper.isRunning && Configuration.getInstance().collectChat) {
@@ -150,14 +150,14 @@ public class EventRegistry {
 				}
 			});
 		}
-		
+
 	}
-	
+
 	public static long lastStartTime = Long.MIN_VALUE;
-	
+
 	public static long LastViewAuctionInvocation = Long.MIN_VALUE;
 	public static String LastViewAuctionUUID =null;
-		
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void OnGuiClick(GuiScreenEvent.MouseInputEvent mie) {

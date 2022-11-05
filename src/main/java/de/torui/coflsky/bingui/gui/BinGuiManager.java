@@ -16,7 +16,7 @@ public class BinGuiManager {
         currentGui.open(auctionId);
     }
 
-    public static void openNewFlipGui(IChatComponent message, String[] lore, String auctionId, String itemId, String skullTexture) {
-        Minecraft.getMinecraft().displayGuiScreen(new BinGuiNew(message, lore, auctionId, itemId, skullTexture));
+    public static void openNewFlipGui(IChatComponent message, String[] lore, String auctionId, String extraData) {
+        Minecraft.getMinecraft().displayGuiScreen(new BinGuiNew(message, lore, auctionId, extraData));
     }
 }

@@ -7,9 +7,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -27,23 +25,11 @@ public class BinGuiNew extends GuiScreen {
     private String buyText = "Buy";
     private int buyState = 0;
 
-    public BinGuiNew(IChatComponent message, String[] lore, String auctionId, String itemId, String skullTexture) {
+    public BinGuiNew(IChatComponent message, String[] lore, String auctionId, String extraData) {
         this.message = message;
         this.lore = lore;
         this.auctionId = auctionId;
-        //if the item is a skull, we need to set the texture
-        if (itemId.equals("minecraft:skull")) {
-            ItemStack tempItemStack = new ItemStack(Item.getByNameOrId(itemId));
-
-            //set the texture
-            tempItemStack.setTagCompound(new NBTTagCompound());
-            tempItemStack.getTagCompound().setString("SkullOwner", skullTexture);
-
-            this.itemStack = tempItemStack;
-        } else {
-            itemStack = new ItemStack(Item.getByNameOrId(itemId));
-        }
-
+        System.out.println(extraData);
     }
 
     @Override
@@ -52,7 +38,7 @@ public class BinGuiNew extends GuiScreen {
         int screenWidth = this.width;
         int screenHeight = this.height;
 
-        String parsedMessage = message.getFormattedText().toString();
+        String parsedMessage = message.getFormattedText().split("✥")[0].substring(3);
 
         int width = mc.fontRendererObj.getStringWidth(parsedMessage);
         int height = 300;
@@ -66,18 +52,20 @@ public class BinGuiNew extends GuiScreen {
 
         //next i draw the title
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5, (width - 10), 14, 5, ColorPallet.SECONDARY.getColor());
-        RenderUtils.drawString(message.getFormattedText().replaceAll("FLIP:", "").replaceAll(" sellers ah", ""), screenWidth / 2 - width / 2 + 7, 10 + 8, ColorPallet.WHITE.getColor());
+        RenderUtils.drawString(parsedMessage.replaceAll("FLIP:", "").replaceAll(" sellers ah", ""), screenWidth / 2 - width / 2 + 7, 10 + 8, ColorPallet.WHITE.getColor());
 
         //now i draw the backround of the icon
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5, 20, 20, 5, ColorPallet.TERTIARY.getColor());
 
         //now i draw the icon
+        /*
         if (itemStack == null) {
             //draw a question mark in the icon
             RenderUtils.drawString("?", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + 2, ColorPallet.WHITE.getColor(), 40);
         } else {
             RenderUtils.drawItemStack(itemStack, screenWidth / 2 - width / 2 + 5 + 2, 10 + 5 + 14 + 5 + 2, 16, 16);
         }
+         */
 
 
         //draw the backorund for the lore
