@@ -2,6 +2,8 @@ package de.torui.coflsky.bingui.helper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
@@ -262,6 +264,22 @@ public class RenderUtils {
         GL11.glPopMatrix();
     }
 
+    public static void drawItemStackWithText(ItemStack stack, int x, int y, String text) {
+        if (stack == null) return;
+        RenderItem itemRender = Minecraft.getMinecraft().getRenderItem();
+        setColor(Color.WHITE);
+        RenderHelper.enableGUIStandardItemLighting();
+        itemRender.zLevel = -145;
+        itemRender.renderItemAndEffectIntoGUI(stack, x, y);
+        itemRender.renderItemOverlayIntoGUI(Minecraft.getMinecraft().fontRendererObj, stack, x, y, text);
+        itemRender.zLevel = 0;
+        RenderHelper.disableStandardItemLighting();
+    }
+
+    public static void drawItemStack(ItemStack stack, int x, int y) {
+        drawItemStackWithText(stack, x, y, null);
+    }
+
     public static void drawItemStack(ItemStack itemStack, int x, int y, float scaleX, float scaleY) {
         GL11.glPushMatrix();
         GL11.glScalef(scaleX, scaleY, 0);
@@ -322,7 +340,7 @@ public class RenderUtils {
     }
 
     //set color
-    private static void setColor(int color) {
+    public static void setColor(int color) {
         float alpha = (float) (color >> 24 & 255) / 255.0F;
         float red = (float) (color >> 16 & 255) / 255.0F;
         float green = (float) (color >> 8 & 255) / 255.0F;
@@ -330,7 +348,7 @@ public class RenderUtils {
         GL11.glColor4f(red, green, blue, alpha);
     }
 
-    private static void setColor(Color color) {
+    public static void setColor(Color color) {
         setColor(color.getRGB());
     }
 

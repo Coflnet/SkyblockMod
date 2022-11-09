@@ -83,9 +83,9 @@ public class EventRegistry {
 				FlipData f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 
 				if(f != null) {
-					WSCommandHandler.Execute("/viewauction " + f.Id, null);
+					//WSCommandHandler.Execute("/viewauction " + f.Id, null);
 					Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, f.Messages);
-					BinGuiManager.openNewFlipGui(WSCommandHandler.getChatMessage(showCmd), f.Messages[0].Hover.split("\n"), f.Id,"here should be the render string");
+					BinGuiManager.openNewFlipGui(WSCommandHandler.getChatMessage(showCmd), f.Messages[0].Hover.split("\n"), f.Id,f.Render);
 					LastClick = System.currentTimeMillis();
 					String command =  WSClient.gson.toJson("/viewauction " + f.Id);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);

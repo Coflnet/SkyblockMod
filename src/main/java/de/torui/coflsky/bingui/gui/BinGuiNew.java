@@ -5,15 +5,22 @@ import de.torui.coflsky.bingui.helper.RenderUtils;
 import de.torui.coflsky.bingui.helper.inputhandler.InputHandler;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.command.NumberInvalidException;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.Base64;
 import java.util.Locale;
 
 public class BinGuiNew extends GuiScreen {
@@ -30,6 +37,12 @@ public class BinGuiNew extends GuiScreen {
         this.lore = lore;
         this.auctionId = auctionId;
         System.out.println(extraData);
+        if (extraData.length() >= 32) {
+            //now its a skull
+            itemStack = getSkull("Name", "00000000-0000-0000-0000-000000000000", extraData);
+        } else {
+            itemStack = new ItemStack(getItemByText(extraData));
+        }
     }
 
     @Override
@@ -58,14 +71,12 @@ public class BinGuiNew extends GuiScreen {
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5, 20, 20, 5, ColorPallet.TERTIARY.getColor());
 
         //now i draw the icon
-        /*
         if (itemStack == null) {
             //draw a question mark in the icon
             RenderUtils.drawString("?", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + 2, ColorPallet.WHITE.getColor(), 40);
         } else {
-            RenderUtils.drawItemStack(itemStack, screenWidth / 2 - width / 2 + 5 + 2, 10 + 5 + 14 + 5 + 2, 16, 16);
+            RenderUtils.drawItemStack(itemStack, screenWidth / 2 - width / 2 + 5 + 2, 10 + 5 + 14 + 5 + 2);
         }
-         */
 
 
         //draw the backorund for the lore
@@ -116,6 +127,55 @@ public class BinGuiNew extends GuiScreen {
         mc.thePlayer.closeScreen();
         mc.thePlayer.sendChatMessage("/viewauction " + auctionId);
         MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    //get skull itemstack from base64 texture
+    public static ItemStack getSkull(String displayName, String uuid, String value) {
+        String url = "http://textures.minecraft.net/texture/" + value;
+        ItemStack render = new ItemStack(Items.skull, 1, 3);
+
+        NBTTagCompound skullOwner = new NBTTagCompound();
+        skullOwner.setString("Id", uuid);
+        skullOwner.setString("Name", uuid);
+
+        byte[] encodedData = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+        NBTTagCompound textures_0 = new NBTTagCompound();
+        textures_0.setString("Value", new String(encodedData));
+
+        NBTTagList textures = new NBTTagList();
+        textures.appendTag(textures_0);
+
+        NBTTagCompound display = new NBTTagCompound();
+        display.setString("Name", displayName);
+
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setTag("display", display);
+
+        NBTTagCompound properties = new NBTTagCompound();
+        properties.setTag("textures", textures);
+        skullOwner.setTag("Properties", properties);
+        tag.setTag("SkullOwner", skullOwner);
+        render.setTagCompound(tag);
+        return render;
+    }
+
+
+    public static Item getItemByText(String id) {
+        try {
+            ResourceLocation resourcelocation = new ResourceLocation(id);
+            if (!Item.itemRegistry.containsKey(resourcelocation)) {
+                throw new NumberInvalidException("block.notFound", resourcelocation);
+            }
+            Item item = Item.itemRegistry.getObject(resourcelocation);
+            if (item == null) {
+                throw new NumberInvalidException("block.notFound", resourcelocation);
+            }
+            return item;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return null;
+        }
+
     }
 
     @SubscribeEvent
