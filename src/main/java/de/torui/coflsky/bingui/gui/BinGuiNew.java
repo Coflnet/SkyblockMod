@@ -42,6 +42,11 @@ public class BinGuiNew extends GuiScreen {
             itemStack = getSkull("Name", "00000000-0000-0000-0000-000000000000", extraData);
         } else {
             itemStack = new ItemStack(getItemByText(extraData));
+            //if it is a armor item, we color it black
+            if (itemStack.getItem() == null) return;
+            if (itemStack.getItem() == Items.leather_helmet || itemStack.getItem() == Items.leather_chestplate || itemStack.getItem() == Items.leather_leggings || itemStack.getItem() == Items.leather_boots) {
+                itemStack.getTagCompound().getCompoundTag("display").getCompoundTag("color").setInteger("value", 0);
+            }
         }
     }
 
