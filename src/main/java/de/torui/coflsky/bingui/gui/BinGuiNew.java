@@ -10,6 +10,7 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -44,8 +45,8 @@ public class BinGuiNew extends GuiScreen {
             itemStack = new ItemStack(getItemByText(extraData));
             //if it is an armor item, we color it black
             if (itemStack.getItem() == null) return;
-            if (itemStack.getItem() == Items.leather_helmet || itemStack.getItem() == Items.leather_chestplate || itemStack.getItem() == Items.leather_leggings || itemStack.getItem() == Items.leather_boots) {
-                itemStack.getTagCompound().getCompoundTag("display").getCompoundTag("color").setInteger("value", 0);
+            if (itemStack.getItem() instanceof ItemArmor && (itemStack.getItem() == Items.leather_helmet || itemStack.getItem() == Items.leather_chestplate || itemStack.getItem() == Items.leather_leggings || itemStack.getItem() == Items.leather_boots)) {
+                ((ItemArmor) itemStack.getItem()).setColor(itemStack, 0);
             }
         }
     }
@@ -58,7 +59,7 @@ public class BinGuiNew extends GuiScreen {
 
         String parsedMessage = message.getFormattedText().split("✥")[0].substring(3);
 
-        int width = mc.fontRendererObj.getStringWidth(parsedMessage);
+        int width = mc.fontRendererObj.getStringWidth(parsedMessage) > 500 ? mc.fontRendererObj.getStringWidth(parsedMessage) + 20 : 500;
         int height = 300;
 
         if (lore.length > 25) {
