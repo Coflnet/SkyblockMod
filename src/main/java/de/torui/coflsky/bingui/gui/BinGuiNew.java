@@ -59,7 +59,7 @@ public class BinGuiNew extends GuiScreen {
 
         String parsedMessage = message.getFormattedText().split("✥")[0].substring(3);
 
-        int width = mc.fontRendererObj.getStringWidth(parsedMessage) > 500 ? mc.fontRendererObj.getStringWidth(parsedMessage) + 20 : 500;
+        int width = mc.fontRendererObj.getStringWidth(parsedMessage) > 500 ? mc.fontRendererObj.getStringWidth(parsedMessage) + 5 : 500;
         int height = 300;
 
         if (lore.length > 25) {
