@@ -19,8 +19,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
@@ -92,24 +94,32 @@ public class BinGuiNew extends GuiScreen {
             RenderUtils.drawItemStack(itemStack, 10 + 5 + 5 - 8, 10 + 5 + 5 - 8, 1.35f, 1.35f);
         }
 
-
-        //draw the backorund for the lore
-        RenderUtils.drawRoundedRect(10 + 5, 10 + 5 + 25 + 5, (width / 3) * 2 - 10, height - 10 - 25 - 5, 5, ColorPallet.SECONDARY.getColor());
-
-        //draw the lore
-        for (int i = 0; i < lore.length; i++) {
-            RenderUtils.drawString(lore[i], 10 + 5 + 5, 10 + 5 + 25 + 5 + 5 + (i * 10), ColorPallet.WHITE.getColor());
-
+        //if the longest line of the lore is longer than the width of the gui, i use GuiUtils.drawHoveringText to draw the lore
+        int longestLine = 0;
+        for (String s : lore) {
+            if (mc.fontRendererObj.getStringWidth(s) > longestLine) {
+                longestLine = mc.fontRendererObj.getStringWidth(s);
+            }
         }
 
+        boolean loreTooLong = longestLine > width - 20;
+        if (!loreTooLong) {
+            //draw the backorund for the lore
+            RenderUtils.drawRoundedRect(10 + 5, 10 + 5 + 25 + 5, (width / 3) * 2 - 10, height - 10 - 25 - 5, 5, ColorPallet.SECONDARY.getColor());
+
+            //draw the lore
+            for (int i = 0; i < lore.length; i++) {
+                RenderUtils.drawString(lore[i], 10 + 5 + 5, 10 + 5 + 25 + 5 + 5 + (i * 10), ColorPallet.WHITE.getColor());
+
+            }
+        }
 
         //now i draw the buttons buy and cancel right of the lore
-
         //cancel button
         RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5, (width / 3) - 10, 125, 5, ColorPallet.ERROR.getColor());
         RenderUtils.drawString("Cancel", 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 5, ColorPallet.WHITE.getColor());
         if (mouseX >= 10 + 5 + (width / 3) * 2 && mouseX <= 10 + 5 + (width / 3) * 2 + (width / 3) - 10 && mouseY >= 10 + 5 + 25 + 5 && mouseY <= 10 + 5 + 25 + 5 + 125) {
-            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5, (width / 3) - 10, 125, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(),64));
+            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5, (width / 3) - 10, 125, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 64));
             RenderUtils.drawString("Cancel", 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 5, ColorPallet.WHITE.getColor());
             if (inputHandler.isClicked()) {
                 buyState = 0;
@@ -121,10 +131,10 @@ public class BinGuiNew extends GuiScreen {
 
 
         //buy button
-        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 +100, (width / 3) - 10, 220, 5, ColorPallet.SUCCESS.getColor());
+        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, 220, 5, ColorPallet.SUCCESS.getColor());
         RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
         if (mouseX >= 10 + 5 + (width / 3) * 2 && mouseX <= 10 + 5 + (width / 3) * 2 + (width / 3) - 10 && mouseY >= 10 + 5 + 25 + 5 + 25 + 5 + 100 && mouseY <= 10 + 5 + 25 + 5 + 25 + 5 + 100 + 220) {
-            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 +100, (width / 3) - 10, 220, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(),64));
+            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, 220, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 64));
             RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
             if (inputHandler.isClicked()) {
                 if (buyState == 0) {
@@ -136,6 +146,10 @@ public class BinGuiNew extends GuiScreen {
                     buy();
                 }
             }
+        }
+
+        if (loreTooLong){
+            GuiUtils.drawHoveringText(Arrays.asList(lore), mouseX, mouseY, screenWidth, screenHeight, -1, mc.fontRendererObj);
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
