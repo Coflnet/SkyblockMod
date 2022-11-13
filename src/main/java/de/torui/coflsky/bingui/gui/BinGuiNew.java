@@ -65,7 +65,7 @@ public class BinGuiNew extends GuiScreen {
         int width = 600;
         int height = 300;
 
-        if (lore.length > 25) {
+        if (lore.length > 25 && mc.fontRendererObj.FONT_HEIGHT*lore.length-40 < screenHeight ) {
             height = 300 + (lore.length - 25) * 10;
         }
 
@@ -102,7 +102,7 @@ public class BinGuiNew extends GuiScreen {
             }
         }
 
-        boolean loreTooLong = longestLine > width - 20;
+        boolean loreTooLong = longestLine > width - 20||mc.fontRendererObj.FONT_HEIGHT*lore.length-40 > screenHeight;
         if (!loreTooLong) {
             //draw the backorund for the lore
             RenderUtils.drawRoundedRect(10 + 5, 10 + 5 + 25 + 5, (width / 3) * 2 - 10, height - 10 - 25 - 5, 5, ColorPallet.SECONDARY.getColor());
@@ -131,10 +131,10 @@ public class BinGuiNew extends GuiScreen {
 
 
         //buy button
-        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, 220, 5, ColorPallet.SUCCESS.getColor());
+        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, height - 10 - 25 - 5 -130, 5, ColorPallet.SUCCESS.getColor());
         RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
         if (mouseX >= 10 + 5 + (width / 3) * 2 && mouseX <= 10 + 5 + (width / 3) * 2 + (width / 3) - 10 && mouseY >= 10 + 5 + 25 + 5 + 25 + 5 + 100 && mouseY <= 10 + 5 + 25 + 5 + 25 + 5 + 100 + 220) {
-            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, 220, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 64));
+            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, height - 10 - 25 - 5 -130, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 64));
             RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
             if (inputHandler.isClicked()) {
                 if (buyState == 0) {

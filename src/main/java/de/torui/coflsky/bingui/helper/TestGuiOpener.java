@@ -1,5 +1,8 @@
 package de.torui.coflsky.bingui.helper;
 
+import de.torui.coflsky.bingui.gui.BinGuiManager;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.IChatComponent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 

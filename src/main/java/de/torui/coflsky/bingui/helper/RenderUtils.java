@@ -290,7 +290,7 @@ public class RenderUtils {
     public static void drawItemStack(ItemStack itemStack, int x, int y, float scaleX, float scaleY) {
         GL11.glPushMatrix();
         GL11.glScalef(scaleX, scaleY, 0);
-        mc.getRenderItem().renderItemIntoGUI(itemStack, x, y);
+        drawItemStack(itemStack,x,y);
         GL11.glPopMatrix();
     }
 
@@ -298,7 +298,7 @@ public class RenderUtils {
     public static void drawCenteredItemStack(ItemStack itemStack, int x, int y, float scale) {
         GL11.glPushMatrix();
         GL11.glScalef(scale, scale, scale);
-        mc.getRenderItem().renderItemIntoGUI(itemStack, (int) (x - (scale / 2)), (int) (y - (scale / 2)));
+        drawItemStack(itemStack, (int) (x - (scale / 2)), (int) (y - (scale / 2)));
         GL11.glPopMatrix();
     }
 
