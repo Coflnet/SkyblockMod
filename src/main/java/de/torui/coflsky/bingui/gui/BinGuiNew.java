@@ -22,6 +22,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Locale;
 
 public class BinGuiNew extends GuiScreen {
@@ -57,9 +58,9 @@ public class BinGuiNew extends GuiScreen {
         int screenWidth = this.width;
         int screenHeight = this.height;
 
-        String parsedMessage = message.getFormattedText().split("✥")[0].substring(3);
+        String parsedMessage = message.getFormattedText().split("✥")[0].substring(3).replaceAll(" sellers ah", "");
 
-        int width = mc.fontRendererObj.getStringWidth(parsedMessage) > 500 ? mc.fontRendererObj.getStringWidth(parsedMessage) + 5 : 500;
+        int width = 600;
         int height = 300;
 
         if (lore.length > 25) {
@@ -67,38 +68,49 @@ public class BinGuiNew extends GuiScreen {
         }
 
         //first i draw the main background
-        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2, 10, width, height, 10, ColorPallet.PRIMARY.getColor());
+        RenderUtils.drawRoundedRect(10, 10, width, height, 10, ColorPallet.PRIMARY.getColor());
+
 
         //next i draw the title
-        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5, (width - 10), 14, 5, ColorPallet.SECONDARY.getColor());
-        RenderUtils.drawString(parsedMessage.replaceAll("FLIP:", "").replaceAll(" sellers ah", ""), screenWidth / 2 - width / 2 + 7, 10 + 8, ColorPallet.WHITE.getColor());
+        RenderUtils.drawRoundedRect(10 + 30 + 5, 10 + 5, (width - 40), 25, 5, ColorPallet.SECONDARY.getColor());
+        //RenderUtils.drawString(parsedMessage, 10 + 35 +5, 10 + 8, ColorPallet.WHITE.getColor());
+        List<String> wrappedLine = mc.fontRendererObj.listFormattedStringToWidth(parsedMessage, width - 45);
+        for (int i = 0; i < wrappedLine.size(); i++) {
+            RenderUtils.drawString(wrappedLine.get(i), 10 + 35 + 5, 10 + 8 + (i * 10), ColorPallet.WHITE.getColor());
+        }
 
-        //now i draw the backround of the icon
-        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5, 20, 20, 5, ColorPallet.TERTIARY.getColor());
+        //now i draw the backround of the icon, the icon is left of the title
+        RenderUtils.drawRoundedRect(10 + 5, 10 + 5, 25, 25, 5, ColorPallet.TERTIARY.getColor());
+
 
         //now i draw the icon
         if (itemStack == null) {
             //draw a question mark in the icon
-            RenderUtils.drawString("?", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + 2, ColorPallet.WHITE.getColor(), 40);
+            RenderUtils.drawString("?", 10 + 5 + 12, 10 + 5 + 12, ColorPallet.WHITE.getColor());
         } else {
-            RenderUtils.drawItemStack(itemStack, screenWidth / 2 - width / 2 + 5 + 2, 10 + 5 + 14 + 5 + 2);
+            //draw the item in the icon
+            RenderUtils.drawItemStack(itemStack, 10 + 5 + 5 - 8, 10 + 5 + 5 - 8, 1.35f, 1.35f);
         }
 
 
         //draw the backorund for the lore
-        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + 20 + 5, 10 + 5 + 14 + 5, (width - 10) - 25, (height - 100), 5, ColorPallet.SECONDARY.getColor());
+        RenderUtils.drawRoundedRect(10 + 5, 10 + 5 + 25 + 5, (width / 3) * 2 - 10, height - 10 - 25 - 5, 5, ColorPallet.SECONDARY.getColor());
 
         //draw the lore
         for (int i = 0; i < lore.length; i++) {
-            RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5 + 5, 10 + 5 + 14 + 5 + 5 + 10 * i, ColorPallet.WHITE.getColor());
+            RenderUtils.drawString(lore[i], 10 + 5 + 5, 10 + 5 + 25 + 5 + 5 + (i * 10), ColorPallet.WHITE.getColor());
+
         }
 
-        //now i draw the buttons buy and sell under the lore
+
+        //now i draw the buttons buy and cancel right of the lore
+
         //cancel button
-        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, ColorPallet.ERROR.getColor());
-        RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (mouseX > screenWidth / 2 - width / 2 + 5 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 25 && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, RenderUtils.setAlpha(ColorPallet.ERROR.getColor(), 100));
+        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5, (width / 3) - 10, 125, 5, ColorPallet.ERROR.getColor());
+        RenderUtils.drawString("Cancel", 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 5, ColorPallet.WHITE.getColor());
+        if (mouseX >= 10 + 5 + (width / 3) * 2 && mouseX <= 10 + 5 + (width / 3) * 2 + (width / 3) - 10 && mouseY >= 10 + 5 + 25 + 5 && mouseY <= 10 + 5 + 25 + 5 + 125) {
+            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5, (width / 3) - 10, 125, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(),64));
+            RenderUtils.drawString("Cancel", 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 5, ColorPallet.WHITE.getColor());
             if (inputHandler.isClicked()) {
                 buyState = 0;
                 buyText = "Buy";
@@ -109,10 +121,11 @@ public class BinGuiNew extends GuiScreen {
 
 
         //buy button
-        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
-        RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (mouseX > screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.SUCCESS.getColor(), 140));
+        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 +100, (width / 3) - 10, 220, 5, ColorPallet.SUCCESS.getColor());
+        RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
+        if (mouseX >= 10 + 5 + (width / 3) * 2 && mouseX <= 10 + 5 + (width / 3) * 2 + (width / 3) - 10 && mouseY >= 10 + 5 + 25 + 5 + 25 + 5 + 100 && mouseY <= 10 + 5 + 25 + 5 + 25 + 5 + 100 + 220) {
+            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 +100, (width / 3) - 10, 220, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(),64));
+            RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
             if (inputHandler.isClicked()) {
                 if (buyState == 0) {
                     buyText = "Click again to confirm";
@@ -125,7 +138,6 @@ public class BinGuiNew extends GuiScreen {
             }
         }
 
-
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
@@ -137,7 +149,7 @@ public class BinGuiNew extends GuiScreen {
 
     //get skull itemstack from base64 texture
     public static ItemStack getSkull(String displayName, String uuid, String value) {
-        String url = "http://textures.minecraft.net/texture/" + value;
+        String url = "https://textures.minecraft.net/texture/" + value;
         ItemStack render = new ItemStack(Items.skull, 1, 3);
 
         NBTTagCompound skullOwner = new NBTTagCompound();
@@ -230,10 +242,6 @@ public class BinGuiNew extends GuiScreen {
         }
     }
 
-    @Override
-    public void initGui() {
-        super.initGui();
-    }
 
     @Override
     public void onGuiClosed() {

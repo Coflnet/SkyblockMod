@@ -2,6 +2,7 @@ package de.torui.coflsky.bingui.helper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
@@ -9,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RenderUtils {
     public static Minecraft mc = Minecraft.getMinecraft();
@@ -164,8 +167,12 @@ public class RenderUtils {
     public static void drawRoundedRect(int x, int y, int width, int height, int radius, @NotNull Color color) {
 
         //draw the two rectangles
-        drawRect(x + radius, y, width - radius - radius, height, color.getRGB());
-        drawRect(x, y + radius, width, height - radius - radius, color.getRGB());
+        drawRect(x + radius, y, width - radius * 2, height, color.getRGB());
+        drawRect(x, y + radius, radius, height - radius * 2, color.getRGB());
+        drawRect(x + width - radius, y + radius, radius, height - radius * 2, color.getRGB());
+
+        //drawRect(x + radius, y, width - radius - radius, height, color.getRGB());
+        //drawRect(x, y + radius, width, height - radius - radius, color.getRGB());
         //draw the circles
         drawArc(x + radius, y + radius, radius, 180, 270, color);
         drawArc(x + width - radius, y + radius, radius, 90, 180, color);
