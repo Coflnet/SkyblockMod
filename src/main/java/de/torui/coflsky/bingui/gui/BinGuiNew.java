@@ -148,7 +148,7 @@ public class BinGuiNew extends GuiScreen {
             }
         }
 
-        if (loreTooLong){
+        if (loreTooLong) {
             GuiUtils.drawHoveringText(Arrays.asList(lore), mouseX, mouseY, screenWidth, screenHeight, -1, mc.fontRendererObj);
         }
 
