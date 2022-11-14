@@ -5,6 +5,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
 
+/**
+ * Created by ForBai
+ */
 public class MouseHelper {
     public static boolean wasMouseDown = false;
 

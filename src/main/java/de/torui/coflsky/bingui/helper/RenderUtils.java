@@ -2,7 +2,6 @@ package de.torui.coflsky.bingui.helper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
@@ -10,9 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
+
+/**
+ * Created by ForBai
+ */
 public class RenderUtils {
     public static Minecraft mc = Minecraft.getMinecraft();
 
@@ -290,7 +291,7 @@ public class RenderUtils {
     public static void drawItemStack(ItemStack itemStack, int x, int y, float scaleX, float scaleY) {
         GL11.glPushMatrix();
         GL11.glScalef(scaleX, scaleY, 0);
-        drawItemStack(itemStack,x,y);
+        drawItemStack(itemStack, x, y);
         GL11.glPopMatrix();
     }
 

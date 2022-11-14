@@ -4,6 +4,9 @@ package de.torui.coflsky.bingui.helper.inputhandler;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Mouse;
 
+/**
+ * Created by ForBai
+ */
 public class InputHandler {
 
     public boolean isAreaHovered(float x, float y, float width, float height, boolean ignoreBlock) {
