@@ -30,6 +30,11 @@ public class InputHandler {
         return isMouseDown(0);
     }
 
+    //get scroll wheel
+    public int getScrollWheel() {
+        return Mouse.getDWheel();
+    }
+
     public float mouseX() {
         double scaleX = 1d;
         return (float) (Mouse.getDX() / scaleX);

@@ -19,10 +19,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.input.Keyboard;
 
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
@@ -35,6 +34,7 @@ public class BinGuiNew extends GuiScreen {
 
     private String buyText = "Buy";
     private int buyState = 0;
+    private int pixelsScrolled = 0;
 
     public BinGuiNew(IChatComponent message, String[] lore, String auctionId, String extraData) {
         this.message = message;
@@ -65,9 +65,9 @@ public class BinGuiNew extends GuiScreen {
         int width = 600;
         int height = 300;
 
-        if (lore.length > 25 && mc.fontRendererObj.FONT_HEIGHT*lore.length-40 < screenHeight ) {
-            height = 300 + (lore.length - 25) * 10;
-        }
+        //if (lore.length > 25 && mc.fontRendererObj.FONT_HEIGHT*lore.length-40 < screenHeight ) {
+        //    height = 300 + (lore.length - 25) * 10;
+        //}
 
         //first i draw the main background
         RenderUtils.drawRoundedRect(10, 10, width, height, 10, ColorPallet.PRIMARY.getColor());
@@ -93,7 +93,7 @@ public class BinGuiNew extends GuiScreen {
             //draw the item in the icon
             RenderUtils.drawItemStack(itemStack, 10 + 5 + 5 - 8, 10 + 5 + 5 - 8, 1.35f, 1.35f);
         }
-
+/*
         //if the longest line of the lore is longer than the width of the gui, i use GuiUtils.drawHoveringText to draw the lore
         int longestLine = 0;
         for (String s : lore) {
@@ -113,6 +113,27 @@ public class BinGuiNew extends GuiScreen {
 
             }
         }
+ */
+        //lore background
+        RenderUtils.drawRoundedRect(10 + 5, 10 + 5 + 25 + 5, (width / 3) * 2 - 10, height - 10 - 25 - 5, 5, ColorPallet.SECONDARY.getColor());
+        //if i hover over the lore and scroll i add the scroll to the pixelsScrolled variable
+        if (mouseX > 10 + 5 && mouseX < 10 + 5 + (width / 3) * 2 - 10 && mouseY > 10 + 5 + 25 + 5 && mouseY < 10 + 5 + 25 + 5 + height - 10 - 25 - 5) {
+            pixelsScrolled += inputHandler.getScrollWheel() / 4;
+        }
+
+        //draw the lore every line that is outside the lore background is not drawn
+        for (int i = 0; i < lore.length; i++) {
+            if (i * 10 - pixelsScrolled > 0 && i * 10 - pixelsScrolled < height - 10 - 25 - 5) {
+                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+                    //RenderUtils.drawString(lore[i], 10 + 5 + 5 - pixelsScrolled, 10 + 5 + 25 + (i * 10), ColorPallet.WHITE.getColor());
+                    RenderUtils.drawString(lore[i], 10 + 5 + 5, 10 + 5 + 25 + (i * 10) - pixelsScrolled, ColorPallet.WHITE.getColor());
+                } else if (!Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+                    RenderUtils.drawString(lore[i], 10 + 5 + 5, 10 + 5 + 25 + (i * 10) - pixelsScrolled, ColorPallet.WHITE.getColor());
+                }
+
+            }
+        }
+
 
         //now i draw the buttons buy and cancel right of the lore
         //cancel button
@@ -131,10 +152,10 @@ public class BinGuiNew extends GuiScreen {
 
 
         //buy button
-        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, height - 10 - 25 - 5 -130, 5, ColorPallet.SUCCESS.getColor());
+        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, height - 10 - 25 - 5 - 130, 5, ColorPallet.SUCCESS.getColor());
         RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
         if (mouseX >= 10 + 5 + (width / 3) * 2 && mouseX <= 10 + 5 + (width / 3) * 2 + (width / 3) - 10 && mouseY >= 10 + 5 + 25 + 5 + 25 + 5 + 100 && mouseY <= 10 + 5 + 25 + 5 + 25 + 5 + 100 + 220) {
-            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, height - 10 - 25 - 5 -130, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 64));
+            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, height - 10 - 25 - 5 - 130, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 64));
             RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
             if (inputHandler.isClicked()) {
                 if (buyState == 0) {
@@ -148,12 +169,13 @@ public class BinGuiNew extends GuiScreen {
             }
         }
 
-        if (loreTooLong) {
-            GuiUtils.drawHoveringText(Arrays.asList(lore), mouseX, mouseY, screenWidth, screenHeight, -1, mc.fontRendererObj);
-        }
+        //if (loreTooLong) {
+        //    GuiUtils.drawHoveringText(Arrays.asList(lore), mouseX, mouseY, screenWidth, screenHeight, -1, mc.fontRendererObj);
+        //}
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
+
 
     private void buy() {
         mc.thePlayer.closeScreen();
