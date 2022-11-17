@@ -23,7 +23,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Base64;
-import java.util.List;
 import java.util.Locale;
 
 public class BinGuiNew extends GuiScreen {
@@ -62,86 +61,75 @@ public class BinGuiNew extends GuiScreen {
 
         String parsedMessage = message.getFormattedText().split("✥")[0].substring(3).replaceAll(" sellers ah", "");
 
-        int width = 600;
+        int width = mc.fontRendererObj.getStringWidth(parsedMessage) > 500 ? mc.fontRendererObj.getStringWidth(parsedMessage) + 5 : 500;
         int height = 300;
 
-        //if (lore.length > 25 && mc.fontRendererObj.FONT_HEIGHT*lore.length-40 < screenHeight ) {
+        //if (lore.length > 25) {
         //    height = 300 + (lore.length - 25) * 10;
         //}
 
         //first i draw the main background
-        RenderUtils.drawRoundedRect(10, 10, width, height, 10, ColorPallet.PRIMARY.getColor());
-
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2, 10, width, height, 10, ColorPallet.PRIMARY.getColor());
 
         //next i draw the title
-        RenderUtils.drawRoundedRect(10 + 30 + 5, 10 + 5, (width - 40), 25, 5, ColorPallet.SECONDARY.getColor());
-        //RenderUtils.drawString(parsedMessage, 10 + 35 +5, 10 + 8, ColorPallet.WHITE.getColor());
-        List<String> wrappedLine = mc.fontRendererObj.listFormattedStringToWidth(parsedMessage, width - 45);
-        for (int i = 0; i < wrappedLine.size(); i++) {
-            RenderUtils.drawString(wrappedLine.get(i), 10 + 35 + 5, 10 + 8 + (i * 10), ColorPallet.WHITE.getColor());
-        }
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5, (width - 10), 14, 5, ColorPallet.SECONDARY.getColor());
+        RenderUtils.drawString(parsedMessage, screenWidth / 2 - width / 2 + 7, 10 + 8, ColorPallet.WHITE.getColor());
 
-        //now i draw the backround of the icon, the icon is left of the title
-        RenderUtils.drawRoundedRect(10 + 5, 10 + 5, 25, 25, 5, ColorPallet.TERTIARY.getColor());
-
+        //now i draw the backround of the icon
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5, 20, 20, 5, ColorPallet.TERTIARY.getColor());
 
         //now i draw the icon
         if (itemStack == null) {
             //draw a question mark in the icon
-            RenderUtils.drawString("?", 10 + 5 + 12, 10 + 5 + 12, ColorPallet.WHITE.getColor());
+            RenderUtils.drawString("?", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + 2, ColorPallet.WHITE.getColor(), 40);
         } else {
-            //draw the item in the icon
-            RenderUtils.drawItemStack(itemStack, 10 + 5 + 5 - 8, 10 + 5 + 5 - 8, 1.35f, 1.35f);
-        }
-/*
-        //if the longest line of the lore is longer than the width of the gui, i use GuiUtils.drawHoveringText to draw the lore
-        int longestLine = 0;
-        for (String s : lore) {
-            if (mc.fontRendererObj.getStringWidth(s) > longestLine) {
-                longestLine = mc.fontRendererObj.getStringWidth(s);
-            }
+            RenderUtils.drawItemStack(itemStack, screenWidth / 2 - width / 2 + 5 + 2, 10 + 5 + 14 + 5 + 2);
         }
 
-        boolean loreTooLong = longestLine > width - 20||mc.fontRendererObj.FONT_HEIGHT*lore.length-40 > screenHeight;
-        if (!loreTooLong) {
-            //draw the backorund for the lore
-            RenderUtils.drawRoundedRect(10 + 5, 10 + 5 + 25 + 5, (width / 3) * 2 - 10, height - 10 - 25 - 5, 5, ColorPallet.SECONDARY.getColor());
 
-            //draw the lore
-            for (int i = 0; i < lore.length; i++) {
-                RenderUtils.drawString(lore[i], 10 + 5 + 5, 10 + 5 + 25 + 5 + 5 + (i * 10), ColorPallet.WHITE.getColor());
-
-            }
-        }
- */
-        //lore background
-        RenderUtils.drawRoundedRect(10 + 5, 10 + 5 + 25 + 5, (width / 3) * 2 - 10, height - 10 - 25 - 5, 5, ColorPallet.SECONDARY.getColor());
-        //if i hover over the lore and scroll i add the scroll to the pixelsScrolled variable
-        if (mouseX > 10 + 5 && mouseX < 10 + 5 + (width / 3) * 2 - 10 && mouseY > 10 + 5 + 25 + 5 && mouseY < 10 + 5 + 25 + 5 + height - 10 - 25 - 5) {
-            pixelsScrolled += inputHandler.getScrollWheel() / 4;
+        //draw the backorund for the lore
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + 20 + 5, 10 + 5 + 14 + 5, (width - 10) - 25, (height - 100), 5, ColorPallet.SECONDARY.getColor());
+        if (mouseX > screenWidth / 2 - width / 2 + 5 + 20 + 5 && mouseX < screenWidth / 2 - width / 2 + 5 + 20 + 5 + (width - 10) - 25 && mouseY > 10 + 5 + 14 + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100)) {
+            //mouse is in the lore background
+            pixelsScrolled += inputHandler.getScrollWheel() / 4;//4 is the scroll speed
         }
 
-        //draw the lore every line that is outside the lore background is not drawn
+        //draw the lore
         for (int i = 0; i < lore.length; i++) {
-            if (i * 10 - pixelsScrolled > 0 && i * 10 - pixelsScrolled < height - 10 - 25 - 5) {
-                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                    //RenderUtils.drawString(lore[i], 10 + 5 + 5 - pixelsScrolled, 10 + 5 + 25 + (i * 10), ColorPallet.WHITE.getColor());
-                    RenderUtils.drawString(lore[i], 10 + 5 + 5, 10 + 5 + 25 + (i * 10) - pixelsScrolled, ColorPallet.WHITE.getColor());
-                } else if (!Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                    RenderUtils.drawString(lore[i], 10 + 5 + 5, 10 + 5 + 25 + (i * 10) - pixelsScrolled, ColorPallet.WHITE.getColor());
+            //if shift is pressed, i scroll to the right or left else i scroll up or down
+            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+                if (mc.fontRendererObj.getStringWidth(lore[i]) > (width - 10) - 25) {
+                    //the lore is longer than the background
+                    if (mc.fontRendererObj.getStringWidth(lore[i]) - pixelsScrolled < (width - 10) - 25) {
+                        //the lore is longer than the background and the lore is scrolled to the right
+                        RenderUtils.drawString(lore[i].substring(pixelsScrolled), screenWidth / 2 - width / 2 + 5 + 20 + 5, 10 + 5 + 14 + 5 + 2 + (i * 10), ColorPallet.WHITE.getColor(), (width - 10) - 25);
+                    } else {
+                        //the lore is longer than the background and the lore is scrolled to the left
+                        RenderUtils.drawString(lore[i].substring(pixelsScrolled), screenWidth / 2 - width / 2 + 5 + 20 + 5, 10 + 5 + 14 + 5 + 2 + (i * 10), ColorPallet.WHITE.getColor(), (width - 10) - 25);
+                    }
+                } else {
+                    //the lore is shorter than the background
+                    RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5, 10 + 5 + 14 + 5 + 2 + (i * 10), ColorPallet.WHITE.getColor(), (width - 10) - 25);
                 }
-
+            } else {
+                if (i * 10 - pixelsScrolled < (height - 100)) {
+                    //the lore is scrolled to the top
+                    RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5, 10 + 5 + 14 + 5 + 2 + (i * 10) - pixelsScrolled, ColorPallet.WHITE.getColor(), (width - 10) - 25);
+                } else {
+                    //the lore is scrolled to the bottom
+                    RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5, 10 + 5 + 14 + 5 + 2 + (i * 10) - pixelsScrolled, ColorPallet.WHITE.getColor(), (width - 10) - 25);
+                }
             }
+            //RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5 + 5, 10 + 5 + 14 + 5 + 5 + 10 * i, ColorPallet.WHITE.getColor());
         }
 
-
-        //now i draw the buttons buy and cancel right of the lore
+        //now i draw the buttons buy and sell under the lore
         //cancel button
-        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5, (width / 3) - 10, 125, 5, ColorPallet.ERROR.getColor());
-        RenderUtils.drawString("Cancel", 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 5, ColorPallet.WHITE.getColor());
-        if (mouseX >= 10 + 5 + (width / 3) * 2 && mouseX <= 10 + 5 + (width / 3) * 2 + (width / 3) - 10 && mouseY >= 10 + 5 + 25 + 5 && mouseY <= 10 + 5 + 25 + 5 + 125) {
-            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5, (width / 3) - 10, 125, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 64));
-            RenderUtils.drawString("Cancel", 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 5, ColorPallet.WHITE.getColor());
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, ColorPallet.ERROR.getColor());
+        RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
+        if (mouseX > screenWidth / 2 - width / 2 + 5 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 25 && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, RenderUtils.setAlpha(ColorPallet.WARNING.getColor(), 100));
+            RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
             if (inputHandler.isClicked()) {
                 buyState = 0;
                 buyText = "Buy";
@@ -152,11 +140,11 @@ public class BinGuiNew extends GuiScreen {
 
 
         //buy button
-        RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, height - 10 - 25 - 5 - 130, 5, ColorPallet.SUCCESS.getColor());
-        RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
-        if (mouseX >= 10 + 5 + (width / 3) * 2 && mouseX <= 10 + 5 + (width / 3) * 2 + (width / 3) - 10 && mouseY >= 10 + 5 + 25 + 5 + 25 + 5 + 100 && mouseY <= 10 + 5 + 25 + 5 + 25 + 5 + 100 + 220) {
-            RenderUtils.drawRoundedRect(10 + 5 + (width / 3) * 2, 10 + 5 + 25 + 5 + 25 + 5 + 100, (width / 3) - 10, height - 10 - 25 - 5 - 130, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 64));
-            RenderUtils.drawString(buyText, 10 + 5 + (width / 3) * 2 + 5, 10 + 5 + 25 + 5 + 25 + 5 + 100 + 5, ColorPallet.WHITE.getColor());
+        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
+        RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
+        if (mouseX > screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.TERTIARY.getColor(), 100));
+            RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
             if (inputHandler.isClicked()) {
                 if (buyState == 0) {
                     buyText = "Click again to confirm";
@@ -169,13 +157,8 @@ public class BinGuiNew extends GuiScreen {
             }
         }
 
-        //if (loreTooLong) {
-        //    GuiUtils.drawHoveringText(Arrays.asList(lore), mouseX, mouseY, screenWidth, screenHeight, -1, mc.fontRendererObj);
-        //}
-
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
-
 
     private void buy() {
         mc.thePlayer.closeScreen();
