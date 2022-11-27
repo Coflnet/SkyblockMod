@@ -237,6 +237,7 @@ public class BinGuiNew extends GuiScreen {
             MinecraftForge.EVENT_BUS.unregister(this);
         }
 
+
         if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 2) {
             mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
             buyState = 3;

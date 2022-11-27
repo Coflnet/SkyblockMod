@@ -90,7 +90,7 @@ public class EventRegistry {
 					String command =  WSClient.gson.toJson("/viewauction " + f.Id);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
 
-					//CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
+					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
 					WSCommandHandler.Execute("/cofl track besthotkey " + f.Id, Minecraft.getMinecraft().thePlayer);
 				} else {
 					// only display message once (if this is the key down event)

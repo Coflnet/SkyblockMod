@@ -1,7 +1,5 @@
 package de.torui.coflsky.bingui.gui;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.IChatComponent;
 
 public class BinGuiManager {
@@ -17,6 +15,6 @@ public class BinGuiManager {
     }
 
     public static void openNewFlipGui(IChatComponent message, String[] lore, String auctionId, String extraData) {
-        Minecraft.getMinecraft().displayGuiScreen(new BinGuiNew(message, lore, auctionId, extraData));
+        new BinGuiCurrent(message, lore, auctionId, extraData);
     }
 }
