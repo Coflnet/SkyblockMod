@@ -76,31 +76,28 @@ public class BinGuiCurrent {
         if (inventory == null) return;
 
 
-        if (inventory.getDisplayName().getFormattedText().contains("Auction View")) {
+        if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).equals("auction view")) {
             //close the gui
             buyState = 0;
             buyText = "Buy";
-            event.setCanceled(false);
             MinecraftForge.EVENT_BUS.unregister(this);
             return;
         }
 
         if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && (buyState == 1 || buyState == 0)) {
-            event.setCanceled(true);
             //before i draw the gui, i check if there is a item in slot 13
             ItemStack item = inventory.getStackInSlot(13);
             if (item == null) return;
             itemStack = item;
             item.getTooltip(mc.thePlayer, false).toArray(lore);
-
+            System.out.println(item.getDisplayName());
             //now i draw the gui
             drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
+            event.setCanceled(true);
         } else if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 2) {
-            event.setCanceled(false);
             mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
             buyState = 3;
         } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 3) {
-            event.setCanceled(false);
             mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
             buyState = 0;
             buyText = "Buy";
@@ -227,35 +224,13 @@ public class BinGuiCurrent {
             pixelsScrolled += inputHandler.getScrollWheel() / 4;//4 is the scroll speed
         }
 
-        //draw the lore if the lore is out of the lore background i dont draw it
-        if (pixelsScrolled < 0) {
-            pixelsScrolled = 0;
-        }
-
-        if (pixelsScrolled > (lore.length * 10) - ((height - 100) - 10)) {
-            pixelsScrolled = (lore.length * 10) - ((height - 100) - 10);
-        }
-
+        //draw the lore, every line that is out of the lore background will not be drawn
+        int y = 10 + 5 + 14 + 5 + 2;
         for (int i = 0; i < lore.length; i++) {
-            if (i * 10 - pixelsScrolled > (height - 100) - 10) {
-                break;
+            if (y + pixelsScrolled > 10 + 5 + 14 + 5 && y + pixelsScrolled < 10 + 5 + 14 + 5 + (height - 100)) {
+                RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5 + 2, y + pixelsScrolled, ColorPallet.WHITE.getColor());
             }
-            if (i * 10 - pixelsScrolled < 0) {
-                continue;
-            }
-            RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5 + 5, 10 + 5 + 14 + 5 + 5 + i * 10 - pixelsScrolled, ColorPallet.WHITE.getColor());
-        }
-
-        //draw the scrollbar
-        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + 20 + 5 + (width - 10) - 25 - 5, 10 + 5 + 14 + 5 + 5, 5, (height - 100) - 10, 5, ColorPallet.TERTIARY.getColor());
-        if (pixelsScrolled > 0) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + 20 + 5 + (width - 10) - 25 - 5, 10 + 5 + 14 + 5 + 5, 5, (height - 100) - 10, 5, ColorPallet.SECONDARY.getColor());
-        }
-        if (pixelsScrolled < (lore.length * 10) - ((height - 100) - 10)) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + 20 + 5 + (width - 10) - 25 - 5, 10 + 5 + 14 + 5 + 5 + ((height - 100) - 10) - 10, 5, 10, 5, ColorPallet.SECONDARY.getColor());
-        }
-        if (pixelsScrolled > 0 && pixelsScrolled < (lore.length * 10) - ((height - 100) - 10)) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + 20 + 5 + (width - 10) - 25 - 5, 10 + 5 + 14 + 5 + 5 + ((height - 100) - 10) * (pixelsScrolled / ((lore.length * 10) - ((height - 100) - 10))), 5, 10, 5, ColorPallet.TERTIARY.getColor());
+            y += 10;
         }
 
 
