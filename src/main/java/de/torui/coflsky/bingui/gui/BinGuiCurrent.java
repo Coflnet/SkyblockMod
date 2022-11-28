@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -60,8 +61,8 @@ public class BinGuiCurrent {
 
     }
 
-    @SubscribeEvent
-    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Pre event) {
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent event) {
         //first i get myself the gui
         GuiScreen gui = event.gui;
 
@@ -84,24 +85,30 @@ public class BinGuiCurrent {
             return;
         }
 
-        if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && (buyState == 1 || buyState == 0)) {
-            //before i draw the gui, i check if there is a item in slot 13
-            ItemStack item = inventory.getStackInSlot(13);
-            if (item == null) return;
-            itemStack = item;
-            item.getTooltip(mc.thePlayer, false).toArray(lore);
-            System.out.println(item.getDisplayName());
-            //now i draw the gui
-            drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
+        if (event instanceof GuiScreenEvent.DrawScreenEvent.Pre) {
+            if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && (buyState == 1 || buyState == 0)) {
+                //before i draw the gui, i check if there is a item in slot 13
+                ItemStack item = inventory.getStackInSlot(13);
+                if (item == null) return;
+                itemStack = item;
+                //set the lore to the lore of the item
+                lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
+
+                System.out.println("lore: " + item.getTooltip(mc.thePlayer, false).toArray()[0]);
+                //now i draw the gui
+                drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
+                event.setCanceled(true);
+            } else if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 2) {
+                mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
+                buyState = 3;
+            } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 3) {
+                mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
+                buyState = 0;
+                buyText = "Buy";
+                MinecraftForge.EVENT_BUS.unregister(this);
+            }
+        } else if (event instanceof GuiScreenEvent.DrawScreenEvent.Post){
             event.setCanceled(true);
-        } else if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 2) {
-            mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
-            buyState = 3;
-        } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 3) {
-            mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
-            buyState = 0;
-            buyText = "Buy";
-            MinecraftForge.EVENT_BUS.unregister(this);
         }
     }
 
@@ -113,7 +120,9 @@ public class BinGuiCurrent {
                         message.contains("you don't have enough coins") ||
                         message.contains("this auction wasn't found") ||
                         message.contains("there was an error with the auction house") ||
-                        message.contains("you didn't participate in this auction")
+                        message.contains("you didn't participate in this auction") ||
+                        message.contains("you claimed") ||
+                        message.contains("you purchased")
         ) {
             //close the gui
             buyState = 0;
@@ -245,7 +254,7 @@ public class BinGuiCurrent {
                 buyState = 0;
                 buyText = "Buy";
                 MinecraftForge.EVENT_BUS.unregister(this);
-                mc.displayGuiScreen(null);
+                mc.thePlayer.closeScreen();
             }
         }
 
