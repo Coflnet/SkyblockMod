@@ -36,7 +36,7 @@ public class BinGuiCurrent {
     private String auctionId;
     private ItemStack itemStack;
 
-    private String buyText = "Buy";
+    private String buyText = "Buy(You can click anywhere)";
     private int buyState = 0;
     private int pixelsScrolled = 0;
 
@@ -107,7 +107,7 @@ public class BinGuiCurrent {
                 buyText = "Buy";
                 MinecraftForge.EVENT_BUS.unregister(this);
             }
-        } else if (event instanceof GuiScreenEvent.DrawScreenEvent.Post){
+        } else if (event instanceof GuiScreenEvent.DrawScreenEvent.Post) {
             event.setCanceled(true);
         }
     }
@@ -247,7 +247,7 @@ public class BinGuiCurrent {
         //cancel button
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, ColorPallet.ERROR.getColor());
         RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (mouseX > screenWidth / 2 - width / 2 + 5 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 25 && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60) {
+        if (isMouseOverClose(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
             RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 100));
             RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
             if (inputHandler.isClicked()) {
@@ -262,8 +262,8 @@ public class BinGuiCurrent {
         //buy button
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
         RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (mouseX > screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 100));
+        if (!isMouseOverClose(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 50));
             RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
             if (inputHandler.isClicked()) {
                 if (buyState == 0) {
@@ -275,5 +275,13 @@ public class BinGuiCurrent {
                 }
             }
         }
+    }
+
+    private static boolean isMouseOverClose(int mouseX, int mouseY, int screenWidth, int screenHeight, int width, int height) {
+        return mouseX > screenWidth / 2 - width / 2 + 5 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 25 && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60;
+    }
+
+    private static boolean isMouseOverBuy(int mouseX, int mouseY, int screenWidth, int screenHeight, int width, int height) {
+        return mouseX > screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20 && mouseX < screenWidth / 2 - width / 2 + 5 + (width - 10) && mouseY > 10 + 5 + 14 + 5 + (height - 100) + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100) + 5 + 60;
     }
 }
