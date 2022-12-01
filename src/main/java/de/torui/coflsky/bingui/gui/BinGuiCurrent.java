@@ -108,7 +108,7 @@ public class BinGuiCurrent {
                 MinecraftForge.EVENT_BUS.unregister(this);
             }
         } else if (event instanceof GuiScreenEvent.DrawScreenEvent.Post) {
-            event.setCanceled(true);
+
         }
     }
 
@@ -134,13 +134,23 @@ public class BinGuiCurrent {
 
     @SubscribeEvent
     public void onTickEvent(net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent event) {
-        if (buyState == 1 || buyState == 2 || buyState == 3 || buyState == 4) {
+        if (buyState == 0 || buyState == 1 || buyState == 2 || buyState == 3 || buyState == 4) {
             if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
                 buyState = 0;
                 buyText = "Buy";
                 mc.thePlayer.closeScreen();
                 MinecraftForge.EVENT_BUS.unregister(this);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onKeyPressEven(net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent event) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+            buyState = 0;
+            buyText = "Buy";
+            mc.thePlayer.closeScreen();
+            MinecraftForge.EVENT_BUS.unregister(this);
         }
     }
 
