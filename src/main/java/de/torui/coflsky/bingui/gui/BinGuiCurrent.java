@@ -99,9 +99,11 @@ public class BinGuiCurrent {
                 drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
                 event.setCanceled(true);
             } else if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 2) {
+                event.setCanceled(true);
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
                 buyState = 3;
             } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 3) {
+                event.setCanceled(true);
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
                 buyState = 0;
                 buyText = "Buy";
@@ -146,7 +148,7 @@ public class BinGuiCurrent {
 
     @SubscribeEvent
     public void onKeyPressEven(net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent event) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) || Keyboard.isKeyDown(Keyboard.KEY_E)) {
             buyState = 0;
             buyText = "Buy";
             mc.thePlayer.closeScreen();
