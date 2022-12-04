@@ -1,5 +1,6 @@
 package de.torui.coflsky.bingui.gui;
 
+import de.torui.coflsky.bingui.helper.GuiUtilsClone;
 import de.torui.coflsky.bingui.helper.RenderUtils;
 import de.torui.coflsky.bingui.helper.inputhandler.InputHandler;
 import net.minecraft.client.gui.GuiScreen;
@@ -19,7 +20,6 @@ import org.lwjgl.input.Keyboard;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import static de.torui.coflsky.bingui.helper.RenderUtils.mc;
 
@@ -29,6 +29,7 @@ public class BetaGui {
     private String auctionId;
     private ItemStack itemStack;
 
+    private static String title;
     private int buyState = 0;
     private static final InputHandler inputHandler = new InputHandler();
 
@@ -37,11 +38,13 @@ public class BetaGui {
         this.lore = lore;
         this.auctionId = auctionId;
         MinecraftForge.EVENT_BUS.register(this);
+        String parsedMessage = message.getFormattedText().split("✥")[0].substring(3).replaceAll(" sellers ah", "");
+        title = parsedMessage;
         mc.thePlayer.sendChatMessage("/viewauction " + auctionId);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent event) {
+    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Post event) {
         //first i get myself the gui
         GuiScreen gui = event.gui;
 
@@ -64,17 +67,16 @@ public class BetaGui {
                 //set the lore to the lore of the item
                 lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
             }
-            GuiUtils.drawHoveringText(Arrays.stream(lore).collect(Collectors.toList()), 0, 0, gui.width, gui.height, 500, mc.fontRendererObj);
-            RenderUtils.drawCenteredString(message.getFormattedText(), gui.width / 2, 10, new Color(255, 255, 255, 255));
-
+            RenderUtils.drawCenteredString(title, gui.width / 2, 10, new Color(255, 255, 255, 255));
+            GuiUtilsClone.drawHoveringText(Arrays.asList(lore), 0, 0, gui.width, gui.height, 500, mc.fontRendererObj);
             if (inputHandler.isClicked()) {
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
                 buyState = 1;
             }
         } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 1) {
             if (itemStack == null) return;
-            GuiUtils.drawHoveringText(Arrays.stream(lore).collect(Collectors.toList()), 0, 0, gui.width, gui.height, 500, mc.fontRendererObj);
-            RenderUtils.drawCenteredString(message.getFormattedText(), gui.width / 2, 10, new Color(255, 255, 255, 255));
+            RenderUtils.drawCenteredString(title, gui.width / 2, 10, new Color(255, 255, 255, 255));
+            GuiUtilsClone.drawHoveringText(Arrays.asList(lore), 0, 15, gui.width, gui.height, 500, mc.fontRendererObj);
             if (inputHandler.isClicked()) {
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
                 buyState = 0;
@@ -82,6 +84,32 @@ public class BetaGui {
             }
         }
 
+    }
+
+    @SubscribeEvent
+    public void onInitGui(GuiScreenEvent.InitGuiEvent.Post event) {
+        //first i get myself the gui
+        GuiScreen gui = event.gui;
+
+        //then i check if it is a chest gui
+        if (!(gui instanceof GuiChest)) return;
+        GuiChest chest = (GuiChest) gui;
+
+        //then i get the private field named lowerChestInventory
+        IInventory inventory = ((ContainerChest) chest.inventorySlots).getLowerChestInventory();
+
+        //then a little null check
+        if (inventory == null) return;
+
+        if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 0) {
+            try {
+                Robot robot = new Robot();
+                robot.mouseMove(0,64);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     @SubscribeEvent
