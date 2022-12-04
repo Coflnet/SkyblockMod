@@ -46,7 +46,7 @@ public class BinGuiCurrent {
         this.auctionId = auctionId;
         MinecraftForge.EVENT_BUS.register(this);
         mc.thePlayer.sendChatMessage("/viewauction " + auctionId);
-        System.out.println(extraData);
+        //System.out.println(extraData);
         if (extraData.length() >= 32) {
             //now its a skull
             itemStack = getSkull("Name", "00000000-0000-0000-0000-000000000000", extraData);
@@ -94,14 +94,13 @@ public class BinGuiCurrent {
                 //set the lore to the lore of the item
                 lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
 
-                System.out.println("lore: " + item.getTooltip(mc.thePlayer, false).toArray()[0]);
                 //now i draw the gui
                 drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
                 event.setCanceled(true);
             } else if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 2) {
+                drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
                 event.setCanceled(true);
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
-                buyState = 3;
             } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 3) {
                 event.setCanceled(true);
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
@@ -281,9 +280,9 @@ public class BinGuiCurrent {
                 if (buyState == 0) {
                     buyText = "Click again to confirm";
                     buyState = 1;
-                } else if (buyState == 1) {
+                } else if (buyState == 2) {
                     buyText = "Buying";
-                    buyState = 2;
+                    buyState = 3;
                 }
             }
         }
