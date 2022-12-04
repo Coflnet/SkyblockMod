@@ -15,6 +15,6 @@ public class BinGuiManager {
     }
 
     public static void openNewFlipGui(IChatComponent message, String[] lore, String auctionId, String extraData) {
-        new BinGuiCurrent(message, lore, auctionId, extraData);
+        new BetaGui(message, lore, auctionId);
     }
 }

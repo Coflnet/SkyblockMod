@@ -106,6 +106,7 @@ public class BinGuiCurrent {
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
                 buyState = 0;
                 buyText = "Buy";
+                itemStack = null;
                 MinecraftForge.EVENT_BUS.unregister(this);
             }
         } else if (event instanceof GuiScreenEvent.DrawScreenEvent.Post) {
@@ -128,6 +129,7 @@ public class BinGuiCurrent {
             //close the gui
             buyState = 0;
             buyText = "Buy";
+            itemStack = null;
             mc.thePlayer.closeScreen();
             MinecraftForge.EVENT_BUS.unregister(this);
         }
@@ -139,6 +141,7 @@ public class BinGuiCurrent {
             if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
                 buyState = 0;
                 buyText = "Buy";
+                itemStack = null;
                 mc.thePlayer.closeScreen();
                 MinecraftForge.EVENT_BUS.unregister(this);
             }
@@ -150,6 +153,7 @@ public class BinGuiCurrent {
         if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) || Keyboard.isKeyDown(Keyboard.KEY_E)) {
             buyState = 0;
             buyText = "Buy";
+            itemStack = null;
             mc.thePlayer.closeScreen();
             MinecraftForge.EVENT_BUS.unregister(this);
         }
@@ -264,6 +268,7 @@ public class BinGuiCurrent {
             if (inputHandler.isClicked()) {
                 buyState = 0;
                 buyText = "Buy";
+                itemStack = null;
                 MinecraftForge.EVENT_BUS.unregister(this);
                 mc.thePlayer.closeScreen();
             }
