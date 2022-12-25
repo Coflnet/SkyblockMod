@@ -12,7 +12,6 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
@@ -23,6 +22,7 @@ import java.util.Locale;
 
 import static de.torui.coflsky.bingui.helper.RenderUtils.mc;
 
+//this is very work in progress and not finished so don't expect it to work
 public class BetaGui {
     private IChatComponent message;
     private String[] lore;
@@ -104,8 +104,9 @@ public class BetaGui {
         if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 0) {
             try {
                 Robot robot = new Robot();
-                robot.mouseMove(0,64);
-            }catch (Exception e) {
+                System.out.println("moving mouse");
+                robot.mouseMove(0, 64);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
