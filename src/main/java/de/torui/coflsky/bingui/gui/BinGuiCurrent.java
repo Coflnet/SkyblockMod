@@ -58,7 +58,8 @@ public class BinGuiCurrent {
                 ((ItemArmor) itemStack.getItem()).setColor(itemStack, 0);
             }
         }
-
+        //play a pling sound
+        mc.thePlayer.playSound("note.pling", 1, 1);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -86,7 +87,7 @@ public class BinGuiCurrent {
         }
 
         if (event instanceof GuiScreenEvent.DrawScreenEvent.Pre) {
-            if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && (buyState == 1 || buyState == 0)) {
+            if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 0) {
                 //before i draw the gui, i check if there is a item in slot 13
                 ItemStack item = inventory.getStackInSlot(13);
                 if (item == null) return;
@@ -97,10 +98,37 @@ public class BinGuiCurrent {
                 //now i draw the gui
                 drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
                 event.setCanceled(true);
-            } else if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 2) {
+            } else if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 1) {
                 drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
                 event.setCanceled(true);
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
+            } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 2) {
+                event.setCanceled(true);
+                mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
+                buyState = 0;
+                buyText = "Buy";
+                itemStack = null;
+                MinecraftForge.EVENT_BUS.unregister(this);
+            }
+
+            if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 0) {
+                //before i draw the gui, i check if there is a item in slot 13
+                ItemStack item = inventory.getStackInSlot(13);
+                if (item == null) return;
+                itemStack = item;
+                //set the lore to the lore of the item
+                lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
+
+                //now i draw the gui
+                drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
+                event.setCanceled(true);
+            } else if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 1) {
+                event.setCanceled(true);
+                mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
+                buyState = 2;
+            } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 2) {
+                drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
+                event.setCanceled(true);
             } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 3) {
                 event.setCanceled(true);
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
@@ -138,7 +166,7 @@ public class BinGuiCurrent {
     @SubscribeEvent
     public void onTickEvent(net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent event) {
         if (buyState == 0 || buyState == 1 || buyState == 2 || buyState == 3 || buyState == 4) {
-            if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+            if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) || Keyboard.isKeyDown(Keyboard.KEY_E)) {
                 buyState = 0;
                 buyText = "Buy";
                 itemStack = null;
@@ -266,6 +294,8 @@ public class BinGuiCurrent {
             RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 100));
             RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
             if (inputHandler.isClicked()) {
+                //play a anvilsound
+                mc.thePlayer.playSound("random.anvil_land", 1, 1);
                 buyState = 0;
                 buyText = "Buy";
                 itemStack = null;
@@ -283,9 +313,12 @@ public class BinGuiCurrent {
             RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
             if (inputHandler.isClicked()) {
                 if (buyState == 0) {
+                    //play a sound
+                    mc.thePlayer.playSound("random.click", 1, 1);
                     buyText = "Click again to confirm";
                     buyState = 1;
                 } else if (buyState == 2) {
+                    mc.thePlayer.playSound("random.click", 1, 1);
                     buyText = "Buying";
                     buyState = 3;
                 }

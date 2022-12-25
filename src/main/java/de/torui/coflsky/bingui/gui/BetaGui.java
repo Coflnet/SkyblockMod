@@ -135,9 +135,9 @@ public class BetaGui {
     @SubscribeEvent
     public void onTickEvent(net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent event) {
         if (buyState == 0 || buyState == 1) {
-            if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-                buyState = 2;
-                mc.thePlayer.closeScreen();
+            if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) || Keyboard.isKeyDown(Keyboard.KEY_E)) {
+                buyState = 0;
+                itemStack = null;
                 MinecraftForge.EVENT_BUS.unregister(this);
             }
         }
@@ -145,10 +145,12 @@ public class BetaGui {
 
     @SubscribeEvent
     public void onKeyPressEven(net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent event) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) || Keyboard.isKeyDown(Keyboard.KEY_E)) {
-            buyState = 2;
-            mc.thePlayer.closeScreen();
-            MinecraftForge.EVENT_BUS.unregister(this);
+        if (buyState == 0 || buyState == 1) {
+            if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) || Keyboard.isKeyDown(Keyboard.KEY_E)) {
+                buyState = 0;
+                itemStack = null;
+                MinecraftForge.EVENT_BUS.unregister(this);
+            }
         }
     }
 }
