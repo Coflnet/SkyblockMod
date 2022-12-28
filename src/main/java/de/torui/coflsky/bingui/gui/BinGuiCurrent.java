@@ -165,14 +165,11 @@ public class BinGuiCurrent {
 
     @SubscribeEvent
     public void onTickEvent(net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent event) {
-        if (buyState == 0 || buyState == 1 || buyState == 2 || buyState == 3 || buyState == 4) {
-            if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) || Keyboard.isKeyDown(Keyboard.KEY_E)) {
-                buyState = 0;
-                buyText = "Buy";
-                itemStack = null;
-                mc.thePlayer.closeScreen();
-                MinecraftForge.EVENT_BUS.unregister(this);
-            }
+        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) || Keyboard.isKeyDown(Keyboard.KEY_E)) {
+            buyState = 0;
+            buyText = "Buy";
+            itemStack = null;
+            MinecraftForge.EVENT_BUS.unregister(this);
         }
     }
 
@@ -182,7 +179,6 @@ public class BinGuiCurrent {
             buyState = 0;
             buyText = "Buy";
             itemStack = null;
-            mc.thePlayer.closeScreen();
             MinecraftForge.EVENT_BUS.unregister(this);
         }
     }
