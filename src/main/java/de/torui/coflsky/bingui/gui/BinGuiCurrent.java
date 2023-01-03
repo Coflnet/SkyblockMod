@@ -111,7 +111,7 @@ public class BinGuiCurrent {
                 MinecraftForge.EVENT_BUS.unregister(this);
             }
 
-            if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 0) {
+            if (inventory.getDisplayName().getFormattedText().contains("BIN Auction View") && buyState == 0) {
                 //before i draw the gui, i check if there is a item in slot 13
                 ItemStack item = inventory.getStackInSlot(13);
                 if (item == null) return;
@@ -122,14 +122,14 @@ public class BinGuiCurrent {
                 //now i draw the gui
                 drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
                 event.setCanceled(true);
-            } else if (inventory.getDisplayName().getFormattedText().contains("BIN Auction") && buyState == 1) {
+            } else if (inventory.getDisplayName().getUnformattedText().trim().equals("BIN Auction View") && buyState == 1) {
                 event.setCanceled(true);
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
                 buyState = 2;
-            } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 2) {
+            } else if (inventory.getDisplayName().getUnformattedText().trim().equals("Confirm Purchase") && buyState == 2) {
                 drawScreen(event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
                 event.setCanceled(true);
-            } else if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).contains("confirm") && buyState == 3) {
+            } else if (inventory.getDisplayName().getUnformattedText().trim().equals("Confirm Purchase") && buyState == 3) {
                 event.setCanceled(true);
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
                 buyState = 0;
