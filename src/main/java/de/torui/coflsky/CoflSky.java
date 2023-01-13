@@ -2,7 +2,6 @@ package de.torui.coflsky;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,6 +10,7 @@ import java.nio.file.Paths;
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.handlers.EventRegistry;
+import de.torui.coflsky.tfm.ButtonRemapper;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -91,12 +91,11 @@ public class CoflSky
         }   
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);
+        MinecraftForge.EVENT_BUS.register(new ButtonRemapper());
         Runtime.getRuntime()
                 .addShutdownHook(
                         new Thread(
                                 () -> config.saveConfig(configFile , config)));
-    }   
-
-    
+    }
 }
 	
