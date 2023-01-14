@@ -65,12 +65,10 @@ public class EventRegistry {
 
 		if (CoflSky.keyBindings[0].isPressed()) {
 			if (WSCommandHandler.lastOnClickEvent != null) {
-
-				String command = WSCommandHandler.lastOnClickEvent;
-				WSCommandHandler.lastOnClickEvent = null;
-				WSCommandHandler.HandleCommand(
-						new JsonStringCommand(CommandType.Execute, WSClient.gson.toJson(command)),
-						Minecraft.getMinecraft().thePlayer);
+				Flip f = WSCommandHandler.flipHandler.fds.GetLastFlip();
+				if(f != null){
+					WSCommandHandler.Execute("/cofl openAuctionGUI /viewauction " + f.id + " " + f.message, Minecraft.getMinecraft().thePlayer);
+				}
 			}
 
 		}
@@ -80,7 +78,9 @@ public class EventRegistry {
 				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 				
 				if(f != null) {
-					WSCommandHandler.Execute("/viewauction " + f.id, null);
+					WSCommandHandler.Execute("/cofl openAuctionGUI /viewauction " + f.id + " " + f.message, Minecraft.getMinecraft().thePlayer);
+					EventRegistry.LastViewAuctionUUID = f.id;
+					EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
 					LastClick = System.currentTimeMillis();		
 					String command =  WSClient.gson.toJson("/viewauction " + f.id);
 					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);

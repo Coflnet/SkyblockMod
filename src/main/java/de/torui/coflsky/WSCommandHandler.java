@@ -25,6 +25,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ClientCommandHandler;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class WSCommandHandler {
 
@@ -74,8 +75,11 @@ public class WSCommandHandler {
         ChatMessageData[] messages = cmd.getData().Messages;
         Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
         ChatMessage(showCmd);
-        flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth, FlipHandler.MessageDataToString(messages)));
 
+        Stream<String> stream = Arrays.stream(messages).map(message -> message.Text);
+        String s = String.join(",", stream.toArray(String[]::new));
+        stream.close();
+        flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth, s));
         // trigger the keyevent to execute the event handler
         CoflSky.Events.onKeyEvent(null);
     }
@@ -107,14 +111,6 @@ public class WSCommandHandler {
     }
 
     public static void Execute(String cmd, Entity sender) {
-        if (cmd.startsWith("/viewauction")) {
-            String[] args = cmd.split(" ");
-
-            String uuid = args[args.length - 1];
-            EventRegistry.LastViewAuctionUUID = uuid;
-            EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
-        }
-
         if (cmd.startsWith("/cofl") || cmd.startsWith("http")) {
             ClientCommandHandler.instance.executeCommand(sender, cmd);
         } else {
@@ -125,11 +121,7 @@ public class WSCommandHandler {
 
     private static IChatComponent CommandToChatComponent(ChatMessageData wcmd) {
         if (wcmd.OnClick != null) {
-            if (wcmd.Text != null && wcmd.OnClick.contains("/viewauction")) {
-                lastOnClickEvent = "/cofl openAuctionGUI " + wcmd.OnClick + " " + wcmd.Text;
-            } else {
-                lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
-            }
+            lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
         }
         if (wcmd.Text != null) {
             IChatComponent comp = new ChatComponentText(wcmd.Text);

@@ -20,12 +20,9 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.ClickEvent.Action;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IChatComponent;
 
 import java.util.ArrayList;
 
@@ -146,7 +143,7 @@ public class CoflSkyCommand extends CommandBase {
                         callbackArgs[0] = "callback";
                         System.arraycopy(args, 3, message, 0, args.length - 3);
 
-                        WSCommandHandler.flipHandler.lastClickedFlipMessage = String.join(" ", message);
+                        WSCommandHandler.flipHandler.lastClickedFlipMessage = String.join(" ", message).replaceAll("\n", "");
                         CallbackCommand(callbackArgs);
                         break;
                     default:
@@ -156,14 +153,6 @@ public class CoflSkyCommand extends CommandBase {
                 ListHelp(sender);
             }
         }).start();
-    }
-
-    private static String convertObjectArrayToString(Object[] arr, String delimiter) {
-        StringBuilder sb = new StringBuilder();
-        for (Object obj : arr)
-            sb.append(obj.toString()).append(delimiter);
-        return sb.substring(0, sb.length() - 1);
-
     }
 
     private void HandleReset() {

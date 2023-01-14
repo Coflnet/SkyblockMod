@@ -220,7 +220,6 @@ public class ButtonRemapper {
 
     private boolean shouldSkip(GuiScreen screen) {
         // TODO: Add here if TFM GUI should be used
-        // TODO: And re-add check for beds
         return !(screen instanceof GuiChest);
     }
 

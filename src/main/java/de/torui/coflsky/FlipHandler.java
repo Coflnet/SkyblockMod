@@ -8,14 +8,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FlipHandler {
     public static class Flip {
         public String id;
-        public int worth;
         public String message;
+        public int worth;
 
         public Flip(String id, int worth, String message) {
             super();
             this.id = id;
-            this.worth = worth;
             this.message = message;
+            this.worth = worth;
         }
 
         public Flip() {
@@ -30,6 +30,7 @@ public class FlipHandler {
         private Map<Flip, Long> ReverseMap = new ConcurrentHashMap<>();
 
         private Flip HighestFlip = null;
+        private Flip LastFlip = null;
 
         private Timer t = new Timer();
         private TimerTask CurrentTask = null;
@@ -64,6 +65,7 @@ public class FlipHandler {
 
         public synchronized void Insert(Flip flip) {
             Long l = System.currentTimeMillis();
+            LastFlip = flip;
 
             synchronized (Flips) {
                 Flips.put(l, flip);
@@ -102,6 +104,17 @@ public class FlipHandler {
             return HighestFlip;
         }
 
+        public Flip GetLastFlip() {
+            if (LastFlip == null) {
+                return null;
+            }
+            Long l = ReverseMap.get(LastFlip);
+            if (l == null) {
+                LastFlip = null;
+            }
+            return LastFlip;
+        }
+
         public void InvalidateFlip(Flip flip) {
             RemoveFlip(flip);
             RunHouseKeeping();
@@ -115,10 +128,6 @@ public class FlipHandler {
 
     public FlipDataStructure fds;
     public String lastClickedFlipMessage;
-
-    public static String MessageDataToString(ChatMessageData[] messages) {
-        return String.join(",", (String[]) Arrays.stream(messages).map(message -> message.Text).toArray());
-    }
 
     public FlipHandler() {
         fds = new FlipDataStructure();
