@@ -155,6 +155,10 @@ public class ButtonRemapper {
         FontRenderer font = Minecraft.getMinecraft().fontRendererObj;
         String text = WSCommandHandler.flipHandler.lastClickedFlipMessage;
 
+        if (text == null) {
+            return;
+        }
+
         StringBuilder current = new StringBuilder();
         int lineNo = 0;
         for (int i = 0; i < text.length(); i++) {
@@ -211,7 +215,15 @@ public class ButtonRemapper {
     }
 
     public void drawBuyButton(GuiChest currentScreen) {
+        if (!shouldDrawGui(currentScreen)) {
+            return;
+        }
         drawBox(currentScreen, waitingForBed(currentScreen), false);
+    }
+
+    public boolean shouldDrawGui(GuiChest currentScreen) {
+        ItemStack stack = getItem(BUY_BUTTON_SLOT, currentScreen);
+        return stack != null && (stack.getItem().equals(Item.getByNameOrId("minecraft:bed")) || stack.getItem().equals(Item.getByNameOrId("minecraft:gold_nugget")));
     }
 
     public void drawConfirmButton(GuiChest currentScreen) {
@@ -245,7 +257,7 @@ public class ButtonRemapper {
     }
 
     private void handleBuyClick(GuiChest currentScreen, GuiScreenEvent.MouseInputEvent.Pre event) {
-        if (waitingForBed(currentScreen)) {
+        if (waitingForBed(currentScreen) || !shouldDrawGui(currentScreen)) {
             return;
         }
         event.setCanceled(true);
