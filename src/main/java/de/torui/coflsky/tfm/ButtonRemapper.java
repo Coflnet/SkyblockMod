@@ -1,5 +1,6 @@
 package de.torui.coflsky.tfm;
 
+import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -101,9 +102,9 @@ public class ButtonRemapper {
     private void drawTfmBox(boolean isConfirm) {
         String titleText;
         if (isConfirm) {
-            titleText = "TFM - Confirm Purchase";
+            titleText = "Cofl - Confirm Purchase";
         } else {
-            titleText = "TFM - Auction View";
+            titleText = "Cofl - Auction View";
         }
         int outerBox = 0xff4f4f4f; // gray colour
         // draw the outer tfm box
@@ -231,8 +232,7 @@ public class ButtonRemapper {
     }
 
     private boolean shouldSkip(GuiScreen screen) {
-        // TODO: Add here if TFM GUI should be used
-        return !(screen instanceof GuiChest);
+        return !(screen instanceof GuiChest) || !CoflSky.config.usePurchaseConfig;
     }
 
     @SubscribeEvent

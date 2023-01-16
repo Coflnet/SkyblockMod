@@ -12,9 +12,11 @@ import java.nio.file.Paths;
 public class LocalConfig {
     public boolean autoStart;
     public boolean extendedtooltips;
-    public LocalConfig(boolean autoStart,boolean extendedtooltips) {
+    public boolean usePurchaseConfig;
+    public LocalConfig(boolean autoStart,boolean extendedtooltips, boolean usePurchaseConfig) {
         this.autoStart = autoStart;
         this.extendedtooltips = extendedtooltips;
+        this.usePurchaseConfig = usePurchaseConfig;
     }
     public static void saveConfig(File file, LocalConfig Config) {
         Gson gson = new Gson();
@@ -30,6 +32,6 @@ public class LocalConfig {
     }
 
     public static LocalConfig createDefaultConfig() {
-        return new LocalConfig(true,true);
+        return new LocalConfig(true,true,true);
     }
 }
