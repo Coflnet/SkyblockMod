@@ -8,9 +8,12 @@ import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.ChatMessageData;
 import de.torui.coflsky.commands.models.FlipData;
 import de.torui.coflsky.commands.models.SoundData;
+import de.torui.coflsky.commands.models.ProxyRequestData;
 import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.commands.models.TimerData;
 import de.torui.coflsky.handlers.EventRegistry;
+import de.torui.coflsky.network.Proxy;
+import de.torui.coflsky.network.QueryServerCommands;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -54,11 +57,22 @@ public class WSCommandHandler {
 		case Countdown:
 			StartTimer(cmd.GetAs(new TypeToken<TimerData>() {}));
 			break;
+			case proxy:
+				HandleProxyRequest(cmd.GetAs(new TypeToken<ProxyRequestData[]>(){}));
+					break;
 		default:
 			break;
 		}
 
 		return true;
+	}
+
+	private static void HandleProxyRequest(Command<ProxyRequestData[]> cmd){
+		ProxyRequestData[] requests = cmd.getData();
+		Proxy proxy = new Proxy();
+		for (ProxyRequestData request: requests) {
+			proxy.handleSafe(request);
+		}
 	}
 
 	private static void Flip(Command<FlipData> cmd) {

@@ -60,7 +60,7 @@ public class QueryServerCommands {
 		
 		
 	}
-	private static String GetRequest(String uri) {
+	public static String GetRequest(String uri) {
 		
 		try {
 			System.out.println("Get request");
@@ -68,32 +68,13 @@ public class QueryServerCommands {
 	    	HttpURLConnection con;
 			con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
-			
-			//con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
 			con.setRequestProperty("Accept", "application/json");
 			con.setRequestProperty("User-Agent", "CoflMod");
-			//con.setDoInput(true);
 			con.setDoInput(true);
 
-			// ...
-
-			/*OutputStream os = con.getOutputStream();
-			byte[] bytes = ("[\"" + getUsername() + "\"]").getBytes("UTF-8");
-			os.write(bytes);
-			os.close();
-			*/
-			System.out.println("InputStream");
-			 InputStream in = new BufferedInputStream(con.getInputStream());
-			 ByteArrayOutputStream result = new ByteArrayOutputStream();
-			 byte[] buffer = new byte[1024];
-			 for (int length; (length = in.read(buffer)) != -1; ) {
-			     result.write(buffer, 0, length);
-			 }
-			 // StandardCharsets.UTF_8.name() > JDK 7
-			 String resString =  result.toString("UTF-8");
-			 
-			 System.out.println("Result= " + resString);
-			 return resString;
+			String resString = getString(con);
+			return resString;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -101,6 +82,18 @@ public class QueryServerCommands {
 		
 		return null;
 	}
+
+	private static String getString(HttpURLConnection con) throws IOException {
+		InputStream in = new BufferedInputStream(con.getInputStream());
+		ByteArrayOutputStream result = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		for (int length; (length = in.read(buffer)) != -1; ) {
+			result.write(buffer, 0, length);
+		}
+		String resString =  result.toString("UTF-8");
+		return resString;
+	}
+
 	public static String PostRequest(String uri,  String data) {
 		try {
 			String username = PlayerDataProvider.getUsername();
@@ -123,14 +116,7 @@ public class QueryServerCommands {
 			os.write(bytes);
 			os.close();
 
-			InputStream in = new BufferedInputStream(con.getInputStream());
-			ByteArrayOutputStream result = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024];
-			for (int length; (length = in.read(buffer)) != -1; ) {
-				result.write(buffer, 0, length);
-			}
-			// StandardCharsets.UTF_8.name() > JDK 7
-			String resString =  result.toString("UTF-8");
+			String resString = getString(con);
 
 			return resString;
 		} catch (IOException e) {

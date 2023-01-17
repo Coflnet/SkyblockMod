@@ -90,6 +90,17 @@ public class CoflSkyCommand extends CommandBase {
 							);
 					break;
 				case "debug":
+					WSCommandHandler.HandleCommand(new JsonStringCommand(CommandType.proxy, "[{\n" +
+							"    \"upload\":true, //upload the response with `proxied`\n" +
+							"    \"id\": \"some guid\",\n" +
+							"    \"url\": \"https://sky.coflnet.com/api/loadtest\"\n" +
+							"}, {\n" +
+							"\n" +
+							" \"upload\":true, //upload the response with `proxied`\n" +
+							"    \"id\": \"some other guid\",\n" +
+							"    \"url\": \"https://dummy.restapiexample.com/api/v1/employees\"\n" +
+							"}]"), null);
+
 				//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
 				//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, " {\"type\":\"writeToChat\",\"data\":\"{\\\"text\\\":\\\"\\\\nFLIP: º9Goblin Eg\r\n"
 				//			+ "g º87,000 -> 13,999 ºg[BUY]\\\",\\\"onClick\\\":\\\"/viewauction f7d7295ca72f43e9876bf6da7424000c\\\",\\\"hover\\\":\\\"\\\"}\"}"), sender.getCommandSenderEntity());
