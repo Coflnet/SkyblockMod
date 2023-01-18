@@ -26,7 +26,7 @@ public class ModListData {
     }
 
     public void addFileHashes(String hash){
-        this.fileNames.add(hash);
+        this.fileHashes.add(hash);
     }
 
 
