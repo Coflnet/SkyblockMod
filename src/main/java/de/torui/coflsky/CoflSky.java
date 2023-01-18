@@ -64,6 +64,8 @@ public class CoflSky
         if (config == null) {
             config =  LocalConfig.createDefaultConfig();
         }
+        // Cache all the mods on load
+        WSCommandHandler.cacheMods();
     }
     @EventHandler
     public void init(FMLInitializationEvent event) throws URISyntaxException
