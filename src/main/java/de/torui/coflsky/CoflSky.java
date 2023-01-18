@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.tfm.ButtonRemapper;
+import de.torui.coflsky.tfm.ChatMessageSendHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -92,10 +93,12 @@ public class CoflSky
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);
         MinecraftForge.EVENT_BUS.register(new ButtonRemapper());
+        MinecraftForge.EVENT_BUS.register(new ChatMessageSendHandler());
         Runtime.getRuntime()
                 .addShutdownHook(
                         new Thread(
                                 () -> config.saveConfig(configFile , config)));
     }
+
 }
 	

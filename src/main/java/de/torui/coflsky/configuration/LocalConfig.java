@@ -13,11 +13,13 @@ public class LocalConfig {
     public boolean autoStart;
     public boolean extendedtooltips;
     public boolean usePurchaseConfig;
-    public LocalConfig(boolean autoStart,boolean extendedtooltips, boolean usePurchaseConfig) {
+
+    public LocalConfig(boolean autoStart, boolean extendedtooltips, boolean usePurchaseConfig) {
         this.autoStart = autoStart;
         this.extendedtooltips = extendedtooltips;
         this.usePurchaseConfig = usePurchaseConfig;
     }
+
     public static void saveConfig(File file, LocalConfig Config) {
         Gson gson = new Gson();
         try {
@@ -26,12 +28,12 @@ public class LocalConfig {
             }
             Files.write(Paths.get(file.getAbsolutePath()),
                     gson.toJson(Config).getBytes(StandardCharsets.UTF_8));
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static LocalConfig createDefaultConfig() {
-        return new LocalConfig(true,true,true);
+        return new LocalConfig(true, true, true);
     }
 }
