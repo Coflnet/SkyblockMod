@@ -53,7 +53,10 @@ public enum CommandType {
 	chatBatch,
 	@SerializedName("uploadTab")
 	uploadTab,
-	;
+	@SerializedName("getMods")
+	GetMods;
+
+
 	public static Map<CommandType,String> data;
 	static {
 		data = new HashMap<>();
