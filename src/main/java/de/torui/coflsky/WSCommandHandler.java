@@ -75,11 +75,7 @@ public class WSCommandHandler {
         ChatMessageData[] messages = cmd.getData().Messages;
         Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
         ChatMessage(showCmd);
-
-        Stream<String> stream = Arrays.stream(messages).map(message -> message.Text);
-        String s = String.join(",", stream.toArray(String[]::new));
-        stream.close();
-        flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth, s));
+        flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth, ChatMessageDataToString(messages)));
         // trigger the keyevent to execute the event handler
         CoflSky.Events.onKeyEvent(null);
     }
@@ -119,10 +115,15 @@ public class WSCommandHandler {
     }
 
 
-    private static IChatComponent CommandToChatComponent(ChatMessageData wcmd) {
+    private static IChatComponent CommandToChatComponent(ChatMessageData wcmd, String fullMessage) {
         if (wcmd.OnClick != null) {
-            lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
+            if (wcmd.Text != null && wcmd.OnClick.startsWith("/viewauction")) {
+                lastOnClickEvent = "/cofl openAuctionGUI " + wcmd.OnClick + " " + fullMessage;
+            } else {
+                lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
+            }
         }
+        System.out.println(lastOnClickEvent);
         if (wcmd.Text != null) {
             IChatComponent comp = new ChatComponentText(wcmd.Text);
 
@@ -152,9 +153,10 @@ public class WSCommandHandler {
         ChatMessageData[] list = cmd.getData();
 
         IChatComponent master = new ChatComponentText("");
+        String fullMessage = ChatMessageDataToString(list);
 
         for (ChatMessageData wcmd : list) {
-            IChatComponent comp = CommandToChatComponent(wcmd);
+            IChatComponent comp = CommandToChatComponent(wcmd, fullMessage);
             if (comp != null)
                 master.appendSibling(comp);
         }
@@ -165,11 +167,18 @@ public class WSCommandHandler {
     private static void WriteToChat(Command<ChatMessageData> cmd) {
         ChatMessageData wcmd = cmd.getData();
 
-        IChatComponent comp = CommandToChatComponent(wcmd);
+        IChatComponent comp = CommandToChatComponent(wcmd, wcmd.Text);
         if (comp != null) {
             Minecraft.getMinecraft().thePlayer.addChatMessage(comp);
         }
 
+    }
+
+    private static String ChatMessageDataToString(ChatMessageData[] messages){
+        Stream<String> stream = Arrays.stream(messages).map(message -> message.Text);
+        String s = String.join(",", stream.toArray(String[]::new));
+        stream.close();
+        return s;
     }
 
 }

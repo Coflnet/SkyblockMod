@@ -216,6 +216,13 @@ public class EventRegistry {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onGuiOpen(GuiOpenEvent event) {
+
+		// if gui is null, a gui was closed
+		// therefore clear the lastClickFlipMessage, so it doesn't show on other auctions
+		if(event.gui == null){
+			WSCommandHandler.flipHandler.lastClickedFlipMessage = "";
+		}
+
 		if (!config.extendedtooltips) return;
 		if(descriptionHandler != null)
 			descriptionHandler.Close();
