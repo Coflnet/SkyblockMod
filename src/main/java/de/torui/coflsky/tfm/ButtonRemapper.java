@@ -232,7 +232,7 @@ public class ButtonRemapper {
     }
 
     private boolean shouldSkip(GuiScreen screen) {
-        return !(screen instanceof GuiChest) || !CoflSky.config.usePurchaseConfig;
+        return !(screen instanceof GuiChest) || !CoflSky.config.usePurchaseOverlay;
     }
 
     @SubscribeEvent

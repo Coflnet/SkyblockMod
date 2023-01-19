@@ -147,13 +147,13 @@ public class CoflSkyCommand extends CommandBase {
                         CallbackCommand(callbackArgs);
                         break;
                     case "set":
-                        if (args.length >= 2 && args[1].equals("gui")) {
+                        if (args.length >= 2 && args[1].equals("ahbuygui")) {
                             if (args.length == 3) {
-                                CoflSky.config.usePurchaseConfig = args[2].equals("true");
+                                CoflSky.config.usePurchaseOverlay = args[2].equals("true");
                             } else {
-                                CoflSky.config.usePurchaseConfig = !CoflSky.config.usePurchaseConfig;
+                                CoflSky.config.usePurchaseOverlay = !CoflSky.config.usePurchaseOverlay;
                             }
-                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Config §7 to: §f" + (CoflSky.config.usePurchaseConfig ? "true" : "false")));
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Config §7 to: §f" + (CoflSky.config.usePurchaseOverlay ? "true" : "false")));
                         } else {
                             SendCommandToServer(args, sender);
                         }

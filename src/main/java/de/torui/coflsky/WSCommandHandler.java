@@ -149,7 +149,7 @@ public class WSCommandHandler {
     }
 
     private static void ChatMessage(Command<ChatMessageData[]> cmd) {
-        ChatMessageData[] list = cmd.getData();//WSClient.gson.fromJson(cmd.getData(), WriteToChatCommand[].class);
+        ChatMessageData[] list = cmd.getData();
 
         IChatComponent master = new ChatComponentText("");
 

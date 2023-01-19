@@ -1,7 +1,6 @@
 package de.torui.coflsky.configuration;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,12 +11,12 @@ import java.nio.file.Paths;
 public class LocalConfig {
     public boolean autoStart;
     public boolean extendedtooltips;
-    public boolean usePurchaseConfig;
+    public boolean usePurchaseOverlay;
 
-    public LocalConfig(boolean autoStart, boolean extendedtooltips, boolean usePurchaseConfig) {
+    public LocalConfig(boolean autoStart, boolean extendedtooltips, boolean usePurchaseOverlay) {
         this.autoStart = autoStart;
         this.extendedtooltips = extendedtooltips;
-        this.usePurchaseConfig = usePurchaseConfig;
+        this.usePurchaseOverlay = usePurchaseOverlay;
     }
 
     public static void saveConfig(File file, LocalConfig Config) {
