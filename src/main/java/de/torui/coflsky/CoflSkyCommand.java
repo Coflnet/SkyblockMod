@@ -9,6 +9,9 @@ import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.RawCommand;
+import de.torui.coflsky.gui.GUIType;
+import de.torui.coflsky.gui.bingui.BinGuiCurrent;
+import de.torui.coflsky.gui.tfm.ButtonRemapper;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
 import de.torui.coflsky.network.QueryServerCommands;
@@ -23,6 +26,7 @@ import net.minecraft.event.ClickEvent.Action;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
 
@@ -146,16 +150,32 @@ public class CoflSkyCommand extends CommandBase {
                         WSCommandHandler.flipHandler.lastClickedFlipMessage = String.join(" ", message).replaceAll("\n", "");
                         CallbackCommand(callbackArgs);
                         break;
-                    case "set":
-                        if (args.length >= 2 && args[1].equals("ahbuygui")) {
-                            if (args.length == 3) {
-                                CoflSky.config.usePurchaseOverlay = args[2].equals("true");
-                            } else {
-                                CoflSky.config.usePurchaseOverlay = !CoflSky.config.usePurchaseOverlay;
-                            }
-                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Config §7 to: §f" + (CoflSky.config.usePurchaseOverlay ? "true" : "false")));
-                        } else {
-                            SendCommandToServer(args, sender);
+                    case "setGui":
+                        if (args.length != 2) {
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Available GUIs:"));
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Cofl"));
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7TFM"));
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Off"));
+                            return;
+                        }
+
+                        if (args[1].equalsIgnoreCase("cofl")) {
+                            CoflSky.config.purchaseOverlay = GUIType.COFL;
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7 to: §fCofl"));
+                            MinecraftForge.EVENT_BUS.register(BinGuiCurrent.getInstance());
+                            MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
+                        }
+                        if (args[1].equalsIgnoreCase("tfm")) {
+                            CoflSky.config.purchaseOverlay = GUIType.TFM;
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7 to: §fTFM"));
+                            MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
+                            MinecraftForge.EVENT_BUS.unregister(BinGuiCurrent.getInstance());
+                        }
+                        if (args[1].equalsIgnoreCase("off") || args[1].equalsIgnoreCase("false")) {
+                            CoflSky.config.purchaseOverlay = null;
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7 to: §fOff"));
+                            MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
+                            MinecraftForge.EVENT_BUS.unregister(BinGuiCurrent.getInstance());
                         }
                         break;
                     default:

@@ -1,4 +1,4 @@
-package de.torui.coflsky.tfm;
+package de.torui.coflsky.gui.tfm;
 
 import de.torui.coflsky.FlipperChatCommand;
 import de.torui.coflsky.WSCommandHandler;

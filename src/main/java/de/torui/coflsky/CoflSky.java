@@ -9,9 +9,11 @@ import java.nio.file.Paths;
 
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
+import de.torui.coflsky.gui.GUIType;
+import de.torui.coflsky.gui.bingui.BinGuiCurrent;
 import de.torui.coflsky.handlers.EventRegistry;
-import de.torui.coflsky.tfm.ButtonRemapper;
-import de.torui.coflsky.tfm.ChatMessageSendHandler;
+import de.torui.coflsky.gui.tfm.ButtonRemapper;
+import de.torui.coflsky.gui.tfm.ChatMessageSendHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -67,7 +69,7 @@ public class CoflSky
         }
     }
     @EventHandler
-    public void init(FMLInitializationEvent event) throws URISyntaxException
+    public void init(FMLInitializationEvent event)
     {
 		System.out.println(">>>Started");
         
@@ -92,7 +94,11 @@ public class CoflSky
         }   
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);
-        MinecraftForge.EVENT_BUS.register(new ButtonRemapper());
+        if(config.purchaseOverlay == GUIType.TFM) {
+            MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
+        }else{
+            MinecraftForge.EVENT_BUS.register(BinGuiCurrent.getInstance());
+        }
         MinecraftForge.EVENT_BUS.register(new ChatMessageSendHandler());
         Runtime.getRuntime()
                 .addShutdownHook(

@@ -1,7 +1,8 @@
-package de.torui.coflsky.tfm;
+package de.torui.coflsky.gui.tfm;
 
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
+import de.torui.coflsky.gui.GUIType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 import static net.minecraft.client.gui.Gui.drawRect;
 
 public class ButtonRemapper {
+    private static ButtonRemapper instance;
     private final static int BUY_BUTTON_SLOT = 31;
     private final static int ITEM_SLOT = 13;
     private final static int CONFIRM_BUTTON_SLOT = 11;
@@ -38,7 +40,7 @@ public class ButtonRemapper {
     private final Method drawItemMethod;
     private final Method renderToolTipMethod;
 
-    public ButtonRemapper() {
+    private ButtonRemapper() {
         // drawItemStack obfuscated
         String[] methodNames = new String[]{"drawItemStack", "func_146982_a"};
         drawItemMethod = ReflectionHelper.findMethod(GuiContainer.class, null, methodNames, ItemStack.class, int.class, int.class, String.class);
@@ -46,6 +48,13 @@ public class ButtonRemapper {
         // obfuscated renderToolTip method
         methodNames = new String[]{"renderToolTip", "func_146285_a"};
         renderToolTipMethod = ReflectionHelper.findMethod(GuiScreen.class, null, methodNames, ItemStack.class, int.class, int.class);
+    }
+
+    public static ButtonRemapper getInstance(){
+        if(instance == null){
+            instance = new ButtonRemapper();
+        }
+        return instance;
     }
 
     public ItemStack getItem(int slotNum, GuiChest currentScreen) {
@@ -232,7 +241,7 @@ public class ButtonRemapper {
     }
 
     private boolean shouldSkip(GuiScreen screen) {
-        return !(screen instanceof GuiChest) || !CoflSky.config.usePurchaseOverlay;
+        return !(screen instanceof GuiChest) || CoflSky.config.purchaseOverlay != GUIType.TFM;
     }
 
     @SubscribeEvent
