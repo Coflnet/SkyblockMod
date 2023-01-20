@@ -12,13 +12,16 @@ public class FlipData {
 	
 	@SerializedName("worth")
 	public int Worth;
+	@SerializedName("sound")
+	public String Sound;
 	
 	public FlipData() {}
 
-	public FlipData(ChatMessageData[] messages, String id, int worth) {
+	public FlipData(ChatMessageData[] messages, String id, int worth, String sound) {
 		super();
 		Messages = messages;
 		Id = id;
 		Worth = worth;
+		Sound = sound;
 	}
 }

@@ -46,8 +46,10 @@ public class WSCommandHandler {
                 }), sender);
                 break;
             case PlaySound:
-                PlaySound(cmd.GetAs(new TypeToken<SoundData>() {
-                }), sender);
+                SoundData sc = cmd.GetAs(new TypeToken<SoundData>() {
+                }).getData();
+
+                PlaySound(sc.Name, sc.Pitch);
                 break;
             case ChatMessage:
                 ChatMessage(cmd.GetAs(new TypeToken<ChatMessageData[]>() {
@@ -73,22 +75,21 @@ public class WSCommandHandler {
     private static void Flip(Command<FlipData> cmd) {
         //handle chat message
         ChatMessageData[] messages = cmd.getData().Messages;
+        String sound = cmd.getData().Sound;
+        PlaySound(sound, 1);
         Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
         ChatMessage(showCmd);
-        flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth, ChatMessageDataToString(messages)));
+        flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth, ChatMessageDataToString(messages), sound));
         // trigger the keyevent to execute the event handler
         CoflSky.Events.onKeyEvent(null);
     }
 
-    private static void PlaySound(Command<SoundData> cmd, Entity sender) {
-
-        SoundData sc = cmd.getData();
-
+    private static void PlaySound(String soundName, float pitch) {
         SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
 
         // random.explode
         PositionedSoundRecord psr = PositionedSoundRecord
-                .create(new ResourceLocation(sc.Name), sc.Pitch);
+                .create(new ResourceLocation(soundName), pitch);
 
         handler.playSound(psr);
     }

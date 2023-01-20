@@ -10,12 +10,14 @@ public class FlipHandler {
         public String id;
         public String message;
         public int worth;
+        public String sound;
 
-        public Flip(String id, int worth, String message) {
+        public Flip(String id, int worth, String message, String sound) {
             super();
             this.id = id;
             this.message = message;
             this.worth = worth;
+            this.sound = sound;
         }
 
         public Flip() {
