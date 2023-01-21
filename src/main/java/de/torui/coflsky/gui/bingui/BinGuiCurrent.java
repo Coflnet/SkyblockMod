@@ -98,7 +98,6 @@ public class BinGuiCurrent {
             return;
         }
 
-        boolean eventState = false;
         if (guiName.contains("BIN Auction View") && buyState == BuyState.INIT) {
             ItemStack item = inventory.getStackInSlot(13);
             if (item == null) return;
@@ -107,20 +106,19 @@ public class BinGuiCurrent {
             lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
             drawScreen(message, event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
             event.setCanceled(true);
-            eventState = true;
         } else if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.PURCHASE) {
             mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 2, 3, mc.thePlayer);
             buyState = BuyState.CONFIRM;
             event.setCanceled(true);
-            eventState = true;
         } else if ((guiName.equalsIgnoreCase("BIN Auction View") || guiName.equalsIgnoreCase("Confirm Purchase")) && buyState == BuyState.CONFIRM) {
             drawScreen(message, event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
             event.setCanceled(true);
-            eventState = true;
         } else if (guiName.equalsIgnoreCase("Confirm Purchase") && buyState == BuyState.BUYING) {
             mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 2, 3, mc.thePlayer);
             resetGUI();
         }
+
+        mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
     }
 
     public void resetGUI() {
