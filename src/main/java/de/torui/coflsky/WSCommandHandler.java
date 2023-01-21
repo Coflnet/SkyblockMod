@@ -75,8 +75,8 @@ public class WSCommandHandler {
     private static void Flip(Command<FlipData> cmd) {
         //handle chat message
         ChatMessageData[] messages = cmd.getData().Messages;
-        String sound = cmd.getData().Sound;
-        PlaySound(sound, 1);
+        SoundData sound = cmd.getData().Sound;
+        PlaySound(sound.Name, sound.Pitch);
         Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
         ChatMessage(showCmd);
         flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth, ChatMessageDataToString(messages), sound));

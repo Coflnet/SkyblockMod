@@ -1,6 +1,6 @@
 package de.torui.coflsky;
 
-import de.torui.coflsky.commands.models.ChatMessageData;
+import de.torui.coflsky.commands.models.SoundData;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,9 +10,9 @@ public class FlipHandler {
         public String id;
         public String message;
         public int worth;
-        public String sound;
+        public SoundData sound;
 
-        public Flip(String id, int worth, String message, String sound) {
+        public Flip(String id, int worth, String message, SoundData sound) {
             super();
             this.id = id;
             this.message = message;

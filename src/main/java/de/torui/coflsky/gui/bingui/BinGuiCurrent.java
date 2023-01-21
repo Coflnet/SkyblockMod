@@ -33,6 +33,7 @@ public class BinGuiCurrent {
     private BuyState buyState = BuyState.INIT;
     private int pixelsScrolled = 0;
     private static boolean wasMouseDown;
+    private boolean hasInitialMouseSet = false;
 
     /*
     public BinGuiCurrent(IChatComponent message, String[] lore, String auctionId, String extraData) {
@@ -78,7 +79,7 @@ public class BinGuiCurrent {
         GuiScreen gui = event.gui;
         String message = WSCommandHandler.flipHandler.lastClickedFlipMessage;
 
-        if(message == null || message.isEmpty()){
+        if (message == null || message.isEmpty()) {
             return;
         }
 
@@ -91,31 +92,33 @@ public class BinGuiCurrent {
         IInventory inventory = ((ContainerChest) chest.inventorySlots).getLowerChestInventory();
         if (inventory == null) return;
 
+        String guiName = inventory.getDisplayName().getUnformattedText().trim();
 
-        if (inventory.getDisplayName().getFormattedText().toLowerCase(Locale.ROOT).equals("auction view")) {
+        if (guiName.equalsIgnoreCase("auction view")) {
             return;
         }
 
-        if (inventory.getDisplayName().getFormattedText().contains("BIN Auction View") && buyState == BuyState.INIT) {
-            //before i draw the gui, i check if there is a item in slot 13
+        boolean eventState = false;
+        if (guiName.contains("BIN Auction View") && buyState == BuyState.INIT) {
             ItemStack item = inventory.getStackInSlot(13);
             if (item == null) return;
-            itemStack = item;
-            //set the lore to the lore of the item
-            lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
 
-            //now i draw the gui
+            itemStack = item;
+            lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
             drawScreen(message, event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
             event.setCanceled(true);
-        } else if (inventory.getDisplayName().getUnformattedText().trim().equals("BIN Auction View") && buyState == BuyState.PURCHASE) {
-            mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
+            eventState = true;
+        } else if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.PURCHASE) {
+            mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 2, 3, mc.thePlayer);
             buyState = BuyState.CONFIRM;
             event.setCanceled(true);
-        } else if (inventory.getDisplayName().getUnformattedText().trim().equals("Confirm Purchase") && buyState == BuyState.CONFIRM) {
+            eventState = true;
+        } else if ((guiName.equalsIgnoreCase("BIN Auction View") || guiName.equalsIgnoreCase("Confirm Purchase")) && buyState == BuyState.CONFIRM) {
             drawScreen(message, event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
             event.setCanceled(true);
-        } else if (inventory.getDisplayName().getUnformattedText().trim().equals("Confirm Purchase") && buyState == BuyState.BUYING) {
-            mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 0, 0, mc.thePlayer);
+            eventState = true;
+        } else if (guiName.equalsIgnoreCase("Confirm Purchase") && buyState == BuyState.BUYING) {
+            mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 2, 3, mc.thePlayer);
             resetGUI();
         }
     }
@@ -124,6 +127,7 @@ public class BinGuiCurrent {
         buyState = BuyState.INIT;
         buyText = "Buy (You can click anywhere)";
         itemStack = null;
+        hasInitialMouseSet = false;
     }
 
     @SubscribeEvent
@@ -150,6 +154,12 @@ public class BinGuiCurrent {
 
         int width = mc.fontRendererObj.getStringWidth(parsedMessage) > 500 ? mc.fontRendererObj.getStringWidth(parsedMessage) + 5 : 500;
         int height = 300;
+
+        //RenderUtils.drawRoundedRect(screenWidth / 2, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
+        if (!hasInitialMouseSet) {
+            Mouse.setCursorPosition(mc.displayWidth / 2, mc.displayHeight / 2);
+            hasInitialMouseSet = true;
+        }
 
         //if (lore.length > 25) {
         //    height = 300 + (lore.length - 25) * 10;
@@ -183,7 +193,9 @@ public class BinGuiCurrent {
 
         //draw the lore, every line that is out of the lore background will not be drawn
         int y = 10 + 5 + 14 + 5 + 2;
-        for (int i = 0; i < lore.length; i++) {
+        for (
+                int i = 0;
+                i < lore.length; i++) {
             if (y + pixelsScrolled > 10 + 5 + 14 + 5 && y + pixelsScrolled < 10 + 5 + 14 + 5 + (height - 100)) {
                 RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5 + 2, y + pixelsScrolled, ColorPallet.WHITE.getColor());
             }
@@ -195,7 +207,8 @@ public class BinGuiCurrent {
         //cancel button
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, ColorPallet.ERROR.getColor());
         RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (isMouseOverClose(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
+        if (
+                isMouseOverClose(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
             RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 100));
             RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
             if (isClicked()) {
@@ -210,7 +223,9 @@ public class BinGuiCurrent {
         //buy button
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
         RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (!isMouseOverClose(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
+        if (!
+
+                isMouseOverClose(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
             RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 50));
             RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
             if (isClicked()) {
@@ -226,6 +241,7 @@ public class BinGuiCurrent {
                 }
             }
         }
+
     }
 
     private static boolean isMouseOverClose(int mouseX, int mouseY, int screenWidth, int screenHeight, int width, int height) {
@@ -247,7 +263,7 @@ public class BinGuiCurrent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onGuiOpen(GuiOpenEvent event) {
         // gui got closed
-        if(event.gui == null){
+        if (event.gui == null) {
             resetGUI();
         }
     }

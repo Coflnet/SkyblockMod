@@ -161,19 +161,19 @@ public class CoflSkyCommand extends CommandBase {
 
                         if (args[1].equalsIgnoreCase("cofl")) {
                             CoflSky.config.purchaseOverlay = GUIType.COFL;
-                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7 to: §fCofl"));
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fCofl"));
                             MinecraftForge.EVENT_BUS.register(BinGuiCurrent.getInstance());
                             MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
                         }
                         if (args[1].equalsIgnoreCase("tfm")) {
                             CoflSky.config.purchaseOverlay = GUIType.TFM;
-                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7 to: §fTFM"));
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fTFM"));
                             MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
                             MinecraftForge.EVENT_BUS.unregister(BinGuiCurrent.getInstance());
                         }
                         if (args[1].equalsIgnoreCase("off") || args[1].equalsIgnoreCase("false")) {
                             CoflSky.config.purchaseOverlay = null;
-                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7 to: §fOff"));
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fOff"));
                             MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
                             MinecraftForge.EVENT_BUS.unregister(BinGuiCurrent.getInstance());
                         }
