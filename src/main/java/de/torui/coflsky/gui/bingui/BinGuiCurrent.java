@@ -98,7 +98,7 @@ public class BinGuiCurrent {
             return;
         }
 
-        if (guiName.contains("BIN Auction View") && buyState == BuyState.INIT) {
+        if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.INIT) {
             ItemStack item = inventory.getStackInSlot(13);
             if (item == null) return;
 
@@ -117,8 +117,6 @@ public class BinGuiCurrent {
             mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 2, 3, mc.thePlayer);
             resetGUI();
         }
-
-        mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 0, 0, mc.thePlayer);
     }
 
     public void resetGUI() {
