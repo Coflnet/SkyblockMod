@@ -1,5 +1,6 @@
 package de.torui.coflsky.proxy;
 
+import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.commands.models.ProxyRequest;
 
 import java.io.*;
@@ -66,7 +67,7 @@ public class ProxyManager {
     }
 
 
-    private CompletableFuture<String> doRequest(String targetUrl){
+    private CompletableFuture<String> doRequest(String targetUrl,boolean isHypixel){
         CompletableFuture<String> future = new CompletableFuture<>();
 
         this.requestExecutor.submit(new Runnable() {
@@ -78,6 +79,13 @@ public class ProxyManager {
                     con.setRequestMethod("GET");
                     con.setRequestProperty("Accept", "application/json");
                     con.setRequestProperty("User-Agent", "CoflMod");
+
+                    String key = CoflSky.getAPIKeyManager().getApiInfo().key;
+
+                    if(isHypixel && !key.isEmpty()){
+                        con.setRequestProperty("API-Key", key);
+                        //con.addHeader("API-Key", this.apiKey.toString());
+                    }
                     con.setDoInput(true);
                     future.complete(getString(con));
                 }catch (Exception exception){
