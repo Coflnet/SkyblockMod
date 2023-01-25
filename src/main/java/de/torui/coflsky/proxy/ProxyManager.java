@@ -15,11 +15,12 @@ public class ProxyManager {
 
 
     public void handleRequestAsync(ProxyRequest request){
-        if(request.getUrl().startsWith("https://api.hypixel.net")){
+        if(request.isUploadEnabled()) {
+            if (request.getUrl().startsWith("https://api.hypixel.net")) {
+            }
+            CompletableFuture<String> req = this.doRequest(request.getUrl());
+            req.thenAcceptAsync(res -> this.uploadData(res,request.getId()));
         }
-
-        CompletableFuture<String> req = this.doRequest(request.getUrl());
-        req.thenAcceptAsync(res -> this.uploadData(res,request.getId()));
     }
 
 

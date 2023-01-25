@@ -67,6 +67,7 @@ tasks.withType(Jar::class) {
     manifest.attributes.run {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
+        this["Manifest-Version"] = "1.0"
     }
 }
 
