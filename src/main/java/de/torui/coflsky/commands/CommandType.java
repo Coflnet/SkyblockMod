@@ -54,7 +54,9 @@ public enum CommandType {
 	@SerializedName("uploadTab")
 	uploadTab,
 	@SerializedName("getMods")
-	GetMods;
+	GetMods,
+	@SerializedName("proxy")
+	ProxyRequest;
 
 
 	public static Map<CommandType,String> data;
