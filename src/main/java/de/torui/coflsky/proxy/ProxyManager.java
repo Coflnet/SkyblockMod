@@ -17,8 +17,6 @@ public class ProxyManager {
 
     public void handleRequestAsync(ProxyRequest request){
         if(request.isUploadEnabled()) {
-            if (request.getUrl().startsWith("https://api.hypixel.net")) {
-            }
             CompletableFuture<String> req = this.doRequest(request.getUrl());
             req.thenAcceptAsync(res -> this.uploadData(res,request.getId()));
         }
@@ -67,7 +65,7 @@ public class ProxyManager {
     }
 
 
-    private CompletableFuture<String> doRequest(String targetUrl,boolean isHypixel){
+    private CompletableFuture<String> doRequest(String targetUrl){
         CompletableFuture<String> future = new CompletableFuture<>();
 
         this.requestExecutor.submit(new Runnable() {
@@ -82,10 +80,10 @@ public class ProxyManager {
 
                     String key = CoflSky.getAPIKeyManager().getApiInfo().key;
 
-                    if(isHypixel && !key.isEmpty()){
+                    if(targetUrl.startsWith("https://api.hypixel.net") && !key.isEmpty()){
                         con.setRequestProperty("API-Key", key);
-                        //con.addHeader("API-Key", this.apiKey.toString());
                     }
+
                     con.setDoInput(true);
                     future.complete(getString(con));
                 }catch (Exception exception){
@@ -96,4 +94,6 @@ public class ProxyManager {
 
         return future;
     }
+
+
 }
