@@ -16,8 +16,8 @@ public class ProxyManager {
 
 
     public void handleRequestAsync(ProxyRequest request){
+         CompletableFuture<String> req = this.doRequest(request.getUrl());
         if(request.isUploadEnabled()) {
-            CompletableFuture<String> req = this.doRequest(request.getUrl());
             req.thenAcceptAsync(res -> this.uploadData(res,request.getId()));
         }
     }
