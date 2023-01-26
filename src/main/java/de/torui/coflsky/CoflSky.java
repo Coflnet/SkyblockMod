@@ -2,7 +2,6 @@ package de.torui.coflsky;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,6 +10,8 @@ import java.nio.file.Paths;
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.handlers.EventRegistry;
+import de.torui.coflsky.listeners.ChatListener;
+import de.torui.coflsky.proxy.APIKeyManager;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -46,6 +47,9 @@ public class CoflSky
     };
     
     public static String CommandUri = Config.BaseUrl + "/api/mod/commands";
+    private final static APIKeyManager apiKeyManager = new APIKeyManager();
+
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         String configString = null;
@@ -64,9 +68,19 @@ public class CoflSky
         if (config == null) {
             config =  LocalConfig.createDefaultConfig();
         }
+
+        try {
+            this.apiKeyManager.loadIfExists();
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+
+        MinecraftForge.EVENT_BUS.register(new ChatListener());
+
         // Cache all the mods on load
         WSCommandHandler.cacheMods();
     }
+
     @EventHandler
     public void init(FMLInitializationEvent event) throws URISyntaxException
     {
@@ -93,12 +107,21 @@ public class CoflSky
         }   
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);
-        Runtime.getRuntime()
-                .addShutdownHook(
-                        new Thread(
-                                () -> config.saveConfig(configFile , config)));
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            config.saveConfig(configFile , config);
+            try {
+                apiKeyManager.saveKey();
+            }catch (Exception exception){
+                exception.printStackTrace();
+            }
+        }));
     }   
 
-    
+
+    public static APIKeyManager getAPIKeyManager(){
+        return apiKeyManager;
+    }
+
 }
 	

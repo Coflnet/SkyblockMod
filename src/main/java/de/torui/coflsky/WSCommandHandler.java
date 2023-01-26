@@ -10,6 +10,7 @@ import de.torui.coflsky.commands.RawCommand;
 import de.torui.coflsky.commands.models.*;
 import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.handlers.EventRegistry;
+import de.torui.coflsky.proxy.ProxyManager;
 import de.torui.coflsky.utils.FileUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -35,6 +36,7 @@ public class WSCommandHandler {
 	public static FlipHandler flipHandler = new FlipHandler();
 	private static final ModListData modListData = new ModListData();
 	private static final Gson gson = new Gson();
+	private static final ProxyManager proxyManager = new ProxyManager();
 
 	public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
 		// Entity sender = Minecraft.getMinecraft().thePlayer;
@@ -64,12 +66,22 @@ public class WSCommandHandler {
 		case GetMods:
 			getMods();
 			break;
+		case ProxyRequest:
+			handleProxyRequest(cmd.GetAs(new TypeToken<ProxyRequest[]>() {}).getData());
+			break;
 		default:
 			break;
 		}
 
 		return true;
 	}
+
+	private static void handleProxyRequest(ProxyRequest[] request){
+		for(ProxyRequest req : request){
+			proxyManager.handleRequestAsync(req);
+		}
+	}
+
 
 	public static void cacheMods(){
 		File modFolder = new File(Minecraft.getMinecraft().mcDataDir, "mods");
