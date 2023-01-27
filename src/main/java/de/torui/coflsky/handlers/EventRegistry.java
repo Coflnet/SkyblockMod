@@ -233,6 +233,8 @@ public class EventRegistry {
 			}
 		}).start();
 	}
+
+
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onItemTooltipEvent(ItemTooltipEvent event) {
 		if (!config.extendedtooltips) return;

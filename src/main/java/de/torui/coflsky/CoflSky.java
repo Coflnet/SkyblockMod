@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.handlers.EventRegistry;
+import de.torui.coflsky.listeners.AuctionViewListener;
 import de.torui.coflsky.listeners.ChatListener;
 import de.torui.coflsky.proxy.APIKeyManager;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -75,8 +76,6 @@ public class CoflSky
             exception.printStackTrace();
         }
 
-        MinecraftForge.EVENT_BUS.register(new ChatListener());
-
         // Cache all the mods on load
         WSCommandHandler.cacheMods();
     }
@@ -107,6 +106,9 @@ public class CoflSky
         }   
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);
+
+        MinecraftForge.EVENT_BUS.register(new ChatListener());
+        MinecraftForge.EVENT_BUS.register(new AuctionViewListener());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             config.saveConfig(configFile , config);
