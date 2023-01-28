@@ -6,6 +6,7 @@ import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.gui.GUIType;
 import de.torui.coflsky.gui.bingui.helper.ColorPallet;
 import de.torui.coflsky.gui.bingui.helper.RenderUtils;
+import de.torui.coflsky.handlers.EventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -71,7 +72,7 @@ public class BinGuiCurrent {
     }
 
     private boolean shouldSkip(GuiScreen screen) {
-        return !(screen instanceof GuiChest) || CoflSky.config.purchaseOverlay != GUIType.COFL;
+        return !(screen instanceof GuiChest) || CoflSky.config.purchaseOverlay != GUIType.COFL || !EventHandler.isInSkyblock;
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
