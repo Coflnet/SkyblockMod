@@ -23,7 +23,6 @@ public class AuctionViewListener {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onGuiOpen(GuiOpenEvent event) {
         if (event.gui instanceof GuiChest){
-            int slotNumber = 0;
             GuiChest gui = (GuiChest) event.gui;
             ContainerChest containerChest = (ContainerChest) gui.inventorySlots;
 
@@ -31,18 +30,12 @@ public class AuctionViewListener {
 
             if(containerName.trim().startsWith("Auction View")) {
                 // Only move the mouse if the gui is auction view
-                for (Slot slot : containerChest.inventorySlots) {
-                    if (slotNumber == 13) {
-                        if (this.robot == null) {
-                            return;
-                        }
-                        this.robot.mouseMove(slot.xDisplayPosition, slot.yDisplayPosition);
-                        break;
-                    }
-                    slotNumber++;
+                Slot slot = containerChest.inventorySlots.get(13);
+                if (this.robot == null) {
+                    return;
                 }
+                this.robot.mouseMove(slot.xDisplayPosition, slot.yDisplayPosition);
             }
-
         }
     }
 
