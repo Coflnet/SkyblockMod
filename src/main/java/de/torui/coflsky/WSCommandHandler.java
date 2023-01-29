@@ -76,7 +76,9 @@ public class WSCommandHandler {
         //handle chat message
         ChatMessageData[] messages = cmd.getData().Messages;
         SoundData sound = cmd.getData().Sound;
-        PlaySound(sound.Name, sound.Pitch);
+        if (sound != null && sound.Name != null) {
+            PlaySound(sound.Name, sound.Pitch);
+        }
         Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
         ChatMessage(showCmd);
         flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth, ChatMessageDataToString(messages), sound));
@@ -175,7 +177,7 @@ public class WSCommandHandler {
 
     }
 
-    private static String ChatMessageDataToString(ChatMessageData[] messages){
+    private static String ChatMessageDataToString(ChatMessageData[] messages) {
         Stream<String> stream = Arrays.stream(messages).map(message -> message.Text);
         String s = String.join(",", stream.toArray(String[]::new));
         stream.close();
