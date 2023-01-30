@@ -17,14 +17,14 @@ import net.minecraft.util.EnumChatFormatting;
 import java.util.*;
 
 import static de.torui.coflsky.CoflSky.config;
-import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 
 public class EventHandler {
 
     public static boolean isInSkyblock = false;
     public static boolean isInTheCatacombs = false;
     private static long purse = 0;
-    private static int bits = 0;
+    private static long bits = 0;
     private static String location = "";
     private static String server = "";
 
@@ -172,7 +172,7 @@ public class EventHandler {
         if (line.contains("purse") || line.contains("piggy")) {
             long purse_ = 0;
             try {
-                purse_ = parseInt(line.split(" ")[1].replace(",", ""));
+                purse_ = parseLong(line.split(" ")[1].replace(",", ""));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
@@ -182,15 +182,15 @@ public class EventHandler {
                 CoflSky.Wrapper.SendMessage(data);
             }
         } else if (line.contains("bits")) {
-            int bits_ = 0;
+            long bits_ = 0;
             try {
-                bits_ = parseInt(line.split(" ")[1].replace(",", ""));
+                bits_ = parseLong(line.split(" ")[1].replace(",", ""));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
             if (bits != bits_) {
                 bits = bits_;
-                Command<Integer> data = new Command<>(CommandType.updateBits, bits);
+                Command<Long> data = new Command<>(CommandType.updateBits, bits);
                 CoflSky.Wrapper.SendMessage(data);
             }
         }
