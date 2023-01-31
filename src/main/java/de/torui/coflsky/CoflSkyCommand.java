@@ -147,7 +147,15 @@ public class CoflSkyCommand extends CommandBase {
                         callbackArgs[0] = "callback";
                         System.arraycopy(args, 3, message, 0, args.length - 3);
 
-                        WSCommandHandler.flipHandler.lastClickedFlipMessage = String.join(" ", message).replaceAll("\n", "");
+                        String oneLineMessage = String.join(" ", message).replaceAll("\n", "");
+
+                        // Auction was opened after /colf blocked => message contains all blocked flips
+                        if (oneLineMessage.contains("These are examples of blocked flips.")) {
+                            oneLineMessage = "";
+                        }
+
+                        WSCommandHandler.flipHandler.lastClickedFlipMessage = oneLineMessage;
+
                         CallbackCommand(callbackArgs);
                         break;
                     case "setGui":
