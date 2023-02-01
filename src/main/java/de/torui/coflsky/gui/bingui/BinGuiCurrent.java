@@ -269,9 +269,7 @@ public class BinGuiCurrent {
             return false;
         }
         List<String> itemTooltip = itemStack.getTooltip(Minecraft.getMinecraft().thePlayer, false);
-        System.out.println("-------------------------------");
         for (String data : itemTooltip) {
-            System.out.println(data);
             Matcher matcher = Pattern.compile("Can buy in: (.*)").matcher(EnumChatFormatting.getTextWithoutFormattingCodes(data));
             if (!matcher.find()) {
                 continue;
