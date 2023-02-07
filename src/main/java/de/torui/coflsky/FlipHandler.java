@@ -1,38 +1,18 @@
 package de.torui.coflsky;
 
-import de.torui.coflsky.commands.models.SoundData;
-
+import de.torui.coflsky.commands.models.FlipData;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FlipHandler {
-    public static class Flip {
-        public String id;
-        public String message;
-        public int worth;
-        public SoundData sound;
-
-        public Flip(String id, int worth, String message, SoundData sound) {
-            super();
-            this.id = id;
-            this.message = message;
-            this.worth = worth;
-            this.sound = sound;
-        }
-
-        public Flip() {
-
-        }
-
-    }
 
     public static class FlipDataStructure {
 
-        private Map<Long, Flip> Flips = new ConcurrentHashMap<>();
-        private Map<Flip, Long> ReverseMap = new ConcurrentHashMap<>();
+        private Map<Long, FlipData> Flips = new ConcurrentHashMap<>();
+        private Map<FlipData, Long> ReverseMap = new ConcurrentHashMap<>();
 
-        private Flip HighestFlip = null;
-        private Flip LastFlip = null;
+        private FlipData HighestFlip = null;
+        private FlipData LastFlip = null;
 
         private Timer t = new Timer();
         private TimerTask CurrentTask = null;
@@ -43,7 +23,7 @@ public class FlipHandler {
                 Long RemoveAllPrior = System.currentTimeMillis() - (Config.KeepFlipsForSeconds * 1000);
                 Flips.keySet().stream().filter(l -> l <= RemoveAllPrior).forEach(l -> RemoveLong(l));
                 if (!Flips.isEmpty()) {
-                    HighestFlip = Flips.values().stream().max((f1, f2) -> f1.worth - f2.worth).orElse(null);
+                    HighestFlip = Flips.values().stream().max((f1, f2) -> f1.Worth - f2.Worth).orElse(null);
                 } else {
                     HighestFlip = null;
                 }
@@ -65,7 +45,7 @@ public class FlipHandler {
             }
         }
 
-        public synchronized void Insert(Flip flip) {
+        public synchronized void Insert(FlipData flip) {
             Long l = System.currentTimeMillis();
             LastFlip = flip;
 
@@ -81,7 +61,7 @@ public class FlipHandler {
             if (l == null)
                 return;
             synchronized (Flips) {
-                Flip f = Flips.get(l);
+                FlipData f = Flips.get(l);
                 if (f != null) {
                     ReverseMap.remove(f);
                     Flips.remove(l);
@@ -89,7 +69,7 @@ public class FlipHandler {
             }
         }
 
-        private void RemoveFlip(Flip f) {
+        private void RemoveFlip(FlipData f) {
             if (f == null)
                 return;
 
@@ -102,11 +82,11 @@ public class FlipHandler {
             }
         }
 
-        public Flip GetHighestFlip() {
+        public FlipData GetHighestFlip() {
             return HighestFlip;
         }
 
-        public Flip GetLastFlip() {
+        public FlipData GetLastFlip() {
             if (LastFlip == null) {
                 return null;
             }
@@ -117,7 +97,16 @@ public class FlipHandler {
             return LastFlip;
         }
 
-        public void InvalidateFlip(Flip flip) {
+        public FlipData getFlipById(String id) {
+            FlipData[] flips = Flips.values().stream().filter(flipData -> flipData.Id.equals(id)).toArray(FlipData[]::new);
+            Flips.forEach((key, value) -> System.out.println(value.Id));
+            if (flips.length == 0) {
+                return null;
+            }
+            return flips[0];
+        }
+
+        public void InvalidateFlip(FlipData flip) {
             RemoveFlip(flip);
             RunHouseKeeping();
         }

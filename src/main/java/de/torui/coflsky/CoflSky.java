@@ -2,21 +2,16 @@ package de.torui.coflsky;
 
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
-
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.gui.GUIType;
-import de.torui.coflsky.gui.bingui.BinGuiCurrent;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.gui.tfm.ButtonRemapper;
 import de.torui.coflsky.gui.tfm.ChatMessageSendHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
-
 import de.torui.coflsky.network.WSClientWrapper;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -96,8 +91,6 @@ public class CoflSky
         MinecraftForge.EVENT_BUS.register(Events);
         if(config.purchaseOverlay == GUIType.TFM) {
             MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
-        }else{
-            MinecraftForge.EVENT_BUS.register(BinGuiCurrent.getInstance());
         }
         MinecraftForge.EVENT_BUS.register(new ChatMessageSendHandler());
         Runtime.getRuntime()

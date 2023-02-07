@@ -2,7 +2,6 @@ package de.torui.coflsky.gui.bingui;
 
 
 import de.torui.coflsky.CoflSky;
-import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.gui.GUIType;
 import de.torui.coflsky.gui.bingui.helper.ColorPallet;
 import de.torui.coflsky.gui.bingui.helper.RenderUtils;
@@ -10,29 +9,33 @@ import de.torui.coflsky.handlers.EventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.command.NumberInvalidException;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
-
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static de.torui.coflsky.gui.bingui.helper.RenderUtils.mc;
-
-public class BinGuiCurrent {
-
-    private static BinGuiCurrent instance;
+public class BinGuiCurrent extends GuiChest {
+    private String message;
     private String[] lore;
     private ItemStack itemStack;
     private String buyText = "Buy(You can click anywhere)";
@@ -41,17 +44,15 @@ public class BinGuiCurrent {
     private boolean wasMouseDown;
     private boolean isRendered = false;
     private boolean hasInitialMouseSet = false;
+    private boolean wasTooltipRefreshed = false;
 
-    /*
-    public BinGuiCurrent(IChatComponent message, String[] lore, String auctionId, String extraData) {
+    private GuiChest chestGui;
+
+    public BinGuiCurrent(IInventory playerInventory, IInventory chestInventory, String message, String extraData) {
+        super(chestInventory, playerInventory);
         this.message = message;
-        this.lore = lore;
-        this.auctionId = auctionId;
-        MinecraftForge.EVENT_BUS.register(this);
-        mc.thePlayer.sendChatMessage("/viewauction " + auctionId);
-        //System.out.println(extraData);
+        this.lore = new String[]{"Loading..."};
         if (extraData.length() >= 32) {
-            //now its a skull
             itemStack = getSkull("Name", "00000000-0000-0000-0000-000000000000", extraData);
         } else {
             itemStack = new ItemStack(getItemByText(extraData));
@@ -61,20 +62,7 @@ public class BinGuiCurrent {
                 ((ItemArmor) itemStack.getItem()).setColor(itemStack, 0);
             }
         }
-        //play a pling sound
-        mc.thePlayer.playSound("note.pling", 1, 1);
-    }
-    */
-
-    private BinGuiCurrent() {
-
-    }
-
-    public static BinGuiCurrent getInstance() {
-        if (instance == null) {
-            instance = new BinGuiCurrent();
-        }
-        return instance;
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     private boolean shouldSkip(GuiScreen screen) {
@@ -82,10 +70,14 @@ public class BinGuiCurrent {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Pre event) {
+    public void onGuiOpen(GuiOpenEvent event) {
+
+        if (event.gui == null) {
+            resetGUI();
+        }
+
         isRendered = false;
         GuiScreen gui = event.gui;
-        String message = WSCommandHandler.flipHandler.lastClickedFlipMessage;
 
         if (message == null || message.isEmpty()) {
             return;
@@ -101,63 +93,65 @@ public class BinGuiCurrent {
         if (inventory == null) return;
 
         String guiName = inventory.getDisplayName().getUnformattedText().trim();
+        if (guiName.equalsIgnoreCase("BIN Auction View") || guiName.equalsIgnoreCase("Confirm Purchase")) {
+            this.chestGui = (GuiChest) event.gui;
+            this.inventorySlots = ((GuiChest) event.gui).inventorySlots;
+            event.gui = this;
+        }
+    }
 
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onDrawGuiScreen(GuiScreenEvent.DrawScreenEvent.Pre event) {
+        isRendered = false;
+        GuiScreen gui = event.gui;
+
+        if (message == null || message.isEmpty()) {
+            return;
+        }
+
+        if (shouldSkip(gui)) {
+            return;
+        }
+
+        GuiChest chest = (GuiChest) gui;
+
+        IInventory inventory = ((ContainerChest) chest.inventorySlots).getLowerChestInventory();
+        if (inventory == null) return;
+
+        String guiName = inventory.getDisplayName().getUnformattedText().trim();
         if (guiName.equalsIgnoreCase("auction view")) {
             return;
         }
 
-        if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.INIT) {
-            ItemStack item = inventory.getStackInSlot(13);
-            if (item == null) return;
+        ItemStack item = inventory.getStackInSlot(13);
+        if (item == null) return;
 
+        if (guiName.equalsIgnoreCase("BIN Auction View") && !wasTooltipRefreshed) {
             itemStack = item;
             lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
-            drawScreen(message, event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
-            if(waitingForBed(chest)){
+            wasTooltipRefreshed = true;
+        }
+
+        if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.INIT) {
+            if (waitingForBed(chest)) {
                 buyState = BuyState.INIT;
             }
-            event.setCanceled(true);
         } else if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.PURCHASE) {
-            mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 31, 2, 3, mc.thePlayer);
+            mc.playerController.windowClick(this.chestGui.inventorySlots.windowId, 31, 2, 3, mc.thePlayer);
             buyState = BuyState.CONFIRM;
-            event.setCanceled(true);
-        } else if ((guiName.equalsIgnoreCase("BIN Auction View") || guiName.equalsIgnoreCase("Confirm Purchase")) && buyState == BuyState.CONFIRM) {
-            drawScreen(message, event.mouseX, event.mouseY, event.renderPartialTicks, gui.width, gui.height);
-            event.setCanceled(true);
         } else if (guiName.equalsIgnoreCase("Confirm Purchase") && buyState == BuyState.BUYING) {
-            mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, 11, 2, 3, mc.thePlayer);
+            mc.playerController.windowClick(this.chestGui.inventorySlots.windowId, 11, 2, 3, mc.thePlayer);
             resetGUI();
         }
     }
 
-    public void resetGUI() {
-        buyState = BuyState.INIT;
-        buyText = "Buy (You can click anywhere)";
-        itemStack = null;
-        hasInitialMouseSet = false;
-        isRendered = false;
-    }
-
-    @SubscribeEvent
-    public void onChatEvent(ClientChatReceivedEvent event) {
-        String message = event.message.getFormattedText().toLowerCase(Locale.ROOT);
-        if (
-                message.contains("you have bought") ||
-                        message.contains("you don't have enough coins") ||
-                        message.contains("this auction wasn't found") ||
-                        message.contains("there was an error with the auction house") ||
-                        message.contains("you didn't participate in this auction") ||
-                        message.contains("you claimed") ||
-                        message.contains("you purchased")
-        ) {
-            //close the gui
-            resetGUI();
-            mc.thePlayer.closeScreen();
-        }
-    }
-
-    public void drawScreen(String message, int mouseX, int mouseY, float partialTicks, int screenWidth, int screenHeight) {
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        Mouse.setGrabbed(false);
         isRendered = true;
+
+        int screenWidth = this.width;
+        int screenHeight = this.height;
 
         String parsedMessage = message.split("✥")[0].replaceAll(" sellers ah", "");
 
@@ -253,6 +247,81 @@ public class BinGuiCurrent {
 
     }
 
+    public void resetGUI() {
+        buyState = BuyState.INIT;
+        buyText = "Buy (You can click anywhere)";
+        itemStack = null;
+        hasInitialMouseSet = false;
+        isRendered = false;
+        Mouse.setGrabbed(true);
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
+    public static Item getItemByText(String id) {
+        try {
+            ResourceLocation resourcelocation = new ResourceLocation(id);
+            if (!Item.itemRegistry.containsKey(resourcelocation)) {
+                throw new NumberInvalidException("block.notFound", resourcelocation);
+            }
+            Item item = Item.itemRegistry.getObject(resourcelocation);
+            if (item == null) {
+                throw new NumberInvalidException("block.notFound", resourcelocation);
+            }
+            return item;
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return null;
+        }
+
+    }
+
+    public static ItemStack getSkull(String displayName, String uuid, String value) {
+        String url = "https://textures.minecraft.net/texture/" + value;
+        ItemStack render = new ItemStack(Items.skull, 1, 3);
+
+        NBTTagCompound skullOwner = new NBTTagCompound();
+        skullOwner.setString("Id", uuid);
+        skullOwner.setString("Name", uuid);
+
+        byte[] encodedData = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+        NBTTagCompound textures_0 = new NBTTagCompound();
+        textures_0.setString("Value", new String(encodedData));
+
+        NBTTagList textures = new NBTTagList();
+        textures.appendTag(textures_0);
+
+        NBTTagCompound display = new NBTTagCompound();
+        display.setString("Name", displayName);
+
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setTag("display", display);
+
+        NBTTagCompound properties = new NBTTagCompound();
+        properties.setTag("textures", textures);
+        skullOwner.setTag("Properties", properties);
+        tag.setTag("SkullOwner", skullOwner);
+        render.setTagCompound(tag);
+        return render;
+    }
+
+    @SubscribeEvent
+    public void onChatEvent(ClientChatReceivedEvent event) {
+        String message = event.message.getFormattedText().toLowerCase(Locale.ROOT);
+        if (
+                message.contains("you have bought") ||
+                        message.contains("you don't have enough coins") ||
+                        message.contains("this auction wasn't found") ||
+                        message.contains("there was an error with the auction house") ||
+                        message.contains("you didn't participate in this auction") ||
+                        message.contains("you claimed") ||
+                        message.contains("you purchased")
+        ) {
+            //close the gui
+            resetGUI();
+            mc.thePlayer.closeScreen();
+        }
+    }
+
     public ItemStack getItem(int slotNum, GuiChest currentScreen) {
         ContainerChest container = (ContainerChest) currentScreen.inventorySlots;
         return container.getSlot(slotNum).getStack();
@@ -299,14 +368,6 @@ public class BinGuiCurrent {
         if (Minecraft.getMinecraft() == null) return;
         if (event.phase == TickEvent.Phase.END) {
             wasMouseDown = Mouse.isButtonDown(0);
-        }
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onGuiOpen(GuiOpenEvent event) {
-        // gui got closed
-        if (event.gui == null) {
-            resetGUI();
         }
     }
 
