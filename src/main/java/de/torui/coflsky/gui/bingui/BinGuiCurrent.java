@@ -30,6 +30,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
 
+import java.awt.event.MouseWheelEvent;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
@@ -194,10 +195,6 @@ public class BinGuiCurrent extends GuiChest {
 
         //draw the backorund for the lore
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + 20 + 5, 10 + 5 + 14 + 5, (width - 10) - 25, (height - 100), 5, ColorPallet.SECONDARY.getColor());
-        if (mouseX > screenWidth / 2 - width / 2 + 5 + 20 + 5 && mouseX < screenWidth / 2 - width / 2 + 5 + 20 + 5 + (width - 10) - 25 && mouseY > 10 + 5 + 14 + 5 && mouseY < 10 + 5 + 14 + 5 + (height - 100)) {
-            //mouse is in the lore background
-            pixelsScrolled += Mouse.getDWheel() / 4;//4 is the scroll speed
-        }
 
         //draw the lore, every line that is out of the lore background will not be drawn
         int y = 10 + 5 + 14 + 5 + 2;
@@ -250,6 +247,14 @@ public class BinGuiCurrent extends GuiChest {
             }
         }
 
+    }
+
+    @SubscribeEvent
+    public void onGuiMouseInput(GuiScreenEvent.MouseInputEvent event) {
+        if (event.gui instanceof BinGuiCurrent) {
+            int dwheel = Mouse.getDWheel();
+            pixelsScrolled += dwheel / 4;
+        }
     }
 
     public void resetGUI() {
