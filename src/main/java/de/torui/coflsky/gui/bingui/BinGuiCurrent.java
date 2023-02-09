@@ -18,6 +18,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -28,6 +29,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
+
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
@@ -126,19 +128,22 @@ public class BinGuiCurrent extends GuiChest {
         ItemStack item = inventory.getStackInSlot(13);
         if (item == null) return;
 
+        // Load tooltip from the actual item
         if (guiName.equalsIgnoreCase("BIN Auction View") && !wasTooltipRefreshed) {
             itemStack = item;
             lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
             wasTooltipRefreshed = true;
         }
 
-        if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.INIT) {
+        if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.PURCHASE) {
             if (waitingForBed(chest)) {
+                Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §cBed is not purchasable yet."));
                 buyState = BuyState.INIT;
+            } else {
+                mc.playerController.windowClick(this.chestGui.inventorySlots.windowId, 31, 2, 3, mc.thePlayer);
+                wasMouseDown = false;
+                buyState = BuyState.CONFIRM;
             }
-        } else if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.PURCHASE) {
-            mc.playerController.windowClick(this.chestGui.inventorySlots.windowId, 31, 2, 3, mc.thePlayer);
-            buyState = BuyState.CONFIRM;
         } else if (guiName.equalsIgnoreCase("Confirm Purchase") && buyState == BuyState.BUYING) {
             mc.playerController.windowClick(this.chestGui.inventorySlots.windowId, 11, 2, 3, mc.thePlayer);
             resetGUI();
@@ -314,7 +319,8 @@ public class BinGuiCurrent extends GuiChest {
                         message.contains("there was an error with the auction house") ||
                         message.contains("you didn't participate in this auction") ||
                         message.contains("you claimed") ||
-                        message.contains("you purchased")
+                        message.contains("you purchased") ||
+                        message.contains("you cannot view this auction")
         ) {
             //close the gui
             resetGUI();
@@ -344,7 +350,7 @@ public class BinGuiCurrent extends GuiChest {
                 continue;
             }
             String timeData = matcher.group(1);
-            if (timeData.contains("Soon!")) {
+            if (timeData.equals("Soon!")) {
                 return true;
             }
         }

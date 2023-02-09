@@ -148,6 +148,10 @@ public class CoflSkyCommand extends CommandBase {
 
                         String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "");
 
+                        if(WSCommandHandler.flipHandler.fds.GetHighestFlip().Id.equals(flip.Id)){
+                            WSCommandHandler.flipHandler.fds.InvalidateFlip(flip);
+                        }
+
                         WSCommandHandler.flipHandler.lastClickedFlipMessage = oneLineMessage;
 
                         BinGuiManager.openNewFlipGui(oneLineMessage, flip.Render);
