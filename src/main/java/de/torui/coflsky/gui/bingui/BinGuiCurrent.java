@@ -47,7 +47,6 @@ public class BinGuiCurrent extends GuiChest {
     private boolean wasMouseDown;
     private boolean isRendered = false;
     private boolean hasInitialMouseSet = false;
-    private boolean wasTooltipRefreshed = false;
 
     private GuiChest chestGui;
 
@@ -129,12 +128,8 @@ public class BinGuiCurrent extends GuiChest {
         ItemStack item = inventory.getStackInSlot(13);
         if (item == null) return;
 
-        // Load tooltip from the actual item
-        if (guiName.equalsIgnoreCase("BIN Auction View") && !wasTooltipRefreshed) {
-            itemStack = item;
-            lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
-            wasTooltipRefreshed = true;
-        }
+        itemStack = item;
+        lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
 
         if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.PURCHASE) {
             if (waitingForBed(chest)) {
@@ -159,9 +154,7 @@ public class BinGuiCurrent extends GuiChest {
         int screenWidth = this.width;
         int screenHeight = this.height;
 
-        String parsedMessage = message.split("✥")[0].replaceAll(" sellers ah", "");
-
-        int width = mc.fontRendererObj.getStringWidth(parsedMessage) > 500 ? mc.fontRendererObj.getStringWidth(parsedMessage) + 5 : 500;
+        int width = mc.fontRendererObj.getStringWidth(message) > 500 ? mc.fontRendererObj.getStringWidth(message) + 5 : 500;
         int height = 300;
 
         //RenderUtils.drawRoundedRect(screenWidth / 2, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
@@ -179,7 +172,7 @@ public class BinGuiCurrent extends GuiChest {
 
         //next i draw the title
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5, (width - 10), 14, 5, ColorPallet.SECONDARY.getColor());
-        RenderUtils.drawString(parsedMessage, screenWidth / 2 - width / 2 + 7, 10 + 8, ColorPallet.WHITE.getColor());
+        RenderUtils.drawString(message, screenWidth / 2 - width / 2 + 7, 10 + 8, ColorPallet.WHITE.getColor());
 
         //now i draw the backround of the icon
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5, 20, 20, 5, ColorPallet.TERTIARY.getColor());

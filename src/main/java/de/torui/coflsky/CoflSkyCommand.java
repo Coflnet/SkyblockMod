@@ -71,7 +71,7 @@ public class CoflSkyCommand extends CommandBase {
             System.out.println(Arrays.toString(args));
 
             if (args.length >= 1) {
-                switch (args[0]) {
+                switch (args[0].toLowerCase()) {
                     case "start":
                         //todo: start
                         //possible workaround for https://github.com/Coflnet/SkyblockMod/issues/48
@@ -136,7 +136,7 @@ public class CoflSkyCommand extends CommandBase {
                             sender.addChatMessage(new ChatComponentText("§cPleace specify a server to connect to"));
                         }
                         break;
-                    case "openAuctionGUI":
+                    case "openauctiongui":
                         FlipData flip = WSCommandHandler.flipHandler.fds.getFlipById(args[1]);
 
                         // Is not a stored flip -> just open the auction
@@ -146,7 +146,7 @@ public class CoflSkyCommand extends CommandBase {
                             return;
                         }
 
-                        String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "");
+                        String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "").split(",§7 sellers ah")[0];
 
                         if(WSCommandHandler.flipHandler.fds.GetHighestFlip().Id.equals(flip.Id)){
                             WSCommandHandler.flipHandler.fds.InvalidateFlip(flip);
@@ -157,7 +157,7 @@ public class CoflSkyCommand extends CommandBase {
                         BinGuiManager.openNewFlipGui(oneLineMessage, flip.Render);
 
                         Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + flip.Id);
-                    case "setGui":
+                    case "setgui":
                         if (args.length != 2) {
                             sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Available GUIs:"));
                             sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Cofl"));

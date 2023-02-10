@@ -52,8 +52,8 @@ public class ButtonRemapper {
         renderToolTipMethod = ReflectionHelper.findMethod(GuiScreen.class, null, methodNames, ItemStack.class, int.class, int.class);
     }
 
-    public static ButtonRemapper getInstance(){
-        if(instance == null){
+    public static ButtonRemapper getInstance() {
+        if (instance == null) {
             instance = new ButtonRemapper();
         }
         return instance;
