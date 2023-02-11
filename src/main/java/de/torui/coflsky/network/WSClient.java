@@ -22,7 +22,6 @@ import de.torui.coflsky.commands.RawCommand;
 
 public class WSClient extends WebSocketAdapter {
 
-	
 	public static Gson gson;
 	
 	

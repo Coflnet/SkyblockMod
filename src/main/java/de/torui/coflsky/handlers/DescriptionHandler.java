@@ -28,6 +28,7 @@ public class DescriptionHandler {
         public String chestName;
         public String fullInventoryNbt;
     }
+
     private static class DescModification {
         public String type;
         public String value;
@@ -35,7 +36,6 @@ public class DescriptionHandler {
     }
 
     public static HashMap<ItemStack, DescModification[]> tooltipItemMap = new HashMap<>();
-    public static HashMap<String, DescModification[]> tooltipItemUuidMap = new HashMap<>();
     public static HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<>();
 
     public static final DescModification[] EMPTY_ARRAY = new DescModification[0];
@@ -44,8 +44,7 @@ public class DescriptionHandler {
     private boolean IsOpen = true;
     private boolean shouldUpdate = false;
 
-    public void Close()
-    {
+    public void Close() {
         IsOpen = false;
     }
 
@@ -63,7 +62,8 @@ public class DescriptionHandler {
         }
         return "";
     }
-    public static String ExtractUuidFromItemStack(ItemStack stack) {
+
+    public static String ExtractIdFromItemStack(ItemStack stack) {
         if (stack != null) {
             try {
                 String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes")
@@ -75,47 +75,41 @@ public class DescriptionHandler {
             } catch (Exception e) {
             }
         }
-        return "";
+        return ExtractStackableIdFromItemStack(stack);
     }
+
     private DescModification[] getTooltipData(ItemStack itemStack) {
         if (tooltipItemMap.containsKey(itemStack)) {
             return tooltipItemMap.getOrDefault(itemStack, EMPTY_ARRAY);
         }
-        if(!itemStack.isStackable()){
-            String id = ExtractUuidFromItemStack(itemStack);
-            if (tooltipItemUuidMap.containsKey(id)) {
-                return tooltipItemUuidMap.getOrDefault(id, EMPTY_ARRAY);
-            }
-            shouldUpdate = true;
-        } else {
-            String itemId = ExtractStackableIdFromItemStack(itemStack);
-            if(tooltipItemIdMap.containsKey(itemId)){
-                return tooltipItemIdMap.getOrDefault(itemId, EMPTY_ARRAY);
-            }
-            shouldUpdate = true;
+        String id = ExtractIdFromItemStack(itemStack);
+        if (tooltipItemIdMap.containsKey(id)) {
+            return tooltipItemIdMap.getOrDefault(id, EMPTY_ARRAY);
         }
+        shouldUpdate = true;
 
         return EMPTY_ARRAY;
     }
-    public void loadDescriptionAndListenForChanges(GuiOpenEvent event){
+
+    public void loadDescriptionAndListenForChanges(GuiOpenEvent event) {
 
         GuiContainer gc = (GuiContainer) event.gui;
 
         loadDescriptionForInventory(event, gc, false);
         int iteration = 0;
-        while(IsOpen)
-        {
+        while (IsOpen) {
             iteration++;
             try {
                 Thread.sleep(300 + iteration);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            if(shouldUpdate || iteration % 10 == 0 && hasAnyStackChanged(gc))
-            {
+            if (shouldUpdate || iteration % 10 == 0 && hasAnyStackChanged(gc)) {
                 shouldUpdate = false;
                 loadDescriptionForInventory(event, gc, true);
             }
+            if (iteration >= 30)
+                iteration = 30; // cap at 9 second update interval
         }
     }
 
@@ -132,7 +126,7 @@ public class DescriptionHandler {
     private static void loadDescriptionForInventory(GuiOpenEvent event, GuiContainer gc, boolean skipLoadCheck) {
         InventoryWrapper wrapper = new InventoryWrapper();
         if (event.gui instanceof GuiChest) {
-            if(!skipLoadCheck)
+            if (!skipLoadCheck)
                 waitForChestContentLoad(event, gc);
 
             ContainerChest chest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
@@ -174,11 +168,9 @@ public class DescriptionHandler {
             int i = 0;
             for (ItemStack stack : stacks) {
                 tooltipItemMap.put(stack, arr[i]);
-                String uuid = ExtractUuidFromItemStack(stack);
-                if(uuid.length()>0) tooltipItemUuidMap.put(uuid, arr[i]);
-
-                String id = ExtractStackableIdFromItemStack(stack);
-                if(id.length()>0) tooltipItemIdMap.put(id, arr[i]);
+                String id = ExtractIdFromItemStack(stack);
+                if (id.length() > 0)
+                    tooltipItemIdMap.put(id, arr[i]);
                 i++;
             }
 
@@ -188,11 +180,12 @@ public class DescriptionHandler {
     }
 
     private static void waitForChestContentLoad(GuiOpenEvent event, GuiContainer gc) {
-        for(int i = 1; i < 10; i++) {
-            if(gc.inventorySlots.inventorySlots.get(gc.inventorySlots.inventorySlots.size()-37).getStack() != null)
+        for (int i = 1; i < 10; i++) {
+            if (gc.inventorySlots.inventorySlots.get(gc.inventorySlots.inventorySlots.size() - 37).getStack() != null)
                 break;
             try {
-                // incremental backoff to wait for all inventory packages to arrive (each slot is sent individually)
+                // incremental backoff to wait for all inventory packages to arrive
+                // (each slot is sent individually)
                 Thread.sleep(20 * i);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -231,9 +224,9 @@ public class DescriptionHandler {
     /**
      * Called when the inventory is closed
      */
-    public static void emptyTooltipData(){
+    public static void emptyTooltipData() {
         tooltipItemMap.clear();
         tooltipItemIdMap.clear();
-        tooltipItemUuidMap.clear();
+        tooltipItemIdMap.clear();
     }
 }

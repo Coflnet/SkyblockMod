@@ -1,14 +1,17 @@
 package de.torui.coflsky;
 
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
-import de.torui.coflsky.commands.models.ChatMessageData;
-import de.torui.coflsky.commands.models.FlipData;
-import de.torui.coflsky.commands.models.SoundData;
+import de.torui.coflsky.commands.RawCommand;
+import de.torui.coflsky.commands.models.*;
 import de.torui.coflsky.configuration.ConfigurationManager;
+import de.torui.coflsky.handlers.EventRegistry;
+import de.torui.coflsky.proxy.ProxyManager;
+import de.torui.coflsky.utils.FileUtils;
 import de.torui.coflsky.commands.models.TimerData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -22,6 +25,11 @@ import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
+
+import java.io.File;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -30,6 +38,9 @@ public class WSCommandHandler {
 
     public static transient String lastOnClickEvent;
     public static FlipHandler flipHandler = new FlipHandler();
+    private static final ModListData modListData = new ModListData();
+    private static final Gson gson = new Gson();
+    private static final ProxyManager proxyManager = new ProxyManager();
 
     public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
         // Entity sender = Minecraft.getMinecraft().thePlayer;
@@ -64,6 +75,13 @@ public class WSCommandHandler {
                 StartTimer(cmd.GetAs(new TypeToken<TimerData>() {
                 }));
                 break;
+            case GetMods:
+                getMods();
+                break;
+            case ProxyRequest:
+                handleProxyRequest(cmd.GetAs(new TypeToken<ProxyRequest[]>() {
+                }).getData());
+                break;
             default:
                 break;
         }
@@ -81,6 +99,48 @@ public class WSCommandHandler {
         Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
         ChatMessage(showCmd);
         flipHandler.fds.Insert(cmd.getData());
+        // trigger the keyevent to execute the event handler
+        CoflSky.Events.onKeyEvent(null);
+    }
+
+    private static void handleProxyRequest(ProxyRequest[] request) {
+        for (ProxyRequest req : request) {
+            proxyManager.handleRequestAsync(req);
+        }
+    }
+
+
+    public static void cacheMods() {
+        File modFolder = new File(Minecraft.getMinecraft().mcDataDir, "mods");
+        for (File mods : modFolder.listFiles()) {
+            modListData.addFilename(mods.getName());
+            try {
+                modListData.addFileHashes(FileUtils.getMD5Checksum(mods));
+            } catch (Exception exception) {
+                // Highly less likely to happen unless something goes wrong
+                exception.printStackTrace();
+            }
+        }
+
+        for (ModContainer mod : Loader.instance().getModList()) {
+            modListData.addModname(mod.getName());
+            modListData.addModname(mod.getModId());
+        }
+    }
+
+    private static void getMods() {
+        // the Cofl server has asked for an mod list now let's respond with all the info
+        CoflSky.Wrapper.SendMessage(new RawCommand("foundMods", gson.toJson(modListData)));
+    }
+
+
+    private static void Flip(Command<FlipData> cmd) {
+        //handle chat message
+        ChatMessageData[] messages = cmd.getData().Messages;
+        Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
+        ChatMessage(showCmd);
+        flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth));
+
         // trigger the keyevent to execute the event handler
         CoflSky.Events.onKeyEvent(null);
     }

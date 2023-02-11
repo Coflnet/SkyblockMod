@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import com.mojang.realmsclient.util.Pair;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
@@ -242,6 +243,7 @@ public class EventRegistry {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onItemTooltipEvent(ItemTooltipEvent event) {
         if (!config.extendedtooltips) return;
+        if (descriptionHandler == null) return;
         descriptionHandler.setTooltips(event);
     }
 }

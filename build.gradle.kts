@@ -67,6 +67,7 @@ tasks.withType(Jar::class) {
     manifest.attributes.run {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
+        this["Manifest-Version"] = "1.0"
     }
 }
 
@@ -85,9 +86,6 @@ tasks.shadowJar {
             println("Config: ${it.files}")
         }
     }
-
-    // If you want to include other dependencies and shadow them, you can relocate them in here
-    fun relocate(name: String) = relocate(name, "com.examplemod.deps.$name")
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
