@@ -133,18 +133,6 @@ public class WSCommandHandler {
         CoflSky.Wrapper.SendMessage(new RawCommand("foundMods", gson.toJson(modListData)));
     }
 
-
-    private static void Flip(Command<FlipData> cmd) {
-        //handle chat message
-        ChatMessageData[] messages = cmd.getData().Messages;
-        Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
-        ChatMessage(showCmd);
-        flipHandler.fds.Insert(new de.torui.coflsky.FlipHandler.Flip(cmd.getData().Id, cmd.getData().Worth));
-
-        // trigger the keyevent to execute the event handler
-        CoflSky.Events.onKeyEvent(null);
-    }
-
     private static void PlaySound(String soundName, float pitch) {
         SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
 
