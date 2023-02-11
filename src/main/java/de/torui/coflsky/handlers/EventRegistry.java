@@ -110,23 +110,20 @@ public class EventRegistry {
         ItemStack stack = inventory.getStackInSlot(13);
         if (stack != null) {
             try {
-                String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes")
-                        .getString("uuid");
+                String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getString("uuid");
                 if (uuid.length() == 0) {
                     throw new Exception();
                 }
                 System.out.println("Item has the UUID: " + uuid);
                 return uuid;
             } catch (Exception e) {
-                System.out.println("Clicked item " + stack.getDisplayName() + " has the following meta: "
-                        + stack.serializeNBT());
+                System.out.println("Clicked item " + stack.getDisplayName() + " has the following meta: " + stack.serializeNBT());
             }
         }
         return "";
     }
 
-    public static ItemStack GOLD_NUGGET = new ItemStack(
-            Item.itemRegistry.getObject(new ResourceLocation("minecraft:gold_nugget")));
+    public static ItemStack GOLD_NUGGET = new ItemStack(Item.itemRegistry.getObject(new ResourceLocation("minecraft:gold_nugget")));
 
     public static final Pair<String, Pair<String, LocalDateTime>> EMPTY = Pair.of(null, Pair.of("", LocalDateTime.MIN));
     public static Pair<String, Pair<String, LocalDateTime>> last = EMPTY;
@@ -224,10 +221,8 @@ public class EventRegistry {
         }
 
         if (!config.extendedtooltips) return;
-        if (descriptionHandler != null)
-            descriptionHandler.Close();
-        if (event.gui == null)
-            emptyTooltipData();
+        if (descriptionHandler != null) descriptionHandler.Close();
+        if (event.gui == null) emptyTooltipData();
 
         if (!(event.gui instanceof GuiContainer)) return;
         new Thread(() -> {

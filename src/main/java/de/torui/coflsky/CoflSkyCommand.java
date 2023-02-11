@@ -147,7 +147,7 @@ public class CoflSkyCommand extends CommandBase {
 
                         String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "").split(",§7 sellers ah")[0];
 
-                        if(shouldInvalidate){
+                        if (shouldInvalidate) {
                             WSCommandHandler.flipHandler.fds.InvalidateFlip(flip);
                         }
 

@@ -5,6 +5,7 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.gui.GUIType;
@@ -26,11 +27,10 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = CoflSky.MODID, version = CoflSky.VERSION)
-public class CoflSky
-{
+public class CoflSky {
     public static final String MODID = "CoflSky";
     public static final String VERSION = "1.5.0-Alpha";
-    
+
     public static WSClientWrapper Wrapper;
     public static KeyBinding[] keyBindings;
 
@@ -38,14 +38,14 @@ public class CoflSky
     public static File configFile;
     private File coflDir;
     public static LocalConfig config;
-    
-    public static final String[] webSocketURIPrefix = new String [] {
-        	"wss://sky.coflnet.com/modsocket",
-        	"wss://sky-mod.coflnet.com/modsocket",
-        	"ws://sky.coflnet.com/modsocket",
-        	"ws://sky-mod.coflnet.com/modsocket",
+
+    public static final String[] webSocketURIPrefix = new String[]{
+            "wss://sky.coflnet.com/modsocket",
+            "wss://sky-mod.coflnet.com/modsocket",
+            "ws://sky.coflnet.com/modsocket",
+            "ws://sky-mod.coflnet.com/modsocket",
     };
-    
+
     public static String CommandUri = Config.BaseUrl + "/api/mod/commands";
     private final static APIKeyManager apiKeyManager = new APIKeyManager();
 
@@ -66,12 +66,12 @@ public class CoflSky
             e.printStackTrace();
         }
         if (config == null) {
-            config =  LocalConfig.createDefaultConfig();
+            config = LocalConfig.createDefaultConfig();
         }
 
         try {
             this.apiKeyManager.loadIfExists();
-        }catch (Exception exception){
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
 
@@ -82,46 +82,44 @@ public class CoflSky
     }
 
     @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
-		System.out.println(">>>Started");
-        
+    public void init(FMLInitializationEvent event) {
+        System.out.println(">>>Started");
+
         CoflSky.Wrapper = new WSClientWrapper(webSocketURIPrefix);
-        
-        keyBindings = new KeyBinding[] {
-        		new KeyBinding("key.replay_last.onclick", Keyboard.KEY_NONE, "SkyCofl"),
-        		new KeyBinding("key.start_highest_bid", Keyboard.KEY_NONE, "SkyCofl")
+
+        keyBindings = new KeyBinding[]{
+                new KeyBinding("key.replay_last.onclick", Keyboard.KEY_NONE, "SkyCofl"),
+                new KeyBinding("key.start_highest_bid", Keyboard.KEY_NONE, "SkyCofl")
         };
-        
-        if(event.getSide() == Side.CLIENT) {
-        	ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
-        	ClientCommandHandler.instance.registerCommand(new ColfCommand());
-        	ClientCommandHandler.instance.registerCommand(new FlipperChatCommand());
-        	
-        	for (int i = 0; i < keyBindings.length; ++i) 
-        	{
-        	    ClientRegistry.registerKeyBinding(keyBindings[i]);
-        	}
-        	
-        	
-        }   
+
+        if (event.getSide() == Side.CLIENT) {
+            ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
+            ClientCommandHandler.instance.registerCommand(new ColfCommand());
+            ClientCommandHandler.instance.registerCommand(new FlipperChatCommand());
+
+            for (int i = 0; i < keyBindings.length; ++i) {
+                ClientRegistry.registerKeyBinding(keyBindings[i]);
+            }
+
+
+        }
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);
-        if(config.purchaseOverlay == GUIType.TFM) {
+        if (config.purchaseOverlay == GUIType.TFM) {
             MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
         }
         MinecraftForge.EVENT_BUS.register(new ChatMessageSendHandler());
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            config.saveConfig(configFile , config);
+            config.saveConfig(configFile, config);
             try {
                 apiKeyManager.saveKey();
-            }catch (Exception exception){
+            } catch (Exception exception) {
                 exception.printStackTrace();
             }
         }));
     }
 
-    public static APIKeyManager getAPIKeyManager(){
+    public static APIKeyManager getAPIKeyManager() {
         return apiKeyManager;
     }
 
