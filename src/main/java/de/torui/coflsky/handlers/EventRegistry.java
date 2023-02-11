@@ -66,7 +66,7 @@ public class EventRegistry {
             if (WSCommandHandler.lastOnClickEvent != null) {
                 FlipData f = WSCommandHandler.flipHandler.fds.GetLastFlip();
                 if (f != null) {
-                    WSCommandHandler.Execute("/cofl openAuctionGUI " + f.Id, Minecraft.getMinecraft().thePlayer);
+                    WSCommandHandler.Execute("/cofl openAuctionGUI " + f.Id + " false", Minecraft.getMinecraft().thePlayer);
                 }
             }
 
@@ -77,7 +77,7 @@ public class EventRegistry {
                 FlipData f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 
                 if (f != null) {
-                    WSCommandHandler.Execute("/cofl openAuctionGUI " + f.Id, Minecraft.getMinecraft().thePlayer);
+                    WSCommandHandler.Execute("/cofl openAuctionGUI " + f.Id + " true", Minecraft.getMinecraft().thePlayer);
                     EventRegistry.LastViewAuctionUUID = f.Id;
                     EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
                     LastClick = System.currentTimeMillis();

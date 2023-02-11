@@ -1,9 +1,8 @@
 package de.torui.coflsky;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
+
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
@@ -27,8 +26,6 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.MinecraftForge;
-
-import java.util.ArrayList;
 
 public class CoflSkyCommand extends CommandBase {
 
@@ -138,6 +135,8 @@ public class CoflSkyCommand extends CommandBase {
                         break;
                     case "openauctiongui":
                         FlipData flip = WSCommandHandler.flipHandler.fds.getFlipById(args[1]);
+                        boolean shouldInvalidate = args.length >= 3 && args[2].equals("true");
+
 
                         // Is not a stored flip -> just open the auction
                         if (flip == null) {
@@ -148,7 +147,7 @@ public class CoflSkyCommand extends CommandBase {
 
                         String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "").split(",§7 sellers ah")[0];
 
-                        if(WSCommandHandler.flipHandler.fds.GetHighestFlip().Id.equals(flip.Id)){
+                        if(shouldInvalidate){
                             WSCommandHandler.flipHandler.fds.InvalidateFlip(flip);
                         }
 
@@ -157,6 +156,7 @@ public class CoflSkyCommand extends CommandBase {
                         BinGuiManager.openNewFlipGui(oneLineMessage, flip.Render);
 
                         Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + flip.Id);
+                        break;
                     case "setgui":
                         if (args.length != 2) {
                             sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Available GUIs:"));

@@ -120,7 +120,7 @@ public class WSCommandHandler {
     private static IChatComponent CommandToChatComponent(ChatMessageData wcmd, String fullMessage) {
         if (wcmd.OnClick != null) {
             if (wcmd.Text != null && wcmd.OnClick.startsWith("/viewauction")) {
-                lastOnClickEvent = "/cofl openAuctionGUI " + wcmd.OnClick.split(" ")[1];
+                lastOnClickEvent = "/cofl openAuctionGUI " + wcmd.OnClick.split(" ")[1] + " false";
             } else {
                 lastOnClickEvent = "/cofl callback " + wcmd.OnClick;
             }

@@ -48,6 +48,12 @@ public class BinGuiCurrent extends GuiChest {
     private boolean isRendered = false;
     private boolean hasInitialMouseSet = false;
 
+    // set if the auction was already bought
+    private String buyer = null;
+
+    private static final Pattern CAN_BUY_IN_MATCHER = Pattern.compile("Can buy in: (.*)");
+    private static final Pattern BUYER_MATCHER = Pattern.compile("Buyer: (.*)");
+
     private GuiChest chestGui;
 
     public BinGuiCurrent(IInventory playerInventory, IInventory chestInventory, String message, String extraData) {
@@ -128,9 +134,14 @@ public class BinGuiCurrent extends GuiChest {
         ItemStack item = inventory.getStackInSlot(13);
         if (item == null) return;
 
-        itemStack = item;
-        lore = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
+        String[] tooltip = item.getTooltip(mc.thePlayer, false).toArray(new String[0]);
 
+        itemStack = item;
+
+        if (guiName.equalsIgnoreCase("BIN Auction View")) {
+            lore = tooltip;
+            buyer = isAlreadyBought(tooltip);
+        }
         if (guiName.equalsIgnoreCase("BIN Auction View") && buyState == BuyState.PURCHASE) {
             if (waitingForBed(chest)) {
                 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §cBed is not purchasable yet."));
@@ -191,9 +202,7 @@ public class BinGuiCurrent extends GuiChest {
 
         //draw the lore, every line that is out of the lore background will not be drawn
         int y = 10 + 5 + 14 + 5 + 2;
-        for (
-                int i = 0;
-                i < lore.length; i++) {
+        for (int i = 0; i < lore.length; i++) {
             if (y + pixelsScrolled > 10 + 5 + 14 + 5 && y + pixelsScrolled < 10 + 5 + 14 + 5 + (height - 100)) {
                 RenderUtils.drawString(lore[i], screenWidth / 2 - width / 2 + 5 + 20 + 5 + 2, y + pixelsScrolled, ColorPallet.WHITE.getColor());
             }
@@ -205,8 +214,7 @@ public class BinGuiCurrent extends GuiChest {
         //cancel button
         RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, ColorPallet.ERROR.getColor());
         RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (
-                isMouseOverCancel(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
+        if (isMouseOverCancel(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
             RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 - 25, 60, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 100));
             RenderUtils.drawString("Cancel", screenWidth / 2 - width / 2 + 5 + 5, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
             if (isClicked()) {
@@ -219,14 +227,19 @@ public class BinGuiCurrent extends GuiChest {
 
 
         //buy button
-        RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
-        RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-        if (!
-
-                isMouseOverCancel(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
-            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 50));
+        if (buyer == null) {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.SUCCESS.getColor());
             RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
-            if (isClicked()) {
+        } else {
+            RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, ColorPallet.WARNING.getColor());
+            RenderUtils.drawString(getAlreadyBoughtText(buyer), screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
+        }
+        if (!isMouseOverCancel(mouseX, mouseY, screenWidth, screenHeight, width, height)) {
+            if (buyer == null) {
+                RenderUtils.drawRoundedRect(screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5, (width - 10) / 2 + 20, 60, 5, RenderUtils.setAlpha(ColorPallet.WHITE.getColor(), 50));
+                RenderUtils.drawString(buyText, screenWidth / 2 - width / 2 + 5 + (width - 10) / 2 + 5 - 20, 10 + 5 + 14 + 5 + (height - 100) + 5 + 5, ColorPallet.WHITE.getColor(), 40);
+            }
+            if (isClicked() && buyer == null) {
                 if (buyState == BuyState.INIT) {
                     //play a sound
                     mc.thePlayer.playSound("random.click", 1, 1);
@@ -240,6 +253,10 @@ public class BinGuiCurrent extends GuiChest {
             }
         }
 
+    }
+
+    public String getAlreadyBoughtText(String buyer) {
+        return "§5§o§7Bought by §b" + buyer;
     }
 
     @SubscribeEvent
@@ -343,7 +360,7 @@ public class BinGuiCurrent extends GuiChest {
         }
         List<String> itemTooltip = itemStack.getTooltip(Minecraft.getMinecraft().thePlayer, false);
         for (String data : itemTooltip) {
-            Matcher matcher = Pattern.compile("Can buy in: (.*)").matcher(EnumChatFormatting.getTextWithoutFormattingCodes(data));
+            Matcher matcher = CAN_BUY_IN_MATCHER.matcher(EnumChatFormatting.getTextWithoutFormattingCodes(data));
             if (!matcher.find()) {
                 continue;
             }
@@ -353,6 +370,17 @@ public class BinGuiCurrent extends GuiChest {
             }
         }
         return false;
+    }
+
+    public String isAlreadyBought(String[] tooltip) {
+        for (String data : tooltip) {
+            Matcher matcher = BUYER_MATCHER.matcher(EnumChatFormatting.getTextWithoutFormattingCodes(data));
+            if (!matcher.find()) {
+                continue;
+            }
+            return data.replaceAll("§5§o§7Seller: ", "");
+        }
+        return null;
     }
 
     private static boolean isMouseOverCancel(int mouseX, int mouseY, int screenWidth, int screenHeight, int width, int height) {
