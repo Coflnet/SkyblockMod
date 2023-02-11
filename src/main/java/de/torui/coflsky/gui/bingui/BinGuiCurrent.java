@@ -378,7 +378,7 @@ public class BinGuiCurrent extends GuiChest {
             if (!matcher.find()) {
                 continue;
             }
-            return data.replaceAll("§5§o§7Seller: ", "");
+            return data.replaceAll("§5§o§7Buyer: ", "");
         }
         return null;
     }
