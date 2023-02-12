@@ -9,6 +9,13 @@ import com.google.gson.annotations.SerializedName;
 public enum CommandType {
 	@SerializedName("writeToChat")
 	WriteToChat,
+
+	@SerializedName("settings")
+	Settings,
+
+	@SerializedName("tier")
+	Tier,
+
 	@SerializedName("set")
 	set,
 

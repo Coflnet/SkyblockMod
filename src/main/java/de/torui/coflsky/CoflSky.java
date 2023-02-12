@@ -9,16 +9,20 @@ import java.nio.file.Paths;
 
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
+import de.torui.coflsky.gui.CoflGui;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.listeners.ChatListener;
 import de.torui.coflsky.proxy.APIKeyManager;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import org.lwjgl.input.Keyboard;
 
 import de.torui.coflsky.network.WSClientWrapper;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -85,7 +89,6 @@ public class CoflSky
     public void init(FMLInitializationEvent event) throws URISyntaxException
     {
 		System.out.println(">>>Started");
-        
         CoflSky.Wrapper = new WSClientWrapper(webSocketURIPrefix);
         
         keyBindings = new KeyBinding[] {
@@ -102,8 +105,6 @@ public class CoflSky
         	{
         	    ClientRegistry.registerKeyBinding(keyBindings[i]);
         	}
-        	
-        	
         }   
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);

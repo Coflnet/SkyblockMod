@@ -34,6 +34,11 @@ sourceSets.main {
 repositories {
     mavenCentral()
     maven("https://repo.spongepowered.org/maven/")
+    mavenLocal()
+    mavenCentral()
+    maven("https://repo.sk1er.club/repository/maven-public/")
+    maven("https://repo.sk1er.club/repository/maven-releases/")
+    maven("https://jitpack.io")
     // If you don't want to log in with your real minecraft account, remove this line
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
 }
@@ -47,13 +52,22 @@ dependencies {
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
+    // Add essential dependency so we can access elementa (Gui creator)
+    shadowImpl("gg.essential:loader-launchwrapper:1.1.3")
+    implementation("gg.essential:essential-1.8.9-forge:11640+g7f637cfee") {
+        exclude(module = "asm")
+        exclude(module = "asm-commons")
+        exclude(module = "asm-tree")
+        exclude(module = "gson")
+    }
+
     annotationProcessor("org.spongepowered:mixin:0.8.4-SNAPSHOT")
 
     shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
 
     // If you don't want to log in with your real minecraft account, remove this line
     modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.0")
-
+    
 }
 
 // Tasks:
