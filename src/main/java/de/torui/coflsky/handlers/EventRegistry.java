@@ -60,7 +60,7 @@ public class EventRegistry {
 
 	@SubscribeEvent
 	public void onWorldChange(WorldEvent.Load event) {
-		if(EventHandler.isInSkyblock) {
+		if(CoflGui.settings==null) {
 			CoflGui.getSettings();
 		}
 	}
