@@ -101,7 +101,6 @@ public class CoflGui extends WindowScreen {
             .enableEffect(new ScissorEffect());
         // Title text
         UIComponent titleText = new UIText(ChatFormatting.BLUE+"C"+ChatFormatting.GOLD+"oflnet")
-            // .setColor(new Color(0x00FFFF))
             .setChildOf(titleArea)
             .setX(new CenterConstraint())
             .setY(new CenterConstraint())
@@ -109,7 +108,6 @@ public class CoflGui extends WindowScreen {
             .setTextScale(new PixelConstraint((float) (doAnimation?1*fontScale:4*fontScale)));
         
         new UIText("v"+CoflSky.VERSION)
-            // .setColor(Color.white)
             .setColor(new Color(187,187,187))
             .setChildOf(titleArea)
             .setX(new RelativeConstraint(0.6f))
@@ -208,7 +206,7 @@ public class CoflGui extends WindowScreen {
             });
             Index++;
         }
-        UIComponent accStatusProfileBorder = new UIRoundedRectangle(5f).setColor(new Color(0xffc34d))
+        UIComponent accStatusProfileBorder = new UIRoundedRectangle(5f).setColor(new Color(getTierColor(tier.get("tier").getAsString())))
             .setChildOf(sidebarArea)
             .setX(new PixelConstraint((0.15f*0.25f*guiWidth)-1))
             .setY(new PixelConstraint((0.90f*guiHeight)-1))
@@ -231,8 +229,8 @@ public class CoflGui extends WindowScreen {
             .setTextScale(new PixelConstraint((float) ((float) fontScale*1.2)))
             .setX(new CenterConstraint())
             .setY(new RelativeConstraint(0.6f));
+            
         accStatusProfile.onMouseClickConsumer((event)->{
-            System.out.println("AAAAAAAAAAAAAAAAAAAAA");
             try {
                 Desktop.getDesktop().browse(new URI("https://sky.coflnet.com/premium"));
             } catch (IOException e) {
@@ -304,6 +302,27 @@ public class CoflGui extends WindowScreen {
             e.printStackTrace();
         }
         return output;
+    }
+
+    public int getTierColor(String tier) {
+        int color = 0x808080;
+        switch (tier) {
+            case "NONE":
+                color = 0x808080;
+                break;
+            case "STARTER_PREMIUM":
+                color = 0xFFFFFF;
+                break;
+            case "PREMIUM":
+                color = 0x32de84;
+                break;
+            case "PREMIUM_PLUS":
+                color = 0xffaa00;
+                break;
+            default:
+                break;
+        }
+        return color;
     }
 
     public String getAccountType(String tier) {
