@@ -90,7 +90,6 @@ val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
     archiveClassifier.set("all")
     from(tasks.shadowJar)
     input.set(tasks.shadowJar.get().archiveFile)
-    destinationDir = file("C:/Users/jedij/AppData/Roaming/.minecraft/mods")
 }
 
 tasks.shadowJar {

@@ -108,8 +108,6 @@ public class CoflGui extends WindowScreen {
             .setY(new RelativeConstraint(0.7f))
             .enableEffect(new ScissorEffect())
             .setTextScale(new PixelConstraint((float) fontScale));
-
-        new Inspector(getWindow()).setChildOf(getWindow());
         
         UIComponent searchBox = new UIBlock()
             .setChildOf(titleArea)
