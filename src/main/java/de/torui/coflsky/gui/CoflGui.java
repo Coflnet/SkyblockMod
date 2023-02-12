@@ -5,14 +5,11 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -20,9 +17,8 @@ import java.util.TreeMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.ibm.icu.text.SimpleDateFormat;
 import com.mojang.realmsclient.gui.ChatFormatting;
-import gg.essential.vigilance.utils.ResourceImageFactory;
+
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.CoflSkyCommand;
 import gg.essential.api.utils.GuiUtil;
@@ -43,15 +39,13 @@ import gg.essential.elementa.constraints.animation.Animations;
 import gg.essential.elementa.effects.OutlineEffect;
 import gg.essential.elementa.effects.RecursiveFadeEffect;
 import gg.essential.elementa.effects.ScissorEffect;
-import gg.essential.vigilance.data.Property;
-import gg.essential.vigilance.data.PropertyType;
 import gg.essential.vigilance.gui.common.input.UITextInput;
+import gg.essential.vigilance.gui.common.shadow.ShadowIcon;
 import gg.essential.vigilance.gui.settings.SwitchComponent;
 import gg.essential.vigilance.gui.settings.TextComponent;
+import gg.essential.vigilance.utils.ResourceImageFactory;
 import kotlin.Unit;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ChatComponentText;
-import gg.essential.vigilance.gui.common.shadow.ShadowIcon;
 
 public class CoflGui extends WindowScreen {
     private static final Minecraft mc = Minecraft.getMinecraft();
@@ -206,19 +200,22 @@ public class CoflGui extends WindowScreen {
             });
             Index++;
         }
+        Double textwidth = mc.fontRendererObj.getStringWidth("Time Left: "+ChatFormatting.YELLOW+timeTillDate(tier.get("expiresAt").getAsString()))*1.1;
+        float sidebarWidth = sidebarArea.getWidth();
+        float centeredX = (float) ((sidebarWidth-textwidth)/2);
         UIComponent accStatusProfileBorder = new UIRoundedRectangle(5f).setColor(new Color(getTierColor(tier.get("tier").getAsString())))
             .setChildOf(sidebarArea)
-            .setX(new PixelConstraint((0.15f*0.25f*guiWidth)-1))
+            .setX(new PixelConstraint(centeredX-1))
             .setY(new PixelConstraint((0.90f*guiHeight)-1))
             .setHeight(new PixelConstraint((0.85f*0.10f*guiHeight)+2))
-            .setWidth(new PixelConstraint((0.70f*0.25f*guiWidth)+2));
+            .setWidth(new PixelConstraint((textwidth.floatValue())+2));
         UIComponent accStatusProfile = new UIRoundedRectangle(5f)
             .setChildOf(sidebarArea)
             .setColor(new Color(0x303030))
-            .setX(new PixelConstraint(0.15f*0.25f*guiWidth))
+            .setX(new PixelConstraint(centeredX))
             .setY(new PixelConstraint(0.90f*guiHeight))
             .setHeight(new PixelConstraint(0.85f*0.10f*guiHeight))
-            .setWidth(new PixelConstraint(0.70f*0.25f*guiWidth));
+            .setWidth(new PixelConstraint(textwidth.floatValue()));
         new UIText("Tier: "+getAccountType(tier.get("tier").getAsString()))
             .setChildOf(accStatusProfile)
             .setTextScale(new PixelConstraint((float) ((float) fontScale*1.2)))
@@ -280,10 +277,10 @@ public class CoflGui extends WindowScreen {
         if(tier.get("tier").getAsString().equals("NONE")) {
             return "Unlimited";
         }
-        System.out.println(endDate+" to "+new Date().toString());
-        TemporalAccessor ta = DateTimeFormatter.ISO_INSTANT.parse(endDate);
-        Instant i = Instant.from(ta);
+        endDate+="Z";
         try {
+            TemporalAccessor ta = DateTimeFormatter.ISO_INSTANT.parse(endDate);
+            Instant i = Instant.from(ta);
             Date d1 = new Date();
             Date d2 = Date.from(i);
             long difference_In_Time = d2.getTime() - d1.getTime();
@@ -297,7 +294,7 @@ public class CoflGui extends WindowScreen {
             if(difference_In_Days>0) output += difference_In_Days+"d ";
             if(difference_In_Hours>0) output += difference_In_Hours+"h ";
             if(difference_In_Minutes>0) output += difference_In_Minutes+"m ";
-            if(difference_In_Seconds>0) output += difference_In_Seconds+"";
+            if(difference_In_Seconds>0) output += difference_In_Seconds+"s";
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -372,6 +369,7 @@ public class CoflGui extends WindowScreen {
             }
             List<String> drawnSettings = new ArrayList<>();
             for(JsonObject setting:categories.get(categoryName)) {
+                if(setting==null) continue;
                 String name = setting.get("name").getAsString();
                 String description = setting.get("info").getAsString();
                 if(drawnSettings.contains(name)) continue;
@@ -413,10 +411,15 @@ public class CoflGui extends WindowScreen {
                 }
 
                 if(type.equals("String")) {
-                    
-                    UIComponent comp = new TextComponent((setting.get("value").getAsString()).replaceAll("\\\"",""), "", false, false).setChildOf(exampleFeature);
+                    if(setting.get("value")==null) continue;
+                    String formattedValue = "";
+                    try {formattedValue = setting.get("value").getAsString();} catch (Exception e) {continue;}
+                    formattedValue = formattedValue.replaceAll("\\\"","");
+                    formattedValue = formattedValue.replaceAll("§", "&");
+                    UIComponent comp = new TextComponent(formattedValue, "", false, false).setChildOf(exampleFeature);
                     ((TextComponent) comp).onValueChange((value)->{
                         if(!value.toString().equals(setting.get("value").toString()) && value.toString().length()>0) {
+                            value = ((String) value).replaceAll("&", "§");
                             updateSetting(setting.get("key").getAsString(),value);
                         }
                         return Unit.INSTANCE;
@@ -426,9 +429,6 @@ public class CoflGui extends WindowScreen {
                 if(type.equals("Int64") || type.equals("Double") || type.equals("Int32")) {
                     UIComponent comp = new TextComponent(setting.get("value")+"", "", false, false).setChildOf(exampleFeature);
                     ((TextComponent) comp).onValueChange((value)->{
-                        // if(value.toString().replaceAll("[^0-9m.btk]","").length()>0) {
-                        //     // ((TextComponent) comp).changeValue(value, false);
-                        // }
                         value=value.toString().replaceAll("[^0-9m.btk]","");
                         if(!value.toString().equals(setting.get("value").toString()) && value.toString().length()>0) {
                             System.out.println("DIFFERENCE '"+value+"' '"+setting.get("value")+"'");
