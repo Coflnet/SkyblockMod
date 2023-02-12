@@ -316,6 +316,9 @@ public class CoflGui extends WindowScreen {
             case "PREMIUM_PLUS":
                 color = 0xffaa00;
                 break;
+            case "SUPER_PREMIUM":
+                color = 0xFF5555;
+                break;
             default:
                 break;
         }
@@ -336,6 +339,9 @@ public class CoflGui extends WindowScreen {
                 break;
             case "PREMIUM_PLUS":
                 status = ChatFormatting.GOLD+"Premium+";
+                break;
+            case "SUPER_PREMIUM":
+                status = ChatFormatting.RED+"Pre API";
                 break;
             default:
                 break;
