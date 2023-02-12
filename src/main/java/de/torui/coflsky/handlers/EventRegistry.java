@@ -16,6 +16,7 @@ import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.AuctionData;
 import de.torui.coflsky.configuration.Configuration;
+import de.torui.coflsky.gui.CoflGui;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -31,6 +32,7 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
@@ -53,6 +55,13 @@ public class EventRegistry {
 			System.out.println("Disconnected from server");
 			CoflSky.Wrapper.stop();
 			System.out.println("CoflSky stopped");
+		}
+	}
+
+	@SubscribeEvent
+	public void onWorldChange(WorldEvent.Load event) {
+		if(EventHandler.isInSkyblock) {
+			CoflGui.getSettings();
 		}
 	}
 	
@@ -236,7 +245,6 @@ public class EventRegistry {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onItemTooltipEvent(ItemTooltipEvent event) {
 		if (!config.extendedtooltips) return;
-		if(descriptionHandler == null) return;
 		descriptionHandler.setTooltips(event);
 	}
 }

@@ -1,32 +1,10 @@
 package de.torui.coflsky;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Base64;
+import java.util.ArrayList;
 import java.util.List;
 
-import de.torui.coflsky.commands.Command;
-import de.torui.coflsky.commands.CommandType;
-import de.torui.coflsky.commands.JsonStringCommand;
-import de.torui.coflsky.commands.RawCommand;
-import de.torui.coflsky.minecraft_integration.CoflSessionManager;
-import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
-import de.torui.coflsky.network.QueryServerCommands;
-import de.torui.coflsky.network.WSClient;
-import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
-import net.minecraft.client.Minecraft;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.event.ClickEvent;
-import net.minecraft.event.ClickEvent.Action;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IChatComponent;
-import java.util.ArrayList;
 
 public class FlipperChatCommand extends CoflSkyCommand {
 

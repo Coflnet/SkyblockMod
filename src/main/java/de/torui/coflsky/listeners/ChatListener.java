@@ -1,8 +1,10 @@
 package de.torui.coflsky.listeners;
 
 import de.torui.coflsky.CoflSky;
+import de.torui.coflsky.CoflSkyCommand;
 import de.torui.coflsky.utils.ChatUtils;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -17,6 +19,4 @@ public class ChatListener {
             CoflSky.getAPIKeyManager().getApiInfo().key = unformatted.substring("Your new API key is ".length()).substring(0, 36);
         }
     }
-
-
 }

@@ -1,6 +1,8 @@
 package de.torui.coflsky;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import de.torui.coflsky.commands.Command;
@@ -9,6 +11,7 @@ import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.RawCommand;
 import de.torui.coflsky.commands.models.*;
 import de.torui.coflsky.configuration.ConfigurationManager;
+import de.torui.coflsky.gui.CoflGui;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.proxy.ProxyManager;
 import de.torui.coflsky.utils.FileUtils;
@@ -43,6 +46,14 @@ public class WSCommandHandler {
 		System.out.println("Handling Command=" + cmd.toString());
 
 		switch (cmd.getType()) {
+		case Settings:
+			JsonArray settingJson = cmd.GetAs(new TypeToken<JsonArray>() {}).getData();
+			CoflGui.settings = settingJson;
+			break;
+		case Tier:
+			JsonObject tier = cmd.GetAs(new TypeToken<JsonObject>() {}).getData();
+			CoflGui.tier = tier;
+			break;
 		case WriteToChat:
 			WriteToChat(cmd.GetAs(new TypeToken<ChatMessageData>() {}));
 			break;

@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 public class LocalConfig {
     public boolean autoStart;
     public boolean extendedtooltips;
+    
     public LocalConfig(boolean autoStart,boolean extendedtooltips) {
         this.autoStart = autoStart;
         this.extendedtooltips = extendedtooltips;

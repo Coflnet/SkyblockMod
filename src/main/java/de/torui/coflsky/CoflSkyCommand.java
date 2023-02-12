@@ -9,10 +9,12 @@ import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.RawCommand;
+import de.torui.coflsky.gui.CoflGui;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
 import de.torui.coflsky.network.QueryServerCommands;
 import de.torui.coflsky.network.WSClient;
+import gg.essential.api.utils.GuiUtil;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -138,10 +140,9 @@ public class CoflSkyCommand extends CommandBase {
 					SendCommandToServer(args, sender);
 					return;
 				}
-			} 
-			
-			else {
-				ListHelp(sender);
+			} else {
+				GuiUtil.open(new CoflGui(true));
+				// ListHelp(sender);
 			}
 		}).start();		
 	}
@@ -179,7 +180,7 @@ public class CoflSkyCommand extends CommandBase {
 		return status;
 	}
 	
-	public void SendCommandToServer(String[] args, ICommandSender sender) {
+	public static void SendCommandToServer(String[] args, ICommandSender sender) {
 		String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 		
 		//JsonStringCommand sc = new JsonStringCommand(args[0], WSClient.gson.toJson(command));
@@ -192,7 +193,7 @@ public class CoflSkyCommand extends CommandBase {
 	}
 
 	private static synchronized void SendAfterStart(ICommandSender sender, RawCommand rc) {
-		sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+		if(sender!=null) sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
 		//CoflSky.Wrapper.stop();
 		CoflSky.Wrapper.startConnection();
 		CoflSky.Wrapper.SendMessage(rc);
