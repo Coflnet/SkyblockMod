@@ -1,23 +1,18 @@
-package de.torui.coflsky;
+package de.torui.coflsky.minecraft_integration;
 
+import de.torui.coflsky.CoflSky;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import de.torui.coflsky.commands.models.TimerData;
-import org.lwjgl.input.Keyboard;
 
 import java.util.Locale;
 
 public class CountdownTimer {
-    private static Minecraft mc = Minecraft.getMinecraft();
-    private static FontRenderer fr = mc.fontRendererObj;
+    private static final Minecraft mc = Minecraft.getMinecraft();
+    private static final FontRenderer fr = mc.fontRendererObj;
 
     private static long currentEndTime;
     private static int currentWidth;
@@ -25,9 +20,6 @@ public class CountdownTimer {
     private static double currentScale;
     private static String currentPrefix;
     private static int currentPrecision;
-
-    public CountdownTimer() {
-    }
 
     public static void onRenderTick(TickEvent.RenderTickEvent event) {
             if (currentEndTime - System.currentTimeMillis() > 0)
@@ -53,7 +45,7 @@ public class CountdownTimer {
      * @param maxPrecision     length of the seconds in the timer
      */
     public static void startCountdown(double seconds, int widthPercentage, int heightPercentage, double fontScale, String prefix, int maxPrecision) {
-		System.out.println("###Starting countdown " + seconds);
+        CoflSky.logger.debug("###Starting countdown " + seconds);
         currentEndTime = (long) (System.currentTimeMillis() + (seconds * 1000));
         currentWidth = widthPercentage;
         currentHeight = heightPercentage;

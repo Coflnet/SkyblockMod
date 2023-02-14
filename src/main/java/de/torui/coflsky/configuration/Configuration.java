@@ -6,9 +6,6 @@ import de.torui.coflsky.handlers.EventRegistry;
 import java.util.regex.Pattern;
 
 public class Configuration {
-	public Configuration() {
-
-	}
 
 	private static Configuration instance;
 
@@ -21,8 +18,8 @@ public class Configuration {
 	public static void setInstance(Configuration config) {
 		instance = config;
 		CoflSky.config.autoStart = instance.autoStart;
-		CoflSky.config.extendedtooltips = instance.extendDescriptions;
-		EventRegistry.chatpattern = Pattern.compile(instance.chatRegex, Pattern.CASE_INSENSITIVE);;
+		CoflSky.config.extendedTooltips = instance.extendDescriptions;
+		EventRegistry.chatPattern = Pattern.compile(instance.chatRegex, Pattern.CASE_INSENSITIVE);
 	}
 
 	public String chatRegex;
@@ -40,6 +37,6 @@ public class Configuration {
 	public boolean extendDescriptions;
 
 	@Description("Chat input starting with one of these prefixes is sent to the server")
-	public String[] CommandPrefixes;
+	public String[] commandPrefixes;
 
 }

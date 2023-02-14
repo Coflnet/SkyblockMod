@@ -3,6 +3,7 @@ package de.torui.coflsky.network;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import com.google.gson.Gson;
@@ -11,10 +12,11 @@ import com.google.gson.GsonBuilder;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
+import org.apache.commons.io.IOUtils;
 
 public class QueryServerCommands {
 	
-	private static Gson gson = new GsonBuilder().create();
+	private static final Gson gson = new GsonBuilder().create();
 	
 	public static String QueryCommands() {
 		
@@ -22,14 +24,14 @@ public class QueryServerCommands {
 		
 		if(queryResult != null) {
 			CommandInfo[] commands = gson.fromJson(queryResult, CommandInfo[].class);
-			
-			System.out.println(">>> "+Arrays.toString(commands));
+
+			CoflSky.logger.debug(">>> "+Arrays.toString(commands));
 			
 			StringBuilder sb = new StringBuilder();
 			
 			if(commands.length>0) {
 				for(CommandInfo cm : commands) {
-					sb.append(cm + "\n");
+					sb.append(cm).append("\n");
 				}
 			}
 			return sb.toString().trim();
@@ -41,11 +43,10 @@ public class QueryServerCommands {
 	
 	private static class CommandInfo {
 		
-		public String subCommand;
-		public String description;
+		public final String subCommand;
+		public final String description;
 		
-		public CommandInfo() {}
-		
+
 		public CommandInfo(String subCommand, String description) {
 			super();
 			this.subCommand = subCommand;
@@ -63,7 +64,6 @@ public class QueryServerCommands {
 	private static String GetRequest(String uri) {
 		
 		try {
-			System.out.println("Get request");
 			URL url = new URL(uri);
 	    	HttpURLConnection con;
 			con = (HttpURLConnection) url.openConnection();
@@ -72,7 +72,6 @@ public class QueryServerCommands {
 			//con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 			con.setRequestProperty("Accept", "application/json");
 			con.setRequestProperty("User-Agent", "CoflMod");
-			//con.setDoInput(true);
 			con.setDoInput(true);
 
 			// ...
@@ -82,21 +81,18 @@ public class QueryServerCommands {
 			os.write(bytes);
 			os.close();
 			*/
-			System.out.println("InputStream");
+			CoflSky.logger.debug("InputStream");
 			 InputStream in = new BufferedInputStream(con.getInputStream());
 			 ByteArrayOutputStream result = new ByteArrayOutputStream();
-			 byte[] buffer = new byte[1024];
-			 for (int length; (length = in.read(buffer)) != -1; ) {
-			     result.write(buffer, 0, length);
-			 }
+			 IOUtils.copy(in,result);
+			 in.close();
 			 // StandardCharsets.UTF_8.name() > JDK 7
 			 String resString =  result.toString("UTF-8");
-			 
-			 System.out.println("Result= " + resString);
+
+			 CoflSky.logger.debug("Result= " + resString);
 			 return resString;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			CoflSky.logger.error("Error getting request! "+e);
 		}
 		
 		return null;
@@ -112,30 +108,26 @@ public class QueryServerCommands {
 			con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 			con.setRequestProperty("Accept", "application/json");
 			con.setRequestProperty("User-Agent", "CoflMod");
-			con.setRequestProperty("conId", CoflSessionManager.GetCoflSession(username).SessionUUID);
+			con.setRequestProperty("conId", CoflSessionManager.GetCoflSession(username).sessionUUID);
 			con.setRequestProperty("uuid",username);
 			con.setDoInput(true);
 			con.setDoOutput(true);
 			// ...
 
 			OutputStream os = con.getOutputStream();
-			byte[] bytes = data.getBytes("UTF-8");
+			byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
 			os.write(bytes);
 			os.close();
 
 			InputStream in = new BufferedInputStream(con.getInputStream());
-			ByteArrayOutputStream result = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024];
-			for (int length; (length = in.read(buffer)) != -1; ) {
-				result.write(buffer, 0, length);
-			}
-			// StandardCharsets.UTF_8.name() > JDK 7
-			String resString =  result.toString("UTF-8");
 
-			return resString;
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+			IOUtils.copy(in, result);
+			in.close();
+			// StandardCharsets.UTF_8.name() > JDK 7
+			return result.toString("UTF-8");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			CoflSky.logger.error("Error POSTing request! "+e);
 		}
 
 		return null;

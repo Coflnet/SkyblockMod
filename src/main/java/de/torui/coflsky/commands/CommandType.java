@@ -8,60 +8,59 @@ import com.google.gson.annotations.SerializedName;
 
 public enum CommandType {
 	@SerializedName("writeToChat")
-	WriteToChat,
+	WRITE_TO_CHAT,
 	@SerializedName("set")
-	set,
+	SET,
 
 	@SerializedName("execute")
-	Execute,
+	EXECUTE,
 
 	@SerializedName("tokenLogin")
-	TokenLogin,
+	TOKEN_LOGIN,
 
 	@SerializedName("clicked")
-	Clicked, 
+	CLICKED,
 	
 	@SerializedName("playSound")
-	PlaySound, 
+	PLAY_SOUND,
 	
 	@SerializedName("chatMessage")
-	ChatMessage,
+	CHAT_MESSAGE,
 
 	@SerializedName("purchaseStart")
-	PurchaseStart, 
+	PURCHASE_START,
 	
 	@SerializedName("purchaseConfirm")
-	PurchaseConfirm,
+	PURCHASE_CONFIRM,
 	
 	@SerializedName("reset")
-	Reset,
+	RESET,
 	@SerializedName("flip")
-	Flip,
+	FLIP,
 	@SerializedName("privacySettings")
-	PrivacySettings,
+	PRIVACY_SETTINGS,
 	@SerializedName("countdown")
-	Countdown,
+	COUNTDOWN,
 	@SerializedName("updatePurse")
-	updatePurse,
+	UPDATE_PURSE,
 	@SerializedName("updateBits")
-	updateBits,
+	UPDATE_BITS,
 	@SerializedName("updateServer")
-	updateServer,
+	UPDATE_SERVER,
 	@SerializedName("updateLocation")
-	updateLocation,
+	UPDATE_LOCATION,
 	@SerializedName("chatBatch")
-	chatBatch,
+	CHAT_BATCH,
 	@SerializedName("uploadTab")
-	uploadTab,
+	UPLOAD_TAB,
 	@SerializedName("getMods")
-	GetMods,
+	GET_MODS,
 	@SerializedName("proxy")
-	ProxyRequest;
+	PROXY_REQUEST;
 
 
-	public static Map<CommandType,String> data;
+	public static final Map<CommandType,String> data = new HashMap<>();
 	static {
-		data = new HashMap<>();
 		for(CommandType ct : CommandType.values()) {
 			try {
 				Field f = CommandType.class.getField(ct.name());
@@ -80,7 +79,7 @@ public enum CommandType {
 		}
 	}
 	
-	public String ToJson() {
+	public String toJson() {
 		return data.get(this);
 	}	
 }

@@ -4,22 +4,18 @@ import com.google.gson.annotations.SerializedName;
 
 public class ChatMessageData {
 	@SerializedName("text")
-	public String Text;
+	public final String text;
 	@SerializedName("onClick")
-	public String OnClick;
+	public final String onClick;
 	
 	@SerializedName("hover")
-	public String Hover;
-	
-	public ChatMessageData() {
-
-	}
+	public final String hover;
 
 	public ChatMessageData(String text, String onClick, String hover) {
 		super();
-		Text = text;
-		OnClick = onClick;
-		Hover = hover;
+		this.text = text;
+		this.onClick = onClick;
+		this.hover = hover;
 	}	
 	
 }

@@ -11,11 +11,6 @@ public class JsonStringCommand extends Command<String> {
 		this.setType(WSClient.gson.fromJson(type, CommandType.class));
 		this.setData(data);
 	}
-	
-	public JsonStringCommand() {
-		super();
-
-	}
 
 	public JsonStringCommand(CommandType type, String data) {
 		super(type, data);
@@ -23,8 +18,6 @@ public class JsonStringCommand extends Command<String> {
 
 	public <T> Command<T>  GetAs(TypeToken<T> type){
 		T t = new GsonBuilder().create().fromJson(this.getData(),type.getType());
-		Command<?> cmd = new Command<Object>(this.getType(), t);
-		
-		return (Command<T>) cmd;
+		return new Command<>(this.getType(), t);
 	}
 }

@@ -2,14 +2,14 @@
 {
   "modid": "CoflSky",
   "name": "CoflSky",
-  "description": "Example placeholder mod.",
+  "description": "A frontend mod for Coflnet!",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
+  "url": "https://sky.coflnet.com/mod",
   "updateUrl": "",
   "authorList": ["Torui"],
   "credits": "Coflnet for comissioning this mod.",
-  "logoFile": "",
+  "logoFile": "/logo.png",
   "screenshots": [],
   "dependencies": []
 }

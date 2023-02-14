@@ -2,15 +2,12 @@ package de.torui.coflsky.network;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
 
 import com.neovisionaries.ws.client.WebSocketException;
 
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.commands.Command;
-import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.RawCommand;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import net.minecraft.client.Minecraft;
@@ -27,7 +24,7 @@ public class WSClientWrapper {
    // public Thread thread;
     public boolean isRunning;
     
-    private String[] uris;
+    private final String[] uris;
 
     
     public WSClientWrapper(String[] uris) {
@@ -36,19 +33,18 @@ public class WSClientWrapper {
     
     public void restartWebsocketConnection() {
     	socket.stop();
-    	
-    	System.out.println("Sleeping...");
+
+		CoflSky.logger.debug("Sleeping...");
     	Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Lost connection to Coflnet, trying to reestablish the connection in 2 Seconds..."));
     	
     	socket = new WSClient(socket.uri);
     	isRunning = false;   
-		while(isRunning == false) {
+		while(!isRunning) {
     		start();
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				CoflSky.logger.error("Interrupted WS Thread! "+e);
 			}
 		}
 		socket.shouldRun = true;
@@ -61,8 +57,8 @@ public class WSClientWrapper {
     		return false;
     	
     	for(String s : uris) {
-    		
-    		System.out.println("Trying connection with uri=" + s);
+
+			CoflSky.logger.debug("Trying connection with uri=" + s);
     		
     		if(initializeNewSocket(s)) {
     			return true;
@@ -99,7 +95,7 @@ public class WSClientWrapper {
     	
     	try {
 			CoflSessionManager.UpdateCoflSessions();
-			String coflSessionID = CoflSessionManager.GetCoflSession(username).SessionUUID;
+			String coflSessionID = CoflSessionManager.GetCoflSession(username).sessionUUID;
 			
 			uri += "&SId=" + coflSessionID;	
 
@@ -128,15 +124,8 @@ public class WSClientWrapper {
 				isRunning = true;
 
 				return true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (WebSocketException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (IOException | WebSocketException | NoSuchAlgorithmException e) {
+				CoflSky.logger.error("Socket Error! "+e);
 			}
     		return false;
     	}
@@ -152,18 +141,18 @@ public class WSClientWrapper {
     	}
     }
     
-    public synchronized void SendMessage(RawCommand cmd){
+    public synchronized void sendMessage(RawCommand cmd){
     	if(this.isRunning) {
     		this.socket.SendCommand(cmd);
     	} else {
-    		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("tried sending a callback to coflnet but failed. the connection must be closed."));
+    		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Sending a callback to Coflnet failed. The connection must be closed.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
     	}
     }
-    public synchronized void SendMessage(Command cmd){
+    public synchronized void sendMessage(Command cmd){
     	if(this.isRunning) {
     		this.socket.SendCommand(cmd);
     	} else {
-    		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("tried sending a callback to coflnet but failed. the connection must be closed."));
+    		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Sending a callback to Coflnet failed. The connection must be closed.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
     	}
     	
     }

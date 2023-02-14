@@ -4,30 +4,30 @@ import com.google.gson.annotations.SerializedName;
 
 public class RawCommand {
 	@SerializedName("type")
-	private String Type;
+	private String type;
 	
 	@SerializedName("data")
-	private String Data;
+	private String data;
 	
 	public RawCommand(String type, String data) {
-		this.Type = type;
-		this.Data=data;
+		this.type = type;
+		this.data = data;
 	}
 
 	public String getType() {
-		return Type;
+		return type;
 	}
 
 	public void setType(String type) {
-		Type = type;
+		this.type = type;
 	}
 
 	public String getData() {
-		return Data;
+		return data;
 	}
 
 	public void setData(String data) {
-		Data = data;
+		this.data = data;
 	}
 	
 }

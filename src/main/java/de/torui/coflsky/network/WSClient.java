@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 
-import javax.net.ssl.SSLContext;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.neovisionaries.ws.client.WebSocket;
@@ -22,7 +20,7 @@ import de.torui.coflsky.commands.RawCommand;
 
 public class WSClient extends WebSocketAdapter {
 
-	public static Gson gson;
+	public static final Gson gson;
 	
 	
 	static {
@@ -77,18 +75,18 @@ public class WSClient extends WebSocketAdapter {
 	}
 	
 	public void stop() {
-		System.out.println("Closing Socket");
+		CoflSky.logger.debug("Closing Socket");
 		if(socket == null)
 			return;
 		socket.clearListeners();
 		socket.disconnect();
-		System.out.println("Socket closed");
+		CoflSky.logger.debug("Socket closed");
 
 	}
 	
 	@Override
 	public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
-		System.out.println("WebSocket Changed state to: " + newState);
+		CoflSky.logger.debug("WebSocket Changed state to: " + newState);
 		currentState = newState;
 		
 		if(newState == WebSocketState.CLOSED && shouldRun) {
@@ -101,10 +99,10 @@ public class WSClient extends WebSocketAdapter {
 	
 	
 	 @Override
-	    public void onTextMessage(WebSocket websocket, String text) throws Exception{
+	    public void onTextMessage(WebSocket websocket, String text){
 		
 		//super.onTextMessage(websocket, text);
-		 System.out.println("Received: "+ text);
+		 CoflSky.logger.debug("Received: "+ text);
 		JsonStringCommand cmd = gson.fromJson(text, JsonStringCommand.class);
 		//System.out.println(cmd);
 		WSCommandHandler.HandleCommand(cmd, Minecraft.getMinecraft().thePlayer);
@@ -112,7 +110,7 @@ public class WSClient extends WebSocketAdapter {
 	}
 
 	public void SendCommand(Command cmd) {
-		SendCommand(new RawCommand(cmd.getType().ToJson(),gson.toJson(cmd.getData())));
+		SendCommand(new RawCommand(cmd.getType().toJson(),gson.toJson(cmd.getData())));
 	}
 	public void SendCommand(RawCommand cmd) {
 		Send(cmd);
@@ -120,14 +118,14 @@ public class WSClient extends WebSocketAdapter {
 	
 	public void Send(Object obj) {
 		String json = gson.toJson(obj);
-		System.out.println("###Sending message of json value " + json);
+		CoflSky.logger.debug("###Sending message of json value " + json);
 		if(this.socket == null)
 			try 
 			{
 				start();
 			} catch(Exception e)
 			{
-		 		System.out.println("Ran into an error on implicit start for send: "+ e);
+				CoflSky.logger.error("Ran into an error on implicit start for send: "+ e);
 			}
 		this.socket.sendText(json);
 	}

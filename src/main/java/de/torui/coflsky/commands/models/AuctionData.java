@@ -19,12 +19,13 @@ public class AuctionData {
 	public void setItemId(String itemId) {
 		this.itemId = itemId;
 	}
+	public AuctionData(){}
 	public AuctionData(String auctionId, String itemId) {
 		super();
 		this.auctionId = auctionId;
 		this.itemId = itemId;
 	}
-	
-	public AuctionData() {}
+
+
 	
 }

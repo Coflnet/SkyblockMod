@@ -4,19 +4,16 @@ import com.google.gson.annotations.SerializedName;
 
 public class SoundData {
 	@SerializedName("name")
-	public String Name;
+	public final String name;
 	
 	@SerializedName("pitch")
-	public float Pitch;	
-	
-	public SoundData() {
-		super();
-	}
+	public final float pitch;
+
 
 	public SoundData(String name, float pitch) {
 		super();
-		Name = name;
-		Pitch = pitch;
+		this.name = name;
+		this.pitch = pitch;
 	}
 	
 	

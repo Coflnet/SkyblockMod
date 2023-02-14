@@ -3,20 +3,15 @@ package de.torui.coflsky.configuration;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
+import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.network.WSClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.event.HoverEvent;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IChatComponent;
 
 public class ConfigurationManager {
 
-    public Configuration Config;
+    public final Configuration config;
 
     public ConfigurationManager() {
-        this.Config = Configuration.getInstance();
+        this.config = Configuration.getInstance();
     }
 
     public void UpdateConfiguration(String data) {
@@ -24,18 +19,15 @@ public class ConfigurationManager {
         Configuration newConfig = WSClient.gson.fromJson(data, Configuration.class);
 
         if (newConfig == null) {
-            System.out.println("Could not deserialize configuration " + data);
+            CoflSky.logger.error("Could not deserialize configuration " + data);
         }
 
 
         try {
-            if (CompareProperties(Config, newConfig)) {
+            if (CompareProperties(config, newConfig)) {
                 Configuration.setInstance(newConfig);
             }
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -83,7 +75,7 @@ public class ConfigurationManager {
 
         return updatedProperties > 0;
     }
-
+/*
     private IChatComponent GetNameFormatted(Field propertyName) {
         Description description = propertyName.getAnnotation(Description.class);
         ChatComponentText toReturn = new ChatComponentText(propertyName.getName());
@@ -99,9 +91,9 @@ public class ConfigurationManager {
         return toReturn.setChatStyle(style);
 
     }
-
-    public void UpdatedProperty(Field propertyName,Configuration confignew) throws IllegalAccessException {
-        System.out.println("The Configuration Setting " + propertyName.getName() + " has been updated to " + propertyName.get(confignew));
+*/
+    public void UpdatedProperty(Field propertyName,Configuration newConfig) throws IllegalAccessException {
+        CoflSky.logger.info("The Configuration Setting " + propertyName.getName() + " has been updated to " + propertyName.get(newConfig));
     }
 
 }

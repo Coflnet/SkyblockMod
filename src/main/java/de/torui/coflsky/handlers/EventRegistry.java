@@ -16,6 +16,7 @@ import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.AuctionData;
 import de.torui.coflsky.configuration.Configuration;
+import de.torui.coflsky.minecraft_integration.CountdownTimer;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -44,15 +45,15 @@ import static de.torui.coflsky.handlers.DescriptionHandler.*;
 import static de.torui.coflsky.handlers.EventHandler.*;
 
 public class EventRegistry {
-	public static Pattern chatpattern = Pattern.compile("a^", Pattern.CASE_INSENSITIVE);
+	public static Pattern chatPattern = Pattern.compile("a^", Pattern.CASE_INSENSITIVE);
 	public final ExecutorService chatThreadPool = Executors.newFixedThreadPool(2);
 	public final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2);
 	@SubscribeEvent
 	public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
 		if(CoflSky.Wrapper.isRunning) {
-			System.out.println("Disconnected from server");
+			CoflSky.logger.debug("Disconnected from server");
 			CoflSky.Wrapper.stop();
-			System.out.println("CoflSky stopped");
+			CoflSky.logger.debug("CoflSky stopped");
 		}
 	}
 	
@@ -69,7 +70,7 @@ public class EventRegistry {
 				String command = WSCommandHandler.lastOnClickEvent;
 				WSCommandHandler.lastOnClickEvent = null;
 				WSCommandHandler.HandleCommand(
-						new JsonStringCommand(CommandType.Execute, WSClient.gson.toJson(command)),
+						new JsonStringCommand(CommandType.EXECUTE, WSClient.gson.toJson(command)),
 						Minecraft.getMinecraft().thePlayer);
 			}
 
@@ -77,16 +78,16 @@ public class EventRegistry {
 		if(CoflSky.keyBindings[1].isKeyDown()) {
 			if((System.currentTimeMillis() - LastClick) >= 300) {
 						
-				Flip f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
+				Flip f = WSCommandHandler.flipHandler.fds.getHighestFlip();
 				
 				if(f != null) {
 					WSCommandHandler.Execute("/viewauction " + f.id, null);
 					LastClick = System.currentTimeMillis();		
 					String command =  WSClient.gson.toJson("/viewauction " + f.id);
-					WSCommandHandler.flipHandler.fds.InvalidateFlip(f);
+					WSCommandHandler.flipHandler.fds.invalidateFlip(f);
 					
 					WSCommandHandler.Execute("/cofl track besthotkey " + f.id, Minecraft.getMinecraft().thePlayer);
-					CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));		
+					CoflSky.Wrapper.sendMessage(new JsonStringCommand(CommandType.CLICKED, command));
 				} else {
 					// only display message once (if this is the key down event)
 					if(CoflSky.keyBindings[1].isPressed())
@@ -102,7 +103,7 @@ public class EventRegistry {
 
 		if (rgoe.type == ElementType.CROSSHAIRS) {
 			Minecraft mc = Minecraft.getMinecraft();
-			mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj, "Flips in Pipeline:" + WSCommandHandler.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
+			mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj, "Flips in Pipeline:" + WSCommandHandler.flipHandler.fds.getFlipsSize(), 0, 0, Integer.MAX_VALUE);
 		}
 	}
 
@@ -116,17 +117,17 @@ public class EventRegistry {
 				if (uuid.length() == 0) {
 					throw new Exception();
 				}
-				System.out.println("Item has the UUID: " + uuid);
+				CoflSky.logger.debug("Item has the UUID: " + uuid);
 				return uuid;
 			} catch (Exception e) {
-				System.out.println("Clicked item " + stack.getDisplayName() + " has the following meta: "
+				CoflSky.logger.error("Clicked item " + stack.getDisplayName() + " has the following meta: "
 						+ stack.serializeNBT());
 			}
 		}
 		return "";
 	}
 
-	public static ItemStack GOLD_NUGGET = new ItemStack(
+	public static final ItemStack GOLD_NUGGET = new ItemStack(
 			Item.itemRegistry.getObject(new ResourceLocation("minecraft:gold_nugget")));
 
 	public static final Pair<String, Pair<String, LocalDateTime>> EMPTY = Pair.of(null, Pair.of("",LocalDateTime.MIN));
@@ -137,11 +138,11 @@ public class EventRegistry {
 		if(CoflSky.Wrapper.isRunning && Configuration.getInstance().collectChat) {
 			chatThreadPool.submit(() -> {
 				String msg = sce.message.getUnformattedText();
-				Matcher matcher = chatpattern.matcher(msg);
+				Matcher matcher = chatPattern.matcher(msg);
 				boolean matchFound = matcher.find();
 				if (matchFound) {
-					Command<String[]> data = new Command<>(CommandType.chatBatch, new  String[]{msg});
-					CoflSky.Wrapper.SendMessage(data);
+					Command<String[]> data = new Command<>(CommandType.CHAT_BATCH, new  String[]{msg});
+					CoflSky.Wrapper.sendMessage(data);
 				}
 			});
 		}
@@ -168,7 +169,7 @@ public class EventRegistry {
 				ItemStack heldItem = Minecraft.getMinecraft().thePlayer.inventory.getItemStack();
 
 				if (heldItem != null) {
-					System.out.println("Clicked on: " + heldItem.getItem().getRegistryName());
+					CoflSky.logger.debug("Clicked on: " + heldItem.getItem().getRegistryName());
 
 					String itemUUID = ExtractUuidFromInventory(inv);
 
@@ -184,9 +185,9 @@ public class EventRegistry {
 								ad.setAuctionId("");
 							}
 
-							Command<AuctionData> data = new Command<>(CommandType.PurchaseStart, ad);
-							CoflSky.Wrapper.SendMessage(data);
-							System.out.println("PurchaseStart");
+							Command<AuctionData> data = new Command<>(CommandType.PURCHASE_START, ad);
+							CoflSky.Wrapper.sendMessage(data);
+							CoflSky.logger.debug("PurchaseStart");
 							last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
 							lastStartTime = System.currentTimeMillis() + 200 /*ensure a small debounce*/;
 						}
@@ -198,7 +199,7 @@ public class EventRegistry {
 
 	@SubscribeEvent
     public void OnRenderTick(TickEvent.RenderTickEvent event) {
-		de.torui.coflsky.CountdownTimer.onRenderTick(event);
+		CountdownTimer.onRenderTick(event);
 	}
 
 	int UpdateThisTick = 0;
@@ -216,7 +217,7 @@ public class EventRegistry {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onGuiOpen(GuiOpenEvent event) {
-		if (!config.extendedtooltips) return;
+		if (!config.extendedTooltips) return;
 		if(descriptionHandler != null)
 			descriptionHandler.Close();
 		if(event.gui == null)
@@ -229,13 +230,13 @@ public class EventRegistry {
 				descriptionHandler.loadDescriptionAndListenForChanges(event);
 			} catch (Exception e)
 			{
-				System.out.println("failed to update description " + e);
+				CoflSky.logger.error("failed to update description " + e);
 			}
 		}).start();
 	}
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onItemTooltipEvent(ItemTooltipEvent event) {
-		if (!config.extendedtooltips) return;
+		if (!config.extendedTooltips) return;
 		if(descriptionHandler == null) return;
 		descriptionHandler.setTooltips(event);
 	}

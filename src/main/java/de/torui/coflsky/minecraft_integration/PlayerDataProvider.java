@@ -7,18 +7,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
 
 public class PlayerDataProvider {
-	
+
+	/*
 	 private static class UUIDHelper {
 	    	public String id;
 	    	public String name;
-	    }
-	 
+	 }
 	public static String getActivePlayerUUID() {
 		try {
 			URL url = new URL("https://api.mojang.com/profiles/minecraft");
@@ -34,7 +36,7 @@ public class PlayerDataProvider {
 			// ...
 
 			OutputStream os = con.getOutputStream();
-			byte[] bytes = ("[\"" + getUsername() + "\"]").getBytes("UTF-8");
+			byte[] bytes = ("[\"" + getUsername() + "\"]").getBytes(StandardCharsets.UTF_8);
 			os.write(bytes);
 			os.close();
 			
@@ -46,8 +48,8 @@ public class PlayerDataProvider {
 			 }
 			 // StandardCharsets.UTF_8.name() > JDK 7
 			 String resString =  result.toString("UTF-8");
-			 
-			 System.out.println("Result= " + resString);
+
+			 CoflSky.logger.debug("Result= " + resString);
 			 UUIDHelper[] helpers = WSClient.gson.fromJson(resString, UUIDHelper[].class);
 			 if(helpers.length == 1) {
 				 return helpers[0].id;
@@ -55,15 +57,13 @@ public class PlayerDataProvider {
 			 
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			CoflSky.logger.error("Error getting UUID! "+ e.getMessage());
 		}
     	return UUID.randomUUID().toString();
 	}
-	
+	*/
 	public static String getUsername() {
-		String username = Minecraft.getSessionInfo().get("X-Minecraft-Username");
-		return username;
+		return Minecraft.getSessionInfo().get("X-Minecraft-Username");
 	}
 	
 }

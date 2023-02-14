@@ -1,3 +1,4 @@
+
 plugins {
     idea
     java
@@ -21,7 +22,7 @@ loom {
         }
     }
     forge {
-        pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
+       pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
     }
 }
 
@@ -55,7 +56,6 @@ dependencies {
     modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.0")
 
 }
-
 // Tasks:
 
 tasks.withType(JavaCompile::class) {
@@ -87,6 +87,12 @@ tasks.shadowJar {
         }
     }
 }
-
+tasks.processResources {
+    inputs.property("version", project.version)
+    inputs.property("mcversion", "1.8.9")
+    filesMatching("mcmod.info") {
+        expand("version" to project.version, "mcversion" to "1.8.9")
+    }
+}
 tasks.assemble.get().dependsOn(tasks.remapJar)
 

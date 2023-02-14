@@ -9,12 +9,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-@Retention(RUNTIME)
-@Target(FIELD)
 /**
  * @author Florian Rinke
  *
  */
+@Retention(RUNTIME)
+@Target(FIELD)
 public @interface Description {
-	public String value();
+	String value();
 }

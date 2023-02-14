@@ -1,5 +1,6 @@
 package de.torui.coflsky.handlers;
 
+import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.Config;
 import de.torui.coflsky.network.QueryServerCommands;
 import de.torui.coflsky.network.WSClient;
@@ -35,8 +36,8 @@ public class DescriptionHandler {
         public int line;
     }
 
-    public static HashMap<ItemStack, DescModification[]> tooltipItemMap = new HashMap<>();
-    public static HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<>();
+    public static final HashMap<ItemStack, DescModification[]> tooltipItemMap = new HashMap<>();
+    public static final HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<>();
 
     public static final DescModification[] EMPTY_ARRAY = new DescModification[0];
     public static final NBTTagCompound EMPTY_COMPOUND = new NBTTagCompound();
@@ -57,7 +58,7 @@ public class DescriptionHandler {
                     throw new Exception();
                 }
                 return uuid;
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return "";
@@ -72,7 +73,7 @@ public class DescriptionHandler {
                     throw new Exception();
                 }
                 return uuid;
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return ExtractStackableIdFromItemStack(stack);
@@ -108,8 +109,7 @@ public class DescriptionHandler {
                 shouldUpdate = false;
                 loadDescriptionForInventory(event, gc, true);
             }
-            if (iteration >= 30)
-                iteration = 30; // cap at 9 second update interval
+            iteration = Math.min(30, iteration); // cap at 9 second update interval
         }
     }
 
@@ -127,13 +127,12 @@ public class DescriptionHandler {
         InventoryWrapper wrapper = new InventoryWrapper();
         if (event.gui instanceof GuiChest) {
             if (!skipLoadCheck)
-                waitForChestContentLoad(event, gc);
+                waitForChestContentLoad(gc);
 
             ContainerChest chest = (ContainerChest) ((GuiChest) event.gui).inventorySlots;
             IInventory inv = chest.getLowerChestInventory();
             if (inv.hasCustomName()) {
-                String chestName = inv.getName();
-                wrapper.chestName = chestName;
+                wrapper.chestName = inv.getName();
             }
         }
 
@@ -162,7 +161,7 @@ public class DescriptionHandler {
             }
 
             String data = WSClient.gson.toJson(wrapper);
-            String info = QueryServerCommands.PostRequest(Config.BaseUrl + "/api/mod/description/modifications", data);
+            String info = QueryServerCommands.PostRequest(Config.BASE_URL + "/api/mod/description/modifications", data);
 
             DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
             int i = 0;
@@ -179,7 +178,7 @@ public class DescriptionHandler {
         }
     }
 
-    private static void waitForChestContentLoad(GuiOpenEvent event, GuiContainer gc) {
+    private static void waitForChestContentLoad(GuiContainer gc) {
         for (int i = 1; i < 10; i++) {
             if (gc.inventorySlots.inventorySlots.get(gc.inventorySlots.inventorySlots.size() - 37).getStack() != null)
                 break;
@@ -201,7 +200,7 @@ public class DescriptionHandler {
 
         for (DescModification datum : data) {
             if (event.toolTip.size() <= datum.line) {
-                System.out.println("Skipped line modification " + datum.line + " for " + event.itemStack.getDisplayName());
+                CoflSky.logger.debug("Skipped line modification " + datum.line + " for " + event.itemStack.getDisplayName());
                 continue;
             }
             switch (datum.type) {
@@ -226,7 +225,6 @@ public class DescriptionHandler {
      */
     public static void emptyTooltipData() {
         tooltipItemMap.clear();
-        tooltipItemIdMap.clear();
         tooltipItemIdMap.clear();
     }
 }

@@ -5,20 +5,19 @@ import com.google.gson.annotations.SerializedName;
 public class FlipData {
 	
 	@SerializedName("messages")
-	public ChatMessageData[] Messages;
+	public final ChatMessageData[] messages;
 	
 	@SerializedName("id")
-	public String Id;
+	public final String id;
 	
 	@SerializedName("worth")
-	public int Worth;
-	
-	public FlipData() {}
+	public final int worth;
+
 
 	public FlipData(ChatMessageData[] messages, String id, int worth) {
 		super();
-		Messages = messages;
-		Id = id;
-		Worth = worth;
+		this.messages = messages;
+		this.id = id;
+		this.worth = worth;
 	}
 }

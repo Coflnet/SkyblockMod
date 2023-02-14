@@ -17,12 +17,12 @@ public class ModListData {
     private final List<String> fileHashes = new LinkedList<>();
 
 
-    public void addFilename(String name){
+    public void addFileName(String name){
         this.fileNames.add(name);
     }
 
-    public void addModname(String modname){
-        this.modNames.add(modname);
+    public void addModName(String modName){
+        this.modNames.add(modName);
     }
 
     public void addFileHashes(String hash){
