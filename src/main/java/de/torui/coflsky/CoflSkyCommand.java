@@ -75,7 +75,7 @@ public class CoflSkyCommand extends CommandBase {
 					break;
 				case "stop":
 					CoflSky.Wrapper.stop();
-					sender.addChatMessage(ChatUtils.getCoflnetLogo(false)
+					sender.addChatMessage(ChatUtils.getCoflnetLogo(true)
 									.appendSibling(new ChatComponentText("You stopped the connection to "))
 									.appendSibling(ChatUtils.getCoflnetLogo(false))
 									.appendSibling(new ChatComponentText(".\n    To reconnect enter "))
