@@ -410,14 +410,14 @@ public class CoflGui extends WindowScreen {
                     .setY(new PixelConstraint(23f*(float) fontScale))
                     .setTextScale(new PixelConstraint((float) fontScale*1f));
                 // Generate the type of setting like toggle switch, text input, or number input
-                generateDataType(setting.get("type").getAsString(),setting);
+                generateDataType(setting.get("type").getAsString(),setting,exampleFeature);
 		    
                 index++;
             }
         }
     }
 	
-    public void generateDataType(String type,JsonObject setting) {
+    public void generateDataType(String type,JsonObject setting,UIComponent exampleFeature) {
 	// On/Off Toggle switch
 	if(type.equals("Boolean")) {
 	    UIComponent comp = new SwitchComponent(setting.get("value").getAsBoolean()).setChildOf(exampleFeature);
