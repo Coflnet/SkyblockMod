@@ -432,9 +432,9 @@ public class CoflGui extends WindowScreen {
 	    
 	// Text input
 	if(type.equals("String")) {
-	    if(setting.get("value")==null) continue;
+	    if(setting.get("value")==null) return;
 	    String formattedValue = "";
-	    try {formattedValue = setting.get("value").getAsString();} catch (Exception e) {continue;}
+	    try {formattedValue = setting.get("value").getAsString();} catch (Exception e) {return;}
 	    // Remove extra formatting values and unsupported characters and substitute text formatting symbol with &
 	    formattedValue = formattedValue.replaceAll("\\\"","");
 	    formattedValue = formattedValue.replaceAll("§", "&");
