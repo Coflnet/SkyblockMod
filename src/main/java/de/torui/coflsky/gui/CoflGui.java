@@ -51,24 +51,26 @@ public class CoflGui extends WindowScreen {
     private static final Minecraft mc = Minecraft.getMinecraft();
     public static SortedMap<String,List<JsonObject>> categories = new TreeMap<>();
     public static String selectedcategory = "general";
+    public Color clear = new Color(0,0,0,0);
     public String searchQuery = "";
     public static JsonArray settings = null;
     public static JsonObject tier;
     public static String AccountStatus = "";
+	
     @Override
-	public void onScreenClose() {
+    public void onScreenClose() {
+	// update displayed settings when closing the gui
         CoflGui.getSettings();
-	}
+    }
 
     public static void getSettings() {
         System.out.println("Getting settings");
-		String[] arg = "get json".split(" ");
-		CoflSkyCommand.SendCommandToServer(arg, null);
+	String[] arg = "get json".split(" ");
+	CoflSkyCommand.SendCommandToServer(arg, null);
         String[] args = "get tier".split(" ");
-		CoflSkyCommand.SendCommandToServer(args, null);
+	CoflSkyCommand.SendCommandToServer(args, null);
     }
 
-    Color clear = new Color(0,0,0,0);
     public CoflGui(Boolean doAnimation) {
         super(ElementaVersion.V2);
         reloadAllcategories();
@@ -93,6 +95,7 @@ public class CoflGui extends WindowScreen {
             .setWidth(new PixelConstraint(guiWidth))
             .setHeight(new PixelConstraint(0.15f*guiHeight))
             .enableEffect(new ScissorEffect());
+
         // Title text
         UIComponent titleText = new UIText(ChatFormatting.BLUE+"C"+ChatFormatting.GOLD+"oflnet")
             .setChildOf(titleArea)
@@ -101,6 +104,7 @@ public class CoflGui extends WindowScreen {
             .enableEffect(new ScissorEffect())
             .setTextScale(new PixelConstraint((float) (doAnimation?1*fontScale:4*fontScale)));
         
+	// Display mod version next to title
         new UIText("v"+CoflSky.VERSION)
             .setColor(new Color(187,187,187))
             .setChildOf(titleArea)
@@ -109,6 +113,7 @@ public class CoflGui extends WindowScreen {
             .enableEffect(new ScissorEffect())
             .setTextScale(new PixelConstraint((float) fontScale));
         
+	// Background box for search bar
         UIComponent searchBox = new UIBlock()
             .setChildOf(titleArea)
             .setX(new PixelConstraint(guiWidth-90))
@@ -116,7 +121,7 @@ public class CoflGui extends WindowScreen {
             .setWidth(new PixelConstraint(80))
             .setColor(new Color(120,120,120,60))
             .setHeight(new PixelConstraint(15f));
-
+	// Text input for the search bar
         UITextInput input = (UITextInput) new UITextInput("Search")
             .setChildOf(searchBox)
             .setX(new PixelConstraint(5f))
@@ -155,7 +160,7 @@ public class CoflGui extends WindowScreen {
             .setHeight(new PixelConstraint((0.85f*guiHeight)));
         loadedFeaturesList.clearChildren();
         reloadFeatures(loadedFeaturesList,guiHeight,guiWidth,fontScale);
-
+	// Reload gui & features when a character is typed in the search bar
         input.onKeyType((component, character, integer) -> {
             searchQuery = ((UITextInput) component).getText().toLowerCase();
             loadedFeaturesList.clearChildren();
@@ -183,15 +188,19 @@ public class CoflGui extends WindowScreen {
                 .setY(new PixelConstraint(10f+(Index*20)))
                 .enableEffect(new RecursiveFadeEffect())
                 .setTextScale(new PixelConstraint((float) fontScale*2));
+            // Set color of selected category
             if(categoryName.equals(selectedcategory)) {
                 Examplecategory.setColor(new Color(0xFFAA00));
             }
+	    // Change color on hover
             Examplecategory.onMouseEnterRunnable(()->{
                 if(!categoryName.equals(selectedcategory)) Examplecategory.setColor(new Color(0xffc34d));
             });
+	    // Set color back to white when not hover
             Examplecategory.onMouseLeaveRunnable(()->{
                 if(!categoryName.equals(selectedcategory)) Examplecategory.setColor(new Color(0xFFFFFF));
             });
+	    // Handle the mouse clicking on it
             Examplecategory.onMouseClickConsumer((event)->{
                 selectedcategory = categoryName;
                 Loadcategory(categoryName);
@@ -228,9 +237,7 @@ public class CoflGui extends WindowScreen {
         accStatusProfile.onMouseClickConsumer((event)->{
             try {
                 Desktop.getDesktop().browse(new URI("https://sky.coflnet.com/premium"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -244,9 +251,7 @@ public class CoflGui extends WindowScreen {
         discordButton.onMouseClickConsumer((event)->{
             try {
                 Desktop.getDesktop().browse(new URI("https://discord.com/invite/wvKXfTgCfb"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -257,6 +262,7 @@ public class CoflGui extends WindowScreen {
         box.addChild(accStatusProfileBorder);
         box.addChild(accStatusProfile);
         
+	// Only do the open animation on the initial open
         if(doAnimation) {
             box.setWidth(new PixelConstraint(0f));
 
@@ -269,7 +275,7 @@ public class CoflGui extends WindowScreen {
             titleText.animateTo(animation2);
         }
     }
-
+ 
     static String timeTillDate(String endDate) {
         String output = "";
         if(tier.get("tier").getAsString().equals("NONE")) {
@@ -300,22 +306,22 @@ public class CoflGui extends WindowScreen {
     }
 
     public int getTierColor(String tier) {
-        int color = 0x808080;
+        int color = 0x808080; // Gray
         switch (tier) {
             case "NONE":
-                color = 0x808080;
+                color = 0x808080; // Gray
                 break;
             case "STARTER_PREMIUM":
-                color = 0xFFFFFF;
+                color = 0xFFFFFF; // White
                 break;
             case "PREMIUM":
-                color = 0x32de84;
+                color = 0x32de84; // Green
                 break;
             case "PREMIUM_PLUS":
-                color = 0xffaa00;
+                color = 0xffaa00; // Gold
                 break;
             case "SUPER_PREMIUM":
-                color = 0xFF5555;
+                color = 0xFF5555; // Light Red
                 break;
             default:
                 break;
@@ -363,9 +369,9 @@ public class CoflGui extends WindowScreen {
 
     public void reloadFeatures(UIComponent loadedFeaturesList, float guiHeight, float guiWidth, double fontScale) {
         int index = 0; 
-
         // Default category
         for(String categoryName:categories.keySet()) {
+	    // Ignore feature if its not in the selected category
             if(searchQuery.isEmpty()) {
                 if(!categoryName.equals(selectedcategory)) {
                     continue;
@@ -376,12 +382,14 @@ public class CoflGui extends WindowScreen {
                 if(setting==null) continue;
                 String name = setting.get("name").getAsString();
                 String description = setting.get("info").getAsString();
+		// Stop dupelicate settings being drawn
                 if(drawnSettings.contains(name)) continue;
+		// Ignore feature if the it doesnt
                 if((!formatTitle(name).toLowerCase().contains(searchQuery) && !description.toLowerCase().contains(searchQuery))) {
                     continue;
                 }
                 drawnSettings.add(name);
-                // feature box outline:0xa9a9a9
+                // Feature Box with light gray outline
                 UIComponent exampleFeature = new UIBlock().setChildOf(loadedFeaturesList).setColor(new Color(0x444444))
                     .setX(new CenterConstraint())
                     .setY(new PixelConstraint(((5+0.15f*0.85f*guiHeight)*index)/*+20*/))
@@ -394,62 +402,72 @@ public class CoflGui extends WindowScreen {
                     .setY(new PixelConstraint(4f))
                     .setX(new PixelConstraint(4f))
                     .setTextScale(new PixelConstraint((float) fontScale*2f));
-    
+		// Feature Description
                 new UIWrappedText(uppercaseFirstLetter(description)).setChildOf(exampleFeature)
                     .setX(new PixelConstraint(4f))
                     .setWidth(new PixelConstraint(350))
                     .setColor(new Color(187,187,187))
                     .setY(new PixelConstraint(23f*(float) fontScale))
                     .setTextScale(new PixelConstraint((float) fontScale*1f));
-            
-                
-                String type = setting.get("type").getAsString();
-                if(type.equals("Boolean")) {
-                    UIComponent comp = new SwitchComponent(setting.get("value").getAsBoolean()).setChildOf(exampleFeature);
-                    ((SwitchComponent) comp).onValueChange((value)->{
-                        if(value!=setting.get("value")) {
-                            updateSetting(setting.get("key").getAsString(),value);
-                        }
-                        return Unit.INSTANCE;
-                    });
-                }
-
-                if(type.equals("String")) {
-                    if(setting.get("value")==null) continue;
-                    String formattedValue = "";
-                    try {formattedValue = setting.get("value").getAsString();} catch (Exception e) {continue;}
-                    formattedValue = formattedValue.replaceAll("\\\"","");
-                    formattedValue = formattedValue.replaceAll("§", "&");
-                    UIComponent comp = new TextComponent(formattedValue, "", false, false).setChildOf(exampleFeature);
-                    ((TextComponent) comp).onValueChange((value)->{
-                        if(!value.toString().equals(setting.get("value").toString()) && value.toString().length()>0) {
-                            value = ((String) value).replaceAll("&", "§");
-                            updateSetting(setting.get("key").getAsString(),value);
-                        }
-                        return Unit.INSTANCE;
-                    });
-                }
-    
-                if(type.equals("Int64") || type.equals("Double") || type.equals("Int32")) {
-                    UIComponent comp = new TextComponent(setting.get("value")+"", "", false, false).setChildOf(exampleFeature);
-                    ((TextComponent) comp).onValueChange((value)->{
-                        value=value.toString().replaceAll("[^0-9m.btk]","");
-                        if(!value.toString().equals(setting.get("value").toString()) && value.toString().length()>0) {
-                            System.out.println("DIFFERENCE '"+value+"' '"+setting.get("value")+"'");
-                            updateSetting(setting.get("key").getAsString(),value);
-                        }
-                        return Unit.INSTANCE;
-                    });
-                }
+                // Generate the type of setting like toggle switch, text input, or number input
+                generateDataType(setting.get("type").getAsString());
+		    
                 index++;
             }
         }
     }
+	
+    public void generateDataType(String type,JsonObject setting) {
+	// On/Off Toggle switch
+	if(type.equals("Boolean")) {
+	    UIComponent comp = new SwitchComponent(setting.get("value").getAsBoolean()).setChildOf(exampleFeature);
+	    ((SwitchComponent) comp).onValueChange((value)->{
+		// Only update value if its different
+		if(value!=setting.get("value")) {
+		    updateSetting(setting.get("key").getAsString(),value);
+		}
+		return Unit.INSTANCE;
+	    });
+	}
+	    
+	// Text input
+	if(type.equals("String")) {
+	    if(setting.get("value")==null) continue;
+	    String formattedValue = "";
+	    try {formattedValue = setting.get("value").getAsString();} catch (Exception e) {continue;}
+	    // Remove extra formatting values and unsupported characters and substitute text formatting symbol with &
+	    formattedValue = formattedValue.replaceAll("\\\"","");
+	    formattedValue = formattedValue.replaceAll("§", "&");
+
+	    UIComponent comp = new TextComponent(formattedValue, "", false, false).setChildOf(exampleFeature);
+	    ((TextComponent) comp).onValueChange((value)->{
+		// Only update value if its different
+		if(!value.toString().equals(setting.get("value").toString()) && value.toString().length()>0) {
+		    value = ((String) value).replaceAll("&", "§");
+		    updateSetting(setting.get("key").getAsString(),value);
+		}
+		return Unit.INSTANCE;
+	    });
+	}
+	// Number input
+	if(type.equals("Int64") || type.equals("Double") || type.equals("Int32")) {
+	    UIComponent comp = new TextComponent(setting.get("value")+"", "", false, false).setChildOf(exampleFeature);
+	    ((TextComponent) comp).onValueChange((value)->{
+		// Replace all non number characters
+		value=value.toString().replaceAll("[^0-9m.btk]","");
+		// Only update value if its different
+		if(!value.toString().equals(setting.get("value").toString()) && value.toString().length()>0) {
+		    updateSetting(setting.get("key").getAsString(),value);
+		}
+		return Unit.INSTANCE;
+	    });
+	}
+    }
 
     public void updateSetting(String settingName,Object value) {
         if(value.toString().isEmpty()) return;
-		String[] arg = ("set "+settingName+" "+value).split(" ");
-		CoflSkyCommand.SendCommandToServer(arg, null);
+	String[] arg = ("set "+settingName+" "+value).split(" ");
+	CoflSkyCommand.SendCommandToServer(arg, null);
     }
 
     public String uppercaseFirstLetter(String str) {
