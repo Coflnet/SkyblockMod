@@ -59,7 +59,7 @@ public class CoflGui extends WindowScreen {
 	
     @Override
     public void onScreenClose() {
-	// update displayed settings when closing the gui
+        // update displayed settings when closing the gui
         CoflGui.getSettings();
     }
 
@@ -104,7 +104,7 @@ public class CoflGui extends WindowScreen {
             .enableEffect(new ScissorEffect())
             .setTextScale(new PixelConstraint((float) (doAnimation?1*fontScale:4*fontScale)));
         
-	// Display mod version next to title
+        // Display mod version next to title
         new UIText("v"+CoflSky.VERSION)
             .setColor(new Color(187,187,187))
             .setChildOf(titleArea)
@@ -113,7 +113,7 @@ public class CoflGui extends WindowScreen {
             .enableEffect(new ScissorEffect())
             .setTextScale(new PixelConstraint((float) fontScale));
         
-	// Background box for search bar
+        // Background box for search bar
         UIComponent searchBox = new UIBlock()
             .setChildOf(titleArea)
             .setX(new PixelConstraint(guiWidth-90))
@@ -121,7 +121,7 @@ public class CoflGui extends WindowScreen {
             .setWidth(new PixelConstraint(80))
             .setColor(new Color(120,120,120,60))
             .setHeight(new PixelConstraint(15f));
-	// Text input for the search bar
+        // Text input for the search bar
         UITextInput input = (UITextInput) new UITextInput("Search")
             .setChildOf(searchBox)
             .setX(new PixelConstraint(5f))
@@ -160,7 +160,7 @@ public class CoflGui extends WindowScreen {
             .setHeight(new PixelConstraint((0.85f*guiHeight)));
         loadedFeaturesList.clearChildren();
         reloadFeatures(loadedFeaturesList,guiHeight,guiWidth,fontScale);
-	// Reload gui & features when a character is typed in the search bar
+        // Reload gui & features when a character is typed in the search bar
         input.onKeyType((component, character, integer) -> {
             searchQuery = ((UITextInput) component).getText().toLowerCase();
             loadedFeaturesList.clearChildren();
@@ -192,15 +192,15 @@ public class CoflGui extends WindowScreen {
             if(categoryName.equals(selectedcategory)) {
                 Examplecategory.setColor(new Color(0xFFAA00));
             }
-	    // Change color on hover
+            // Change color on hover
             Examplecategory.onMouseEnterRunnable(()->{
                 if(!categoryName.equals(selectedcategory)) Examplecategory.setColor(new Color(0xffc34d));
             });
-	    // Set color back to white when not hover
+            // Set color back to white when not hover
             Examplecategory.onMouseLeaveRunnable(()->{
                 if(!categoryName.equals(selectedcategory)) Examplecategory.setColor(new Color(0xFFFFFF));
             });
-	    // Handle the mouse clicking on it
+            // Handle the mouse clicking on it
             Examplecategory.onMouseClickConsumer((event)->{
                 selectedcategory = categoryName;
                 Loadcategory(categoryName);
@@ -262,7 +262,7 @@ public class CoflGui extends WindowScreen {
         box.addChild(accStatusProfileBorder);
         box.addChild(accStatusProfile);
         
-	// Only do the open animation on the initial open
+        // Only do the open animation on the initial open
         if(doAnimation) {
             box.setWidth(new PixelConstraint(0f));
 
@@ -371,7 +371,7 @@ public class CoflGui extends WindowScreen {
         int index = 0; 
         // Default category
         for(String categoryName:categories.keySet()) {
-	    // Ignore feature if its not in the selected category
+            // Ignore feature if its not in the selected category
             if(searchQuery.isEmpty()) {
                 if(!categoryName.equals(selectedcategory)) {
                     continue;
@@ -382,9 +382,9 @@ public class CoflGui extends WindowScreen {
                 if(setting==null) continue;
                 String name = setting.get("name").getAsString();
                 String description = setting.get("info").getAsString();
-		// Stop dupelicate settings being drawn
+                // Stop dupelicate settings being drawn
                 if(drawnSettings.contains(name)) continue;
-		// Ignore feature if the it doesnt
+                // Ignore feature if the it doesnt
                 if((!formatTitle(name).toLowerCase().contains(searchQuery) && !description.toLowerCase().contains(searchQuery))) {
                     continue;
                 }
@@ -402,7 +402,7 @@ public class CoflGui extends WindowScreen {
                     .setY(new PixelConstraint(4f))
                     .setX(new PixelConstraint(4f))
                     .setTextScale(new PixelConstraint((float) fontScale*2f));
-		// Feature Description
+                // Feature Description
                 new UIWrappedText(uppercaseFirstLetter(description)).setChildOf(exampleFeature)
                     .setX(new PixelConstraint(4f))
                     .setWidth(new PixelConstraint(350))
