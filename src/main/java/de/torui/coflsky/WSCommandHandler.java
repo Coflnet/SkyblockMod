@@ -43,7 +43,6 @@ public class WSCommandHandler {
     private static final ProxyManager proxyManager = new ProxyManager();
 
     public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
-        // Entity sender = Minecraft.getMinecraft().thePlayer;
         System.out.println("Handling Command=" + cmd.toString());
 
         switch (cmd.getType()) {
@@ -58,7 +57,6 @@ public class WSCommandHandler {
             case PlaySound:
                 SoundData sc = cmd.GetAs(new TypeToken<SoundData>() {
                 }).getData();
-
                 PlaySound(sc.Name, sc.Pitch);
                 break;
             case ChatMessage:

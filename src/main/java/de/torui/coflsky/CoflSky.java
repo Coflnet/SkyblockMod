@@ -83,8 +83,6 @@ public class CoflSky {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        System.out.println(">>>Started");
-
         CoflSky.Wrapper = new WSClientWrapper(webSocketURIPrefix);
 
         keyBindings = new KeyBinding[]{
