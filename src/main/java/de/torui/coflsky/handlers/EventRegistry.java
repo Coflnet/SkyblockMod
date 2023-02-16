@@ -245,6 +245,7 @@ public class EventRegistry {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onItemTooltipEvent(ItemTooltipEvent event) {
 		if (!config.extendedtooltips) return;
+		if(descriptionHandler == null) return;
 		descriptionHandler.setTooltips(event);
 	}
 }

@@ -71,6 +71,9 @@ public class CoflSkyCommand extends CommandBase {
 			
 			if(args.length >= 1) {
 				switch(args[0]) {
+				case "help":
+					ListHelp(sender);
+					break;
 				case "start":
 					//todo: start
 					//possible workaround for https://github.com/Coflnet/SkyblockMod/issues/48
@@ -142,7 +145,6 @@ public class CoflSkyCommand extends CommandBase {
 				}
 			} else {
 				GuiUtil.open(new CoflGui(true));
-				// ListHelp(sender);
 			}
 		}).start();		
 	}
