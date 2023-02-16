@@ -410,7 +410,7 @@ public class CoflGui extends WindowScreen {
                     .setY(new PixelConstraint(23f*(float) fontScale))
                     .setTextScale(new PixelConstraint((float) fontScale*1f));
                 // Generate the type of setting like toggle switch, text input, or number input
-                generateDataType(setting.get("type").getAsString());
+                generateDataType(setting.get("type").getAsString(),setting);
 		    
                 index++;
             }
