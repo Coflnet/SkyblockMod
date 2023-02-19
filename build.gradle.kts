@@ -82,6 +82,8 @@ tasks.withType(Jar::class) {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
         this["Manifest-Version"] = "1.0"
+        this["TweakClass"] = "gg.essential.loader.stage0.EssentialSetupTweaker"
+        this["TweakOrder"] = "0"
     }
 }
 
