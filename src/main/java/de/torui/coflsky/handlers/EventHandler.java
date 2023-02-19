@@ -164,20 +164,15 @@ public class EventHandler {
             if (config.autoStart) {
                 CoflSky.Wrapper.stop();
                 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("connection to ")
-                        .appendSibling(new ChatComponentText("C")
-                                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
-                        .appendSibling(new ChatComponentText("oflnet")
-                                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
-                        .appendSibling(new ChatComponentText(
-                                " has been stopped since you left skyblock.\n    To reconnect enter "))
-                        .appendSibling(new ChatComponentText("\"")
-                                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+                        .appendSibling(new ChatComponentText("C").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
+                        .appendSibling(new ChatComponentText("oflnet").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
+                        .appendSibling(new ChatComponentText(" has been stopped since you left skyblock.\n    To reconnect enter "))
+                        .appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
                         .appendSibling(new ChatComponentText("/cofl start"))
                         .appendSibling(new ChatComponentText("\"")
-                                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
-                        .appendSibling(new ChatComponentText(" or click this message"))
-                        .setChatStyle(new ChatStyle()
-                                .setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cofl start"))));
+                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+                        .setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cofl start")))
+                );
             }
             isInSkyblock = false;
         }
