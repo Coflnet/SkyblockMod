@@ -1,15 +1,17 @@
 package de.torui.coflsky;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.RawCommand;
 import de.torui.coflsky.gui.CoflGui;
+import de.torui.coflsky.commands.models.FlipData;
+import de.torui.coflsky.gui.GUIType;
+import de.torui.coflsky.gui.bingui.BinGuiManager;
+import de.torui.coflsky.gui.tfm.ButtonRemapper;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
 import de.torui.coflsky.network.QueryServerCommands;
@@ -22,17 +24,12 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.ClickEvent.Action;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IChatComponent;
-import java.util.ArrayList;
+import net.minecraftforge.common.MinecraftForge;
 
 public class CoflSkyCommand extends CommandBase {
-
-	
 	@Override
 	public int getRequiredPermissionLevel() {
 		// TODO Auto-generated method stub
@@ -139,6 +136,55 @@ public class CoflSkyCommand extends CommandBase {
 						sender.addChatMessage(new ChatComponentText("§cPleace specify a server to connect to"));	
 					}
 					break;
+        case "openauctiongui":
+                FlipData flip = WSCommandHandler.flipHandler.fds.getFlipById(args[1]);
+                boolean shouldInvalidate = args.length >= 3 && args[2].equals("true");
+
+
+                // Is not a stored flip -> just open the auction
+                if (flip == null) {
+                    WSCommandHandler.flipHandler.lastClickedFlipMessage = "";
+                    Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + args[1]);
+                    return;
+                }
+
+                String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "").split(",§7 sellers ah")[0];
+
+                if (shouldInvalidate) {
+                    WSCommandHandler.flipHandler.fds.InvalidateFlip(flip);
+                }
+
+                WSCommandHandler.flipHandler.lastClickedFlipMessage = oneLineMessage;
+
+                BinGuiManager.openNewFlipGui(oneLineMessage, flip.Render);
+
+                Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + flip.Id);
+                break;
+            case "setgui":
+                if (args.length != 2) {
+                    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Available GUIs:"));
+                    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Cofl"));
+                    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7TFM"));
+                    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Off"));
+                    return;
+                }
+
+                if (args[1].equalsIgnoreCase("cofl")) {
+                    CoflSky.config.purchaseOverlay = GUIType.COFL;
+                    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fCofl"));
+                    MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
+                }
+                if (args[1].equalsIgnoreCase("tfm")) {
+                    CoflSky.config.purchaseOverlay = GUIType.TFM;
+                    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fTFM"));
+                    MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
+                }
+                if (args[1].equalsIgnoreCase("off") || args[1].equalsIgnoreCase("false")) {
+                    CoflSky.config.purchaseOverlay = null;
+                    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fOff"));
+                    MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
+                }
+                break;
 				default:
 					SendCommandToServer(args, sender);
 					return;
@@ -219,5 +265,4 @@ public class CoflSkyCommand extends CommandBase {
 		//}).start();
 		
 	}
-
 }

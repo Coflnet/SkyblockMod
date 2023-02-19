@@ -1,122 +1,127 @@
 package de.torui.coflsky;
 
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import de.torui.coflsky.commands.models.FlipData;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FlipHandler {
-	public static class Flip {
-		public String id;
-		public int worth;
 
-		public Flip(String id, int worth) {
-			super();
-			this.id = id;
-			this.worth = worth;
-		}
+    public static class FlipDataStructure {
 
-		public Flip() {
+        private Map<Long, FlipData> Flips = new ConcurrentHashMap<>();
+        private Map<FlipData, Long> ReverseMap = new ConcurrentHashMap<>();
 
-		}
+        private FlipData HighestFlip = null;
+        private FlipData LastFlip = null;
 
-	}
+        private Timer t = new Timer();
+        private TimerTask CurrentTask = null;
 
-	public static class FlipDataStructure {
+        public synchronized void RunHouseKeeping() {
+            synchronized (Flips) {
 
-		private Map<Long, Flip> Flips = new ConcurrentHashMap <>();
-		private Map<Flip, Long> ReverseMap = new ConcurrentHashMap <>();
+                Long RemoveAllPrior = System.currentTimeMillis() - (Config.KeepFlipsForSeconds * 1000);
+                Flips.keySet().stream().filter(l -> l <= RemoveAllPrior).forEach(l -> RemoveLong(l));
+                if (!Flips.isEmpty()) {
+                    HighestFlip = Flips.values().stream().max((f1, f2) -> f1.Worth - f2.Worth).orElse(null);
+                } else {
+                    HighestFlip = null;
+                }
+            }
 
-		private Flip HighestFlip = null;
+            if (CurrentTask != null) {
+                CurrentTask.cancel();
+                CurrentTask = null;
+                t.purge();
+            }
+            if (!Flips.isEmpty()) {
+                CurrentTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        RunHouseKeeping();
+                    }
+                };
+                t.schedule(CurrentTask, Config.KeepFlipsForSeconds * 1000 + /* small arbitrary delay */150);
+            }
+        }
 
-		private Timer t = new Timer();
-		private TimerTask CurrentTask = null;
+        public synchronized void Insert(FlipData flip) {
+            Long l = System.currentTimeMillis();
+            LastFlip = flip;
 
-		public synchronized void RunHouseKeeping() {
-			synchronized (Flips) {
+            synchronized (Flips) {
+                Flips.put(l, flip);
+                ReverseMap.put(flip, l);
+            }
 
-				Long RemoveAllPrior = System.currentTimeMillis() - (Config.KeepFlipsForSeconds*1000);
-				Flips.keySet().stream().filter(l -> l <= RemoveAllPrior).forEach(l -> RemoveLong(l));
-				if (!Flips.isEmpty()) {
-					HighestFlip = Flips.values().stream().max((f1, f2) -> f1.worth - f2.worth).orElse(null);
-				} else {
-					HighestFlip = null;
-				}
-			}
+            RunHouseKeeping();
+        }
 
-			if (CurrentTask != null) {
-				CurrentTask.cancel();
-				CurrentTask = null;
-				t.purge();
-			}
-			if (!Flips.isEmpty()) {
-				CurrentTask = new TimerTask() {
-					@Override
-					public void run() {
-						RunHouseKeeping();
-					}
-				};
-				t.schedule(CurrentTask, Config.KeepFlipsForSeconds * 1000 + /* small arbitrary delay */150);
-			}
-		}
+        private void RemoveLong(Long l) {
+            if (l == null)
+                return;
+            synchronized (Flips) {
+                FlipData f = Flips.get(l);
+                if (f != null) {
+                    ReverseMap.remove(f);
+                    Flips.remove(l);
+                }
+            }
+        }
 
-		public synchronized void Insert(Flip flip) {
-			Long l = System.currentTimeMillis();
-			
-			synchronized(Flips) {
-				Flips.put(l, flip);
-				ReverseMap.put(flip, l);
-			}		
+        private void RemoveFlip(FlipData f) {
+            if (f == null)
+                return;
 
-			RunHouseKeeping();
-		}
+            synchronized (Flips) {
+                Long l = ReverseMap.get(f);
+                if (l != null) {
+                    Flips.remove(l);
+                    ReverseMap.remove(f);
+                }
+            }
+        }
 
-		private void RemoveLong(Long l) {
-			if (l == null)
-				return;
-			synchronized(Flips) {
-				Flip f = Flips.get(l);
-				if (f != null) {
-					ReverseMap.remove(f);
-					Flips.remove(l);
-				}
-			}
-		}
+        public FlipData GetHighestFlip() {
+            return HighestFlip;
+        }
 
-		private void RemoveFlip(Flip f) {
-			if (f == null)
-				return;
-			
-			synchronized(Flips) {
-				Long l = ReverseMap.get(f);
-				if (l != null) {
-					Flips.remove(l);
-					ReverseMap.remove(f);
-				}
-			}
-		}
+        public FlipData GetLastFlip() {
+            if (LastFlip == null) {
+                return null;
+            }
+            Long l = ReverseMap.get(LastFlip);
+            if (l == null) {
+                LastFlip = null;
+            }
+            return LastFlip;
+        }
 
-		public Flip GetHighestFlip() {
-			return HighestFlip;
-		}
+        public FlipData getFlipById(String id) {
+            FlipData[] flips = Flips.values().stream().filter(flipData -> flipData.Id.equals(id)).toArray(FlipData[]::new);
+            Flips.forEach((key, value) -> System.out.println(value.Id));
+            if (flips.length == 0) {
+                return null;
+            }
+            return flips[0];
+        }
 
-		public void InvalidateFlip(Flip flip) {
-			RemoveFlip(flip);
-			RunHouseKeeping();
-		}
+        public void InvalidateFlip(FlipData flip) {
+            RemoveFlip(flip);
+            RunHouseKeeping();
+        }
 
-		public int CurrentFlips() {
-			return Flips.size();
-		}
+        public int CurrentFlips() {
+            return Flips.size();
+        }
 
-	}
+    }
 
-	public FlipDataStructure fds;
+    public FlipDataStructure fds;
+    public String lastClickedFlipMessage;
 
-	public FlipHandler() {
-		fds = new FlipDataStructure();
-	}
+    public FlipHandler() {
+        fds = new FlipDataStructure();
+    }
 
 }
