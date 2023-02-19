@@ -169,8 +169,8 @@ public class EventHandler {
                         .appendSibling(new ChatComponentText(" has been stopped since you left skyblock.\n    To reconnect enter "))
                         .appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
                         .appendSibling(new ChatComponentText("/cofl start"))
-                        .appendSibling(new ChatComponentText("\"")
-                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+                        .appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+                        .appendSibling(new ChatComponentText(" or click this message"))
                         .setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cofl start")))
                 );
             }
