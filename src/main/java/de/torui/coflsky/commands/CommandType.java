@@ -53,6 +53,8 @@ public enum CommandType {
 	chatBatch,
 	@SerializedName("uploadTab")
 	uploadTab,
+	@SerializedName("uploadScoreboard")
+	uploadScoreboard,
 	@SerializedName("getMods")
 	GetMods,
 	@SerializedName("proxy")

@@ -35,6 +35,7 @@ public class Configuration {
 	public boolean collectChatClicks;
 	public boolean collectLobbyChanges;
 	public boolean collectEntities;
+	public boolean collectLocation;
 	public boolean autoStart;
 	@Description("Wherever or not to send item descriptions for extending to the server")
 	public boolean extendDescriptions;
