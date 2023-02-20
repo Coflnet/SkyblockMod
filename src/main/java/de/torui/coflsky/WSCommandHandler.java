@@ -56,6 +56,7 @@ public class WSCommandHandler {
                 JsonObject tier = cmd.GetAs(new TypeToken<JsonObject>() {}).getData();
                 CoflGui.tier = tier;
             case WriteToChat:
+                if(CoflGui.settings==null) CoflGui.getSettings();
                 WriteToChat(cmd.GetAs(new TypeToken<ChatMessageData>() {
                 }));
                 break;
@@ -69,7 +70,6 @@ public class WSCommandHandler {
                 PlaySound(sc.Name, sc.Pitch);
                 break;
             case ChatMessage:
-                if(CoflGui.settings==null) CoflGui.getSettings();
                 ChatMessage(cmd.GetAs(new TypeToken<ChatMessageData[]>() {
                 }));
                 break;
