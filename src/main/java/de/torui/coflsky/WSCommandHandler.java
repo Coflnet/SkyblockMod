@@ -46,10 +46,7 @@ public class WSCommandHandler {
     private static boolean gettingSettings = false;
     public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
         System.out.println("Handling Command=" + cmd.toString());
-        if(CoflGui.settings==null && !gettingSettings) {
-            gettingSettings = true;
-            CoflGui.getSettings();
-        }
+
         switch (cmd.getType()) {
             case Settings:
                 JsonArray settingJson = cmd.GetAs(new TypeToken<JsonArray>() {}).getData();
