@@ -43,10 +43,13 @@ public class WSCommandHandler {
     private static final ModListData modListData = new ModListData();
     private static final Gson gson = new Gson();
     private static final ProxyManager proxyManager = new ProxyManager();
-
+    private static boolean gettingSettings = false;
     public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
         System.out.println("Handling Command=" + cmd.toString());
-
+        if(CoflGui.settings==null && !gettingSettings) {
+            gettingSettings = true;
+            CoflGui.getSettings();
+        }
         switch (cmd.getType()) {
             case Settings:
                 JsonArray settingJson = cmd.GetAs(new TypeToken<JsonArray>() {}).getData();
@@ -56,7 +59,6 @@ public class WSCommandHandler {
                 JsonObject tier = cmd.GetAs(new TypeToken<JsonObject>() {}).getData();
                 CoflGui.tier = tier;
             case WriteToChat:
-                if(CoflGui.settings==null) CoflGui.getSettings();
                 WriteToChat(cmd.GetAs(new TypeToken<ChatMessageData>() {
                 }));
                 break;
