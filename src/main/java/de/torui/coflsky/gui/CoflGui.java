@@ -72,7 +72,6 @@ public class CoflGui extends WindowScreen {
 
     public CoflGui(Boolean doAnimation) {
         super(ElementaVersion.V2);
-        mc.setIngameNotInFocus();
         reloadAllcategories();
         int screenWidth = mc.displayWidth/2;
         int screenHeight = mc.displayHeight/2;
