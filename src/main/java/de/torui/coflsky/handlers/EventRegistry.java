@@ -52,17 +52,8 @@ public class EventRegistry {
 	
     @SubscribeEvent
     public void onWorldChange(WorldEvent.Load event) {
-	if(CoflGui.settings==null && !gettingSetting) {
-	    gettingSetting = true;
-		new Thread(()->{
-			try {
-				Thread.sleep(2000);
-				CoflGui.getSettings();
-				gettingSetting = false;
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-			}
-		}).start();
+	if(CoflGui.settings==null) {
+		CoflGui.getSettings();
 	}
     }
     
