@@ -189,7 +189,9 @@ public class CoflSkyCommand extends CommandBase {
 					return;
 				}
 			} else {
+				Minecraft.getMinecraft().setIngameNotInFocus();
 				Minecraft.getMinecraft().displayGuiScreen(new CoflGui(true));
+				Minecraft.getMinecraft().setIngameNotInFocus();
 			}
 		}).start();		
 	}
