@@ -48,7 +48,8 @@ public class EventRegistry {
     public static Pattern chatpattern = Pattern.compile("a^", Pattern.CASE_INSENSITIVE);
     public final ExecutorService chatThreadPool = Executors.newFixedThreadPool(2);
     public final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2);
-    
+    public static boolean gettingSetting = false;
+	
     @SubscribeEvent
     public void onWorldChange(WorldEvent.Load event) {
 	if(CoflGui.settings==null && !gettingSetting) {
