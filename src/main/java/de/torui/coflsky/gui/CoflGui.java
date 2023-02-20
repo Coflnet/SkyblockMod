@@ -32,6 +32,7 @@ import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.components.inspector.Inspector;
 import gg.essential.elementa.constraints.CenterConstraint;
 import gg.essential.elementa.constraints.PixelConstraint;
+import de.torui.coflsky.handlers.EventRegistry;
 import gg.essential.elementa.constraints.RelativeConstraint;
 import gg.essential.elementa.constraints.animation.AnimatingConstraints;
 import gg.essential.elementa.constraints.animation.Animations;
@@ -486,6 +487,6 @@ public class CoflGui extends WindowScreen {
     }
 
     public void Loadcategory(String categoryName) {
-        Minecraft.getMinecraft().displayGuiScreen(new CoflGui(false));
+	EventRegistry.screen = new CoflGui(false);
     }
 }
