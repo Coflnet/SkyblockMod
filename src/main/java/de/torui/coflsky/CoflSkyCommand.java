@@ -189,7 +189,7 @@ public class CoflSkyCommand extends CommandBase {
 					return;
 				}
 			} else {
-				Minecraft.getMinecraft().displayGuiScreen(new CoflGui(false));
+				Minecraft.getMinecraft().displayGuiScreen(new CoflGui(true));
 			}
 		}).start();		
 	}
