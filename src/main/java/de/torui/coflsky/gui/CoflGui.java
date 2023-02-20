@@ -21,7 +21,6 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.CoflSkyCommand;
-import gg.essential.api.utils.GuiUtil;
 import gg.essential.elementa.ElementaVersion;
 import gg.essential.elementa.UIComponent;
 import gg.essential.elementa.WindowScreen;
@@ -484,6 +483,6 @@ public class CoflGui extends WindowScreen {
     }
 
     public void Loadcategory(String categoryName) {
-        GuiUtil.open(new CoflGui(false));
+        Minecraft.getMinecraft().displayGuiScreen(new CoflGui(false));
     }
 }
