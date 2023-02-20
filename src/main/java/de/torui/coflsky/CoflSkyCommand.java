@@ -16,7 +16,6 @@ import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
 import de.torui.coflsky.network.QueryServerCommands;
 import de.torui.coflsky.network.WSClient;
-import gg.essential.api.utils.GuiUtil;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -190,7 +189,7 @@ public class CoflSkyCommand extends CommandBase {
 					return;
 				}
 			} else {
-				GuiUtil.open(new CoflGui(true));
+				Minecraft.getMinecraft().displayGuiScreen(new CoflGui(false));
 			}
 		}).start();		
 	}
