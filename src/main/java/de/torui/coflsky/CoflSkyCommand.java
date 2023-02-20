@@ -11,6 +11,7 @@ import de.torui.coflsky.gui.CoflGui;
 import de.torui.coflsky.commands.models.FlipData;
 import de.torui.coflsky.gui.GUIType;
 import de.torui.coflsky.gui.bingui.BinGuiManager;
+import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.gui.tfm.ButtonRemapper;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
@@ -189,7 +190,7 @@ public class CoflSkyCommand extends CommandBase {
                 			}
             		}).start();
 		} else {
-			Minecraft.getMinecraft().displayGuiScreen(new CoflGui(true));
+			EventRegistry.screen = new CoflGui(true);
 		}
 	}
 	
