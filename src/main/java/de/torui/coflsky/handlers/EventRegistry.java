@@ -50,13 +50,6 @@ public class EventRegistry {
     public final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2);
     
     @SubscribeEvent
-    public void onWorldChange(WorldEvent.Load event) {
-      if(CoflGui.settings==null) {
-        CoflGui.getSettings();
-      }
-    }
-    
-    @SubscribeEvent
     public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
         if (CoflSky.Wrapper.isRunning) {
             System.out.println("Disconnected from server");
