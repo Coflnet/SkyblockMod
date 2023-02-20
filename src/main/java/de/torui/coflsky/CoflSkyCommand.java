@@ -63,7 +63,6 @@ public class CoflSkyCommand extends CommandBase {
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
 		System.out.println(Arrays.toString(args));
-
 		if(args.length >= 1) {
 			new Thread(()->{
 				switch(args[0]) {
@@ -187,6 +186,7 @@ public class CoflSkyCommand extends CommandBase {
 					default:
 						SendCommandToServer(args, sender);
 						return;
+					}
 				}).start();
 			}
 		} else {
