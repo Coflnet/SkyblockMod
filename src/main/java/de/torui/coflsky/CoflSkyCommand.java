@@ -62,136 +62,136 @@ public class CoflSkyCommand extends CommandBase {
 			+ "§bstatus: §7Emits status information\nServer-Only Commands:";
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-		new Thread(()->{
-			System.out.println(Arrays.toString(args));
-			
-			if(args.length >= 1) {
+		System.out.println(Arrays.toString(args));
+
+		if(args.length >= 1) {
+			new Thread(()->{
 				switch(args[0]) {
-				case "help":
-					ListHelp(sender);
-					break;
-				case "start":
-					//todo: start
-					//possible workaround for https://github.com/Coflnet/SkyblockMod/issues/48
-					CoflSky.Wrapper.stop();
-					sender.addChatMessage(new ChatComponentText("starting connection..."));
-					CoflSky.Wrapper.startConnection();
-					break;
-				case "stop":
-					CoflSky.Wrapper.stop();
-					sender.addChatMessage(new ChatComponentText("you stopped the connection to ")
-							.appendSibling(new ChatComponentText("C").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
-							.appendSibling(new ChatComponentText("oflnet").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
-							.appendSibling(new ChatComponentText(".\n    To reconnect enter "))
-							.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
-							.appendSibling(new ChatComponentText("/cofl start"))
-							.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
-							.appendSibling(new ChatComponentText(" or click this message"))
-							.setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start")))
-							);
-					break;
-				case "debug":
-				//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
-				//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, " {\"type\":\"writeToChat\",\"data\":\"{\\\"text\\\":\\\"\\\\nFLIP: º9Goblin Eg\r\n"
-				//			+ "g º87,000 -> 13,999 ºg[BUY]\\\",\\\"onClick\\\":\\\"/viewauction f7d7295ca72f43e9876bf6da7424000c\\\",\\\"hover\\\":\\\"\\\"}\"}"), sender.getCommandSenderEntity());
-				//WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "{\"name\":\"random.orb\",\"pitch\":0.5}"), sender.getCommandSenderEntity());
-					break;	
-					case "callback":
-						CallbackCommand(args);
+					case "help":
+						ListHelp(sender);
 						break;
-				case "dev":
-					if(Config.BaseUrl.contains("localhost")) {
-						CoflSky.Wrapper.startConnection();
-						Config.BaseUrl = "https://sky.coflnet.com";
-					} else {
-						CoflSky.Wrapper.initializeNewSocket("ws://localhost:8009/modsocket");
-						Config.BaseUrl = "http://localhost:5005";
-					}
-					sender.addChatMessage(new ChatComponentText("toggled dev mode, now using " + Config.BaseUrl));
-					break;
-				case "status":
-					sender.addChatMessage(new ChatComponentText(StatusMessage()));
-					break;
-				case "reset":
-					HandleReset();
-					break;
-				case "connect":
-					
-					if(args.length == 2) {
-						String destination = args[1];
-						
-						if(!destination.contains("://")) {
-							destination = new String(Base64.getDecoder().decode(destination));
-						}
-						sender.addChatMessage(new ChatComponentText("Stopping connection!"));
+					case "start":
+						//todo: start
+						//possible workaround for https://github.com/Coflnet/SkyblockMod/issues/48
 						CoflSky.Wrapper.stop();
-						sender.addChatMessage(new ChatComponentText("Opening connection to " + destination));
-						if(CoflSky.Wrapper.initializeNewSocket(destination)) {
-							sender.addChatMessage(new ChatComponentText("Success"));
+						sender.addChatMessage(new ChatComponentText("starting connection..."));
+						CoflSky.Wrapper.startConnection();
+						break;
+					case "stop":
+						CoflSky.Wrapper.stop();
+						sender.addChatMessage(new ChatComponentText("you stopped the connection to ")
+								.appendSibling(new ChatComponentText("C").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
+								.appendSibling(new ChatComponentText("oflnet").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
+								.appendSibling(new ChatComponentText(".\n    To reconnect enter "))
+								.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+								.appendSibling(new ChatComponentText("/cofl start"))
+								.appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+								.appendSibling(new ChatComponentText(" or click this message"))
+								.setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start")))
+								);
+						break;
+					case "debug":
+					//	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
+					//	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, " {\"type\":\"writeToChat\",\"data\":\"{\\\"text\\\":\\\"\\\\nFLIP: º9Goblin Eg\r\n"
+					//			+ "g º87,000 -> 13,999 ºg[BUY]\\\",\\\"onClick\\\":\\\"/viewauction f7d7295ca72f43e9876bf6da7424000c\\\",\\\"hover\\\":\\\"\\\"}\"}"), sender.getCommandSenderEntity());
+					//WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "{\"name\":\"random.orb\",\"pitch\":0.5}"), sender.getCommandSenderEntity());
+						break;	
+						case "callback":
+							CallbackCommand(args);
+							break;
+					case "dev":
+						if(Config.BaseUrl.contains("localhost")) {
+							CoflSky.Wrapper.startConnection();
+							Config.BaseUrl = "https://sky.coflnet.com";
 						} else {
-							sender.addChatMessage(new ChatComponentText("Could not open connection, please check the logs"));							
+							CoflSky.Wrapper.initializeNewSocket("ws://localhost:8009/modsocket");
+							Config.BaseUrl = "http://localhost:5005";
 						}
-					} else {
-						sender.addChatMessage(new ChatComponentText("§cPleace specify a server to connect to"));	
-					}
-					break;
-				case "openauctiongui":
-					FlipData flip = WSCommandHandler.flipHandler.fds.getFlipById(args[1]);
-					boolean shouldInvalidate = args.length >= 3 && args[2].equals("true");
+						sender.addChatMessage(new ChatComponentText("toggled dev mode, now using " + Config.BaseUrl));
+						break;
+					case "status":
+						sender.addChatMessage(new ChatComponentText(StatusMessage()));
+						break;
+					case "reset":
+						HandleReset();
+						break;
+					case "connect":
+
+						if(args.length == 2) {
+							String destination = args[1];
+
+							if(!destination.contains("://")) {
+								destination = new String(Base64.getDecoder().decode(destination));
+							}
+							sender.addChatMessage(new ChatComponentText("Stopping connection!"));
+							CoflSky.Wrapper.stop();
+							sender.addChatMessage(new ChatComponentText("Opening connection to " + destination));
+							if(CoflSky.Wrapper.initializeNewSocket(destination)) {
+								sender.addChatMessage(new ChatComponentText("Success"));
+							} else {
+								sender.addChatMessage(new ChatComponentText("Could not open connection, please check the logs"));							
+							}
+						} else {
+							sender.addChatMessage(new ChatComponentText("§cPleace specify a server to connect to"));	
+						}
+						break;
+					case "openauctiongui":
+						FlipData flip = WSCommandHandler.flipHandler.fds.getFlipById(args[1]);
+						boolean shouldInvalidate = args.length >= 3 && args[2].equals("true");
 
 
-					// Is not a stored flip -> just open the auction
-					if (flip == null) {
-					    WSCommandHandler.flipHandler.lastClickedFlipMessage = "";
-					    Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + args[1]);
-					    return;
-					}
+						// Is not a stored flip -> just open the auction
+						if (flip == null) {
+						    WSCommandHandler.flipHandler.lastClickedFlipMessage = "";
+						    Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + args[1]);
+						    return;
+						}
 
-					String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "").split(",§7 sellers ah")[0];
+						String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "").split(",§7 sellers ah")[0];
 
-					if (shouldInvalidate) {
-					    WSCommandHandler.flipHandler.fds.InvalidateFlip(flip);
-					}
+						if (shouldInvalidate) {
+						    WSCommandHandler.flipHandler.fds.InvalidateFlip(flip);
+						}
 
-					WSCommandHandler.flipHandler.lastClickedFlipMessage = oneLineMessage;
+						WSCommandHandler.flipHandler.lastClickedFlipMessage = oneLineMessage;
 
-					BinGuiManager.openNewFlipGui(oneLineMessage, flip.Render);
+						BinGuiManager.openNewFlipGui(oneLineMessage, flip.Render);
 
-					Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + flip.Id);
-					break;
-				case "setgui":
-					if (args.length != 2) {
-					    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Available GUIs:"));
-					    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Cofl"));
-					    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7TFM"));
-					    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Off"));
-					    return;
-					}
+						Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + flip.Id);
+						break;
+					case "setgui":
+						if (args.length != 2) {
+						    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Available GUIs:"));
+						    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Cofl"));
+						    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7TFM"));
+						    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Off"));
+						    return;
+						}
 
-					if (args[1].equalsIgnoreCase("cofl")) {
-					    CoflSky.config.purchaseOverlay = GUIType.COFL;
-					    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fCofl"));
-					    MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
-					}
-					if (args[1].equalsIgnoreCase("tfm")) {
-					    CoflSky.config.purchaseOverlay = GUIType.TFM;
-					    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fTFM"));
-					    MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
-					}
-					if (args[1].equalsIgnoreCase("off") || args[1].equalsIgnoreCase("false")) {
-					    CoflSky.config.purchaseOverlay = null;
-					    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fOff"));
-					    MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
-					}
-					break;
-				default:
-					SendCommandToServer(args, sender);
-					return;
-				}
-			} else {
-				Minecraft.getMinecraft().displayGuiScreen(new CoflGui(true));
+						if (args[1].equalsIgnoreCase("cofl")) {
+						    CoflSky.config.purchaseOverlay = GUIType.COFL;
+						    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fCofl"));
+						    MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
+						}
+						if (args[1].equalsIgnoreCase("tfm")) {
+						    CoflSky.config.purchaseOverlay = GUIType.TFM;
+						    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fTFM"));
+						    MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
+						}
+						if (args[1].equalsIgnoreCase("off") || args[1].equalsIgnoreCase("false")) {
+						    CoflSky.config.purchaseOverlay = null;
+						    sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fOff"));
+						    MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
+						}
+						break;
+					default:
+						SendCommandToServer(args, sender);
+						return;
+				}).start();
 			}
-		}).start();		
+		} else {
+			Minecraft.getMinecraft().displayGuiScreen(new CoflGui(true));
+		}
 	}
 	
 	private void HandleReset() {
