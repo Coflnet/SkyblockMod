@@ -190,7 +190,6 @@ public class CoflSkyCommand extends CommandBase {
 				}
 			} else {
 				Minecraft.getMinecraft().displayGuiScreen(new CoflGui(true));
-				Minecraft.getMinecraft().setIngameNotInFocus();
 			}
 		}).start();		
 	}
