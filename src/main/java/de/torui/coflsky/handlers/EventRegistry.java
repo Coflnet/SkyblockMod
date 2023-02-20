@@ -209,8 +209,13 @@ public class EventRegistry {
 
     int UpdateThisTick = 0;
 
+    public static WindowScreen screen = null;
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTick(TickEvent.ClientTickEvent event) {
+	if(screen!=null) {
+		Minecraft.getMinecraft().displayGuiScreen(screen);
+		screen = null;
+	}
         UpdateThisTick++;
         if (UpdateThisTick >= 200) UpdateThisTick = 0;
         if (UpdateThisTick == 0) {
