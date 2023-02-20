@@ -273,6 +273,9 @@ public class CoflGui extends WindowScreen {
             animation2.setTextScaleAnimation(Animations.OUT_EXP, 0.5f, new PixelConstraint((float) (4.0*fontScale)));
             titleText.animateTo(animation2);
         }
+	Minecraft.getMinecraft().setIngameNotInFocus();
+        Minecraft.getMinecraft().inGameHasFocus = false;
+        Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
     }
  
     static String timeTillDate(String endDate) {
