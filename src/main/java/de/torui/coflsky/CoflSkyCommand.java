@@ -186,9 +186,8 @@ public class CoflSkyCommand extends CommandBase {
 					default:
 						SendCommandToServer(args, sender);
 						return;
-					}
-				}).start();
-			}
+                			}
+            		}).start();
 		} else {
 			Minecraft.getMinecraft().displayGuiScreen(new CoflGui(true));
 		}
