@@ -69,6 +69,7 @@ public class WSCommandHandler {
                 PlaySound(sc.Name, sc.Pitch);
                 break;
             case ChatMessage:
+                if(CoflGui.settings==null) CoflGui.getSettings();
                 ChatMessage(cmd.GetAs(new TypeToken<ChatMessageData[]>() {
                 }));
                 break;
