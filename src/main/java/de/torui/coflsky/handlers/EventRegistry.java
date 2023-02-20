@@ -50,21 +50,20 @@ public class EventRegistry {
     public final ExecutorService tickThreadPool = Executors.newFixedThreadPool(2);
     
     @SubscribeEvent
-	public void onWorldChange(WorldEvent.Load event) {
-		if(CoflGui.settings==null && !gettingSetting) {
-            gettingSetting = true;
-			new Thread(()->{
-				try {
-					Thread.sleep(2000);
-                    CoflGui.getSettings();
-					gettingSetting = false;
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}).start();
-		}
+    public void onWorldChange(WorldEvent.Load event) {
+	if(CoflGui.settings==null && !gettingSetting) {
+	    gettingSetting = true;
+		new Thread(()->{
+			try {
+				Thread.sleep(2000);
+				CoflGui.getSettings();
+				gettingSetting = false;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+			}
+		}).start();
 	}
+    }
     
     @SubscribeEvent
     public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
