@@ -1,7 +1,6 @@
 plugins {
     idea
     java
-    id("kotlin-android")
     id("gg.essential.loom") version "0.10.0.+"
     id("dev.architectury.architectury-pack200") version "0.1.3"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -50,6 +49,7 @@ val shadowImpl by configurations.creating {
 }
 
 dependencies {
+    classpath("com.android.tools.build:gradle:4.1.2")
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
