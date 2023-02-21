@@ -102,6 +102,11 @@ tasks.shadowJar {
             println("Config: ${it.files}")
         }
     }
+    relocate("gg.essential.vigilance", "your.package.vigilance")
+    // vigilance dependencies
+    relocate("gg.essential.elementa", "your.package.elementa")
+    // elementa dependencies
+    relocate("gg.essential.universalcraft", "your.package.universalcraft")
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
