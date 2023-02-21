@@ -39,6 +39,7 @@ repositories {
     maven("https://repo.sk1er.club/repository/maven-public/")
     maven("https://repo.sk1er.club/repository/maven-releases/")
     maven("https://jitpack.io")
+    maven("https://repo.essential.gg/repository/maven-public")
     // If you don't want to log in with your real minecraft account, remove this line
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
 }
@@ -53,13 +54,8 @@ dependencies {
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
     // Add essential dependency so we can access elementa (Gui creator)
-    shadowImpl("gg.essential:loader-launchwrapper:1.1.3")
-    implementation("gg.essential:essential-1.8.9-forge:11640+g7f637cfee") {
-        exclude(module = "asm")
-        exclude(module = "asm-commons")
-        exclude(module = "asm-tree")
-        exclude(module = "gson")
-    }
+    implementation("gg.essential:elementa-1.8.9-forge:575")
+    implementation("gg.essential:vigilance-1.8.9-forge:280")
 
     annotationProcessor("org.spongepowered:mixin:0.8.4-SNAPSHOT")
 
@@ -82,8 +78,6 @@ tasks.withType(Jar::class) {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
         this["Manifest-Version"] = "1.0"
-        this["TweakClass"] = "gg.essential.loader.stage0.EssentialSetupTweaker"
-        this["TweakOrder"] = "0"
     }
 }
 
@@ -102,11 +96,11 @@ tasks.shadowJar {
             println("Config: ${it.files}")
         }
     }
-    relocate("gg.essential.vigilance", "your.package.vigilance")
+    relocate("gg.essential.vigilance", "de.torui.vigilance")
     // vigilance dependencies
-    relocate("gg.essential.elementa", "your.package.elementa")
+    relocate("gg.essential.elementa", "de.torui.elementa")
     // elementa dependencies
-    relocate("gg.essential.universalcraft", "your.package.universalcraft")
+    relocate("gg.essential.universalcraft", "de.torui.universalcraft")
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
