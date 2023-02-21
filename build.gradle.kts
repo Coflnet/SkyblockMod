@@ -1,10 +1,10 @@
 plugins {
     idea
     java
+    kotlin("jvm") version "1.6.10"
     id("gg.essential.loom") version "0.10.0.+"
     id("dev.architectury.architectury-pack200") version "0.1.3"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.jetbrains.kotlin.jvm") version "1.8.20-Beta"
 }
 
 group = "de.torui.coflmod"
