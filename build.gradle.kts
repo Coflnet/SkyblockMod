@@ -53,15 +53,6 @@ dependencies {
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
-    // Add essential dependency so we can access elementa (Gui creator)
-    // shadowImpl("gg.essential:loader-launchwrapper:1.1.3")
-    // implementation("gg.essential:essential-1.8.9-forge:11640+g7f637cfee") {
-    //     exclude(module = "asm")
-    //     exclude(module = "asm-commons")
-    //     exclude(module = "asm-tree")
-    //     exclude(module = "gson")
-    // }
-
     shadowImpl("gg.essential:elementa-1.8.9-forge:575")
     shadowImpl("gg.essential:vigilance-1.8.9-forge:280")
     
@@ -86,8 +77,6 @@ tasks.withType(Jar::class) {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
         this["Manifest-Version"] = "1.0"
-        // this["TweakClass"] = "gg.essential.loader.stage0.EssentialSetupTweaker"
-        // this["TweakOrder"] = "0"
     }
 }
 
