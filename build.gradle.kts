@@ -55,8 +55,11 @@ dependencies {
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
     // Add essential dependency so we can access elementa (Gui creator)
-    implementation("gg.essential:elementa-1.8.9-forge:575")
-    implementation("gg.essential:vigilance-1.8.9-forge:280")
+    shadowImpl("gg.essential:elementa")
+    shadowImpl("gg.essential:vigilance") {
+      exclude(group="gg.essential", module="elementa")
+    }
+
 
     annotationProcessor("org.spongepowered:mixin:0.8.4-SNAPSHOT")
 
