@@ -62,8 +62,8 @@ dependencies {
     //     exclude(module = "gson")
     // }
 
-    implementation("gg.essential:elementa-1.8.9-forge:575")
-    implementation("gg.essential:vigilance-1.8.9-forge:280")
+    shadowImpl("gg.essential:elementa-1.8.9-forge:575")
+    shadowImpl("gg.essential:vigilance-1.8.9-forge:280")
     
     annotationProcessor("org.spongepowered:mixin:0.8.4-SNAPSHOT")
 
@@ -109,4 +109,3 @@ tasks.shadowJar {
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
-
