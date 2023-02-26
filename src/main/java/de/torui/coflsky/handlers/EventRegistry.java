@@ -3,6 +3,7 @@ package de.torui.coflsky.handlers;
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,7 +68,8 @@ public class EventRegistry {
             if (WSCommandHandler.lastOnClickEvent != null) {
                 FlipData f = WSCommandHandler.flipHandler.fds.GetLastFlip();
                 if (f != null) {
-                    WSCommandHandler.Execute("/cofl openAuctionGUI " + f.Id + " false", Minecraft.getMinecraft().thePlayer);
+                    WSCommandHandler.Execute("/cofl openAuctionGUI " + f.Id + " false",
+                            Minecraft.getMinecraft().thePlayer);
                 }
             }
 
@@ -78,7 +80,8 @@ public class EventRegistry {
                 FlipData f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 
                 if (f != null) {
-                    WSCommandHandler.Execute("/cofl openAuctionGUI " + f.Id + " true", Minecraft.getMinecraft().thePlayer);
+                    WSCommandHandler.Execute("/cofl openAuctionGUI " + f.Id + " true",
+                            Minecraft.getMinecraft().thePlayer);
                     EventRegistry.LastViewAuctionUUID = f.Id;
                     EventRegistry.LastViewAuctionInvocation = System.currentTimeMillis();
                     LastClick = System.currentTimeMillis();
@@ -96,12 +99,13 @@ public class EventRegistry {
     }
 
     @SideOnly(Side.CLIENT)
-    //@SubscribeEvent
+    // @SubscribeEvent
     public void DrawOntoGUI(RenderGameOverlayEvent rgoe) {
 
         if (rgoe.type == ElementType.CROSSHAIRS) {
             Minecraft mc = Minecraft.getMinecraft();
-            mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj, "Flips in Pipeline:" + WSCommandHandler.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
+            mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj,
+                    "Flips in Pipeline:" + WSCommandHandler.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
         }
     }
 
@@ -110,38 +114,65 @@ public class EventRegistry {
         ItemStack stack = inventory.getStackInSlot(13);
         if (stack != null) {
             try {
-                String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes").getString("uuid");
+                String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes")
+                        .getString("uuid");
                 if (uuid.length() == 0) {
                     throw new Exception();
                 }
                 System.out.println("Item has the UUID: " + uuid);
                 return uuid;
             } catch (Exception e) {
-                System.out.println("Clicked item " + stack.getDisplayName() + " has the following meta: " + stack.serializeNBT());
+                System.out.println(
+                        "Clicked item " + stack.getDisplayName() + " has the following meta: " + stack.serializeNBT());
             }
         }
         return "";
     }
 
-    public static ItemStack GOLD_NUGGET = new ItemStack(Item.itemRegistry.getObject(new ResourceLocation("minecraft:gold_nugget")));
+    public static ItemStack GOLD_NUGGET = new ItemStack(
+            Item.itemRegistry.getObject(new ResourceLocation("minecraft:gold_nugget")));
 
     public static final Pair<String, Pair<String, LocalDateTime>> EMPTY = Pair.of(null, Pair.of("", LocalDateTime.MIN));
     public static Pair<String, Pair<String, LocalDateTime>> last = EMPTY;
+    private LocalDateTime lastBatchStart = LocalDateTime.now();
+    private LinkedBlockingQueue<String> chatBatch = new LinkedBlockingQueue<String>();
 
     @SubscribeEvent
     public void HandleChatEvent(ClientChatReceivedEvent sce) {
-        if (CoflSky.Wrapper.isRunning && Configuration.getInstance().collectChat) {
-            chatThreadPool.submit(() -> {
+        if (!CoflSky.Wrapper.isRunning || !Configuration.getInstance().collectChat)
+            return;
+        chatThreadPool.submit(() -> {
+            try {
+
                 String msg = sce.message.getUnformattedText();
                 Matcher matcher = chatpattern.matcher(msg);
                 boolean matchFound = matcher.find();
-                if (matchFound) {
-                    Command<String[]> data = new Command<>(CommandType.chatBatch, new String[]{msg});
-                    CoflSky.Wrapper.SendMessage(data);
-                }
-            });
-        }
+                if (!matchFound)
+                    return;
 
+                chatBatch.add(msg);
+                // add 500ms to the last batch start time
+                long nanoSeconds = 500_000_000;
+                if (!lastBatchStart.plusNanos(nanoSeconds).isBefore(LocalDateTime.now())) {
+                    System.out.println(msg + " was not sent because it was too soon");
+                    return;
+                }
+                lastBatchStart = LocalDateTime.now();
+
+                new java.util.Timer().schedule(new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println("Sending batch of " + chatBatch.size() + " messages");
+                        Command<String[]> data = new Command<>(CommandType.chatBatch, chatBatch.toArray(new String[0]));
+                        chatBatch.clear();
+                        CoflSky.Wrapper.SendMessage(data);
+                    }
+                }, 500);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public static long lastStartTime = Long.MIN_VALUE;
@@ -152,9 +183,12 @@ public class EventRegistry {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void OnGuiClick(GuiScreenEvent.MouseInputEvent mie) {
-        if (!CoflSky.Wrapper.isRunning) return;
-        if (!(mie.gui instanceof GuiChest)) return; // verify that it's really a chest
-        if (!(((GuiChest) mie.gui).inventorySlots instanceof ContainerChest)) return;
+        if (!CoflSky.Wrapper.isRunning)
+            return;
+        if (!(mie.gui instanceof GuiChest))
+            return; // verify that it's really a chest
+        if (!(((GuiChest) mie.gui).inventorySlots instanceof ContainerChest))
+            return;
         ContainerChest chest = (ContainerChest) ((GuiChest) mie.gui).inventorySlots;
         IInventory inv = chest.getLowerChestInventory();
         if (inv.hasCustomName()) { // verify that the chest actually has a custom name
@@ -184,7 +218,7 @@ public class EventRegistry {
                             CoflSky.Wrapper.SendMessage(data);
                             System.out.println("PurchaseStart");
                             last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
-                            lastStartTime = System.currentTimeMillis() + 200 /*ensure a small debounce*/;
+                            lastStartTime = System.currentTimeMillis() + 200 /* ensure a small debounce */;
                         }
                     }
                 }
@@ -197,16 +231,19 @@ public class EventRegistry {
         de.torui.coflsky.CountdownTimer.onRenderTick(event);
     }
 
-    int UpdateThisTick = 0;
+    long UpdateThisTick = 0;
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.LOW)
     public void onTick(TickEvent.ClientTickEvent event) {
         UpdateThisTick++;
-        if (UpdateThisTick >= 200) UpdateThisTick = 0;
-        if (UpdateThisTick == 0) {
+        if (UpdateThisTick % 200 == 0) {
             tickThreadPool.submit(() -> {
-                ScoreboardData();
-                TabMenuData();
+                try {
+                    ScoreboardData();
+                    TabMenuData();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             });
         }
     }
@@ -215,16 +252,21 @@ public class EventRegistry {
     public void onGuiOpen(GuiOpenEvent event) {
 
         // if gui is null, a gui was closed
-        // therefore clear the lastClickFlipMessage, so it doesn't show on other auctions
+        // therefore clear the lastClickFlipMessage, so it doesn't show on other
+        // auctions
         if (event.gui == null) {
             WSCommandHandler.flipHandler.lastClickedFlipMessage = "";
         }
 
-        if (!config.extendedtooltips) return;
-        if (descriptionHandler != null) descriptionHandler.Close();
-        if (event.gui == null) emptyTooltipData();
+        if (!config.extendedtooltips)
+            return;
+        if (descriptionHandler != null)
+            descriptionHandler.Close();
+        if (event.gui == null)
+            emptyTooltipData();
 
-        if (!(event.gui instanceof GuiContainer)) return;
+        if (!(event.gui instanceof GuiContainer))
+            return;
         new Thread(() -> {
             try {
                 descriptionHandler = new DescriptionHandler();
@@ -237,8 +279,10 @@ public class EventRegistry {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onItemTooltipEvent(ItemTooltipEvent event) {
-        if (!config.extendedtooltips) return;
-        if (descriptionHandler == null) return;
+        if (!config.extendedtooltips)
+            return;
+        if (descriptionHandler == null)
+            return;
         descriptionHandler.setTooltips(event);
     }
 }

@@ -4,6 +4,8 @@ import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.configuration.Configuration;
+import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
+import de.torui.coflsky.minecraft_integration.PlayerDataProvider.PlayerPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.event.ClickEvent;
@@ -29,7 +31,7 @@ public class EventHandler {
     private static String server = "";
 
     public static void TabMenuData() {
-        if (isInSkyblock && CoflSky.Wrapper.isRunning && Configuration.getInstance().collectTab){
+        if (isInSkyblock && CoflSky.Wrapper.isRunning && Configuration.getInstance().collectTab) {
             List<String> tabdata = getTabList();
             int size = tabdata.size() - 1;
             for (int i = 0; i < tabdata.size(); i++) {
@@ -46,6 +48,13 @@ public class EventHandler {
         CoflSky.Wrapper.SendMessage(data);
     }
 
+    public static void UploadScoreboardData() {
+        if (!CoflSky.Wrapper.isRunning)
+            return;
+        Command<List<String>> data = new Command<>(CommandType.uploadScoreboard, getScoreboard());
+        CoflSky.Wrapper.SendMessage(data);
+    }
+
     public static void ScoreboardData() {
         String s;
         try {
@@ -56,32 +65,38 @@ public class EventHandler {
             return;
         }
         checkIfInSkyblock(s);
-        if (isInSkyblock && CoflSky.Wrapper.isRunning) {
-            List<String> scoreBoardLines = getScoreboard();
-            int size = scoreBoardLines.size() - 1;
-            boolean hasFoundCatacombs = false;
-            for (int i = 0; i < scoreBoardLines.size(); i++) {
-                String line = EnumChatFormatting.getTextWithoutFormattingCodes(scoreBoardLines.get(size - i).toLowerCase());
-                if (line.contains("the catacombs")) {
-                    hasFoundCatacombs = true;
-                }
-                if (Configuration.getInstance().collectScoreboard) {
-                    ProcessScoreboard(line);
-                }
+        if (!isInSkyblock || !CoflSky.Wrapper.isRunning)
+            return;
 
+        List<String> scoreBoardLines = getScoreboard();
+        int size = scoreBoardLines.size() - 1;
+        for (int i = 0; i < scoreBoardLines.size(); i++) {
+            String line = EnumChatFormatting.getTextWithoutFormattingCodes(scoreBoardLines.get(size - i).toLowerCase());
+            if (Configuration.getInstance().collectScoreboard) {
+                ProcessScoreboard(line);
             }
-            if (hasFoundCatacombs && !isInTheCatacombs) {
-                Command<String> data = new Command<>(CommandType.set, "disableFlips true");
-                CoflSky.Wrapper.SendMessage(data);
-                isInTheCatacombs = true;
-            }
-            if (isInTheCatacombs && !hasFoundCatacombs) {
-                Command<String> data = new Command<>(CommandType.set, "disableFlips false");
-                CoflSky.Wrapper.SendMessage(data);
-                isInTheCatacombs = false;
+            if (line.contains("⏣") && !line.equals(location)) {
+                location = line;
+                try {
+                    Thread.sleep(20);
+                    UploadLocation();
+                    Thread.sleep(20);
+                    UploadScoreboardData();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
+
+    private static void UploadLocation() {
+        if (!Configuration.getInstance().collectLocation)
+            return;
+        Command<PlayerPosition> data = new Command<>(CommandType.updateLocation,
+                PlayerDataProvider.getPlayerPosition());
+        CoflSky.Wrapper.SendMessage(data);
+    }
+
     private static List<String> getScoreboard() {
         ArrayList<String> scoreboardAsText = new ArrayList<>();
         if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().theWorld == null) {
@@ -104,7 +119,7 @@ public class EventHandler {
             ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(playerName);
             String lineText = EnumChatFormatting.getTextWithoutFormattingCodes(
                     ScorePlayerTeam.formatPlayerName(scorePlayerTeam, line.getPlayerName()));
-            scoreboardAsText.add(lineText.replace(line.getPlayerName(),""));
+            scoreboardAsText.add(lineText.replace(line.getPlayerName(), ""));
         }
         return scoreboardAsText;
     }
@@ -120,39 +135,33 @@ public class EventHandler {
             if (playerInfo.getDisplayName() != null) {
                 toDisplay = playerInfo.getDisplayName().getFormattedText();
             } else {
-                toDisplay = ScorePlayerTeam.formatPlayerName(playerInfo.getPlayerTeam(), playerInfo.getGameProfile().getName());
+                toDisplay = ScorePlayerTeam.formatPlayerName(playerInfo.getPlayerTeam(),
+                        playerInfo.getGameProfile().getName());
             }
             tabListAsString.add(EnumChatFormatting.getTextWithoutFormattingCodes(toDisplay));
         }
         return tabListAsString;
     }
+
     private static void ProcessTabMenu(String line) {
-        if (Configuration.getInstance().collectLobbyChanges && line.contains("server:")) {
+        if (line.contains("server:")) {
             String server_ = line.split("server: ")[1];
             if (!server.equals(server_)) {
                 server = server_;
-                Command<String> data = new Command<>(CommandType.updateServer, server);
-                CoflSky.Wrapper.SendMessage(data);
                 UploadTabData();
-            }
-        } else if (line.contains("area:")) {
-            String location_ = line.split("area: ")[1];
-            if (!location.equals(location_)) {
-                location = location_;
-                Command<String> data = new Command<>(CommandType.updateLocation, location);
-                CoflSky.Wrapper.SendMessage(data);
             }
         }
     }
+
     private static void checkIfInSkyblock(String s) {
         if (s.contains("SKYBLOCK") && !isInSkyblock) {
-            if (config.autoStart){
+            if (config.autoStart) {
                 CoflSky.Wrapper.stop();
                 CoflSky.Wrapper.startConnection();
             }
             isInSkyblock = true;
         } else if (!s.contains("SKYBLOCK") && isInSkyblock) {
-            if (config.autoStart){
+            if (config.autoStart) {
                 CoflSky.Wrapper.stop();
                 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("connection to ")
                         .appendSibling(new ChatComponentText("C").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
@@ -168,18 +177,21 @@ public class EventHandler {
             isInSkyblock = false;
         }
     }
-    private static void ProcessScoreboard(String line){
+
+    private static void ProcessScoreboard(String line) {
         if (line.contains("purse") || line.contains("piggy")) {
             long purse_ = 0;
             try {
-                purse_ = parseLong(line.split(" ")[1].replace(",", ""));
-            } catch (NumberFormatException e) {
+                purse_ = parseLong(line.split(" ")[1].replace(",", "").split("\\.")[0]);
+            } catch (Exception e) {
                 e.printStackTrace();
+                System.out.println("unparsable purse: " + line);
             }
             if (purse != purse_) {
                 purse = purse_;
                 Command<Long> data = new Command<>(CommandType.updatePurse, purse);
                 CoflSky.Wrapper.SendMessage(data);
+                UploadLocation();
             }
         } else if (line.contains("bits")) {
             long bits_ = 0;
