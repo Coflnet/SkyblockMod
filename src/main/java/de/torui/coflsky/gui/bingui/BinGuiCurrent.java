@@ -57,7 +57,7 @@ public class BinGuiCurrent extends GuiChest {
     private GuiChest chestGui;
 
     public BinGuiCurrent(IInventory playerInventory, IInventory chestInventory, String message, String extraData) {
-        super(chestInventory, playerInventory);
+        super(playerInventory, chestInventory);
         this.message = message;
         this.lore = new String[]{"Loading..."};
         if (extraData.length() >= 32) {
