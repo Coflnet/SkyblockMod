@@ -60,7 +60,8 @@ public class CoflSkyCommand extends CommandBase {
             + "§bstop: §7stops the connection\n"
             + "§bconnect: §7Connects to a different server\n"
             + "§breset: §7resets all local session information and stops the connection\n"
-            + "§bstatus: §7Emits status information\nServer-Only Commands:";
+            + "§bstatus: §7Emits status information\n"
+            + "§bsetgui: §7Changes the auction purchase GUI\nServer-Only Commands:";
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
