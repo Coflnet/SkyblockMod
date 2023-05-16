@@ -29,8 +29,6 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
-
-import java.awt.event.MouseWheelEvent;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
@@ -81,7 +79,7 @@ public class BinGuiCurrent extends GuiChest {
     public void onGuiOpen(GuiOpenEvent event) {
 
         if (event.gui == null) {
-            resetGUI();
+            return;
         }
 
         isRendered = false;
@@ -221,7 +219,6 @@ public class BinGuiCurrent extends GuiChest {
                 //play a anvilsound
                 mc.thePlayer.playSound("random.anvil_land", 1, 1);
                 resetGUI();
-                mc.thePlayer.closeScreen();
             }
         }
 
@@ -273,7 +270,7 @@ public class BinGuiCurrent extends GuiChest {
         itemStack = null;
         hasInitialMouseSet = false;
         isRendered = false;
-        Mouse.setGrabbed(true);
+        mc.thePlayer.closeScreen();
         MinecraftForge.EVENT_BUS.unregister(this);
     }
 
@@ -339,7 +336,6 @@ public class BinGuiCurrent extends GuiChest {
         ) {
             //close the gui
             resetGUI();
-            mc.thePlayer.closeScreen();
         }
     }
 
