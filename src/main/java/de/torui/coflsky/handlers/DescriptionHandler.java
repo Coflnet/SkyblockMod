@@ -51,12 +51,13 @@ public class DescriptionHandler {
     public static String ExtractStackableIdFromItemStack(ItemStack stack) {
         if (stack != null) {
             try {
-                String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes")
-                        .getString("id") + ":" + stack.stackSize;
-                if (uuid.length() == 0) {
-                    throw new Exception();
-                }
-                return uuid;
+                NBTTagCompound serialized = stack.serializeNBT();
+                String itemTag = serialized.getCompoundTag("tag").getCompoundTag("ExtraAttributes")
+                        .getString("id");
+                if (itemTag != null && itemTag.length() > 1)
+                    return itemTag + ":" + stack.stackSize;
+                return serialized.getCompoundTag("tag").getCompoundTag("display")
+                        .getString("Name");
             } catch (Exception e) {
             }
         }
@@ -91,25 +92,33 @@ public class DescriptionHandler {
         return EMPTY_ARRAY;
     }
 
+    /**
+     * Called when the inventory is opened
+     * checks for changes every once in a while and updates the description if
+     * there was a change found
+     * 
+     * @param event
+     */
     public void loadDescriptionAndListenForChanges(GuiOpenEvent event) {
 
         GuiContainer gc = (GuiContainer) event.gui;
 
         loadDescriptionForInventory(event, gc, false);
-        int iteration = 0;
+        int iteration = 1;
         while (IsOpen) {
-            iteration++;
             try {
-                Thread.sleep(300 + iteration);
+                Thread.sleep(300 + iteration++);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            if (shouldUpdate || iteration % 10 == 0 && hasAnyStackChanged(gc)) {
+            if (shouldUpdate || hasAnyStackChanged(gc)) {
                 shouldUpdate = false;
                 loadDescriptionForInventory(event, gc, true);
+                // reduce update time since its more likely that more changes occure after one
+                iteration = 5;
             }
             if (iteration >= 30)
-                iteration = 30; // cap at 9 second update interval
+                iteration = 29; // cap at 9 second update interval
         }
     }
 
@@ -201,7 +210,8 @@ public class DescriptionHandler {
 
         for (DescModification datum : data) {
             if (event.toolTip.size() <= datum.line) {
-                System.out.println("Skipped line modification " + datum.line + " for " + event.itemStack.getDisplayName());
+                System.out.println(
+                        "Skipped line modification " + datum.line + " for " + event.itemStack.getDisplayName());
                 continue;
             }
             switch (datum.type) {
