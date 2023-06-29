@@ -145,12 +145,12 @@ public class BinGuiCurrent extends GuiChest {
                 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §cBed is not purchasable yet."));
                 buyState = BuyState.INIT;
             } else {
-                mc.playerController.windowClick(this.chestGui.inventorySlots.windowId, 31, 2, 3, mc.thePlayer);
+                mc.playerController.windowClick(this.chestGui.inventorySlots.windowId, 31, 0, 0, mc.thePlayer);
                 wasMouseDown = false;
                 buyState = BuyState.CONFIRM;
             }
         } else if (guiName.equalsIgnoreCase("Confirm Purchase") && buyState == BuyState.BUYING) {
-            mc.playerController.windowClick(this.chestGui.inventorySlots.windowId, 11, 2, 3, mc.thePlayer);
+            mc.playerController.windowClick(this.chestGui.inventorySlots.windowId, 11, 0, 0, mc.thePlayer);
             resetGUI();
         }
     }
