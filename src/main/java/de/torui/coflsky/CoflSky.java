@@ -40,10 +40,9 @@ public class CoflSky {
     public static LocalConfig config;
 
     public static final String[] webSocketURIPrefix = new String[]{
-            "wss://sky.coflnet.com/modsocket",
-            "wss://sky-mod.coflnet.com/modsocket",
-            "ws://sky.coflnet.com/modsocket",
-            "ws://sky-mod.coflnet.com/modsocket",
+        "wss://sky.coflnet.com/modsocket",
+        // fallback for old java versions not supporting new tls certificates
+        "ws://sky-mod.coflnet.com/modsocket",
     };
 
     public static String CommandUri = Config.BaseUrl + "/api/mod/commands";
