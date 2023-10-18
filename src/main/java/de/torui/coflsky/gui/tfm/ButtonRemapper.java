@@ -264,7 +264,7 @@ public class ButtonRemapper {
 
     private void clickSlot(int windowId, int slot) {
         Minecraft.getMinecraft().playerController.windowClick(windowId,
-                slot, 2, 3, Minecraft.getMinecraft().thePlayer);
+                slot, 0, 0, Minecraft.getMinecraft().thePlayer);
     }
 
     private void handleBuyClick(GuiChest currentScreen, GuiScreenEvent.MouseInputEvent.Pre event) {
