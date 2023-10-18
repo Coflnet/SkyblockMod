@@ -44,6 +44,7 @@ public class BinGuiCurrent extends GuiChest {
     private int pixelsScrolled = 0;
     private boolean wasMouseDown;
     private boolean isRendered = false;
+    private boolean isClosing = false;
     private boolean hasInitialMouseSet = false;
 
     // set if the auction was already bought
@@ -157,6 +158,9 @@ public class BinGuiCurrent extends GuiChest {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        if(isClosing){
+            return;
+        }
         Mouse.setGrabbed(false);
         isRendered = true;
 
@@ -270,6 +274,8 @@ public class BinGuiCurrent extends GuiChest {
         itemStack = null;
         hasInitialMouseSet = false;
         isRendered = false;
+        isClosing = true;
+        Mouse.setGrabbed(true);
         mc.thePlayer.closeScreen();
         MinecraftForge.EVENT_BUS.unregister(this);
     }
