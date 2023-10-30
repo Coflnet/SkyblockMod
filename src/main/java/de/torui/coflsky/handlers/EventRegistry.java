@@ -58,19 +58,22 @@ public class EventRegistry {
         }
     }
 
-    public long LastClick = System.currentTimeMillis();
-    public boolean LastKeyboardState;
+    public static long LastClick = System.currentTimeMillis();
+    public static Boolean LastHotkeyState;
     private DescriptionHandler descriptionHandler;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onKeyEvent(KeyInputEvent event) {
 
-        if(Keyboard.getEventKeyState() == LastKeyboardState){
+        if (LastHotkeyState != null && Keyboard.getEventKeyState() == LastHotkeyState) {
             return;
         }
-        LastKeyboardState = Keyboard.getEventKeyState();
+        LastHotkeyState = Keyboard.getEventKeyState();
+        onAfterKeyPressed();
+    }
 
+    public static void onAfterKeyPressed() {
         if (CoflSky.keyBindings[0].isPressed()) {
             if (WSCommandHandler.lastOnClickEvent != null) {
                 FlipData f = WSCommandHandler.flipHandler.fds.GetLastFlip();

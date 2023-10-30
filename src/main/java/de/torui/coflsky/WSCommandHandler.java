@@ -25,7 +25,6 @@ import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 
@@ -97,8 +96,8 @@ public class WSCommandHandler {
         Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
         ChatMessage(showCmd);
         flipHandler.fds.Insert(cmd.getData());
-        // trigger the keyevent to execute the event handler
-        CoflSky.Events.onKeyEvent(null);
+        // trigger the onAfterHotkeyPressed function to open the flip if the correct hotkey is currently still pressed
+        EventRegistry.onAfterKeyPressed();
     }
 
     private static void handleProxyRequest(ProxyRequest[] request) {
@@ -106,7 +105,6 @@ public class WSCommandHandler {
             proxyManager.handleRequestAsync(req);
         }
     }
-
 
     public static void cacheMods() {
         File modFolder = new File(Minecraft.getMinecraft().mcDataDir, "mods");
