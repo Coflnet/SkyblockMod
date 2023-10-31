@@ -56,12 +56,10 @@ public class WSClientWrapper {
     
     
     public boolean startConnection() {
-    	
     	if(isRunning)
     		return false;
     	
     	for(String s : uris) {
-    		
     		System.out.println("Trying connection with uri=" + s);
     		
     		if(initializeNewSocket(s)) {
@@ -71,17 +69,15 @@ public class WSClientWrapper {
     	
     	Minecraft.getMinecraft().thePlayer.addChatMessage(
     			new ChatComponentText("Cofl could not establish a connection to any server!"+
-    	"\nIf you think this is a bug. Please report it on our Discord and include the ")
+    	"\nIf you use a vpn/proxy please try connecting without it.\n"
+		"If that does not work please contact us on our ")
     			.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED))
-    			.appendSibling(new ChatComponentText("logs!")
+    			.appendSibling(new ChatComponentText("discord!")
     							.setChatStyle(new ChatStyle()
-								.setUnderlined(true)
 								.setColor(EnumChatFormatting.BLUE)
-    							.setChatClickEvent(new ClickEvent(Action.OPEN_URL, "https://www.youtube.com/watch?v=9Kb29wEcMcs")))));
+    							.setChatClickEvent(new ClickEvent(Action.OPEN_URL, "https://discord.gg/wvKXfTgCfb")))));
     	
     	return false;
-    	//throw new Error("Could not connect to any websocket remote!");
-    	
     }
     
     
