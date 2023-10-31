@@ -68,9 +68,9 @@ public class WSClientWrapper {
     	}
     	
     	Minecraft.getMinecraft().thePlayer.addChatMessage(
-    			new ChatComponentText("Cofl could not establish a connection to any server!"+
-    	"\nIf you use a vpn/proxy please try connecting without it.\n"
-		"If that does not work please contact us on our ")
+    			new ChatComponentText("Cofl could not establish a connection to any server!\n"
+				 + "If you use a vpn/proxy please try connecting without it.\n"
+				 + "If that does not work please contact us on our ")
     			.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED))
     			.appendSibling(new ChatComponentText("discord!")
     							.setChatStyle(new ChatStyle()
