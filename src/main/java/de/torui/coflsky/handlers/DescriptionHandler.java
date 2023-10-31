@@ -187,6 +187,8 @@ public class DescriptionHandler {
                 if (id.length() > 0)
                     tooltipItemIdMap.put(id, arr[i]);
 
+                if(stack == null)
+                    continue;
                 NBTTagList lore = stack.getTagCompound().getCompoundTag("display").getTagList("Lore", 8);
                 for (int j = 0; j < lore.tagCount(); j++) {
                     String tag = lore.get(j).toString();
@@ -195,7 +197,6 @@ public class DescriptionHandler {
                         shouldGetRefreshed = true;
                     }
                 }
-
             }
 
         } catch (IOException e) {
