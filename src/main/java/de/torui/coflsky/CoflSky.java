@@ -29,7 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @Mod(modid = CoflSky.MODID, version = CoflSky.VERSION)
 public class CoflSky {
     public static final String MODID = "CoflSky";
-    public static final String VERSION = "1.5.2-Alpha";
+    public static final String VERSION = "1.5.4-Alpha";
 
     public static WSClientWrapper Wrapper;
     public static KeyBinding[] keyBindings;
