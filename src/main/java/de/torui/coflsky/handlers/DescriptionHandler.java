@@ -35,7 +35,8 @@ public class DescriptionHandler {
         public int line;
     }
 
-    public static HashMap<ItemStack, DescModification[]> tooltipItemMap = new HashMap<>();
+    public static String allItemIds;
+
     public static HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<>();
 
     public static final DescModification[] EMPTY_ARRAY = new DescModification[0];
@@ -80,9 +81,6 @@ public class DescriptionHandler {
     }
 
     private DescModification[] getTooltipData(ItemStack itemStack) {
-        if (tooltipItemMap.containsKey(itemStack)) {
-            return tooltipItemMap.getOrDefault(itemStack, EMPTY_ARRAY);
-        }
         String id = ExtractIdFromItemStack(itemStack);
         if (tooltipItemIdMap.containsKey(id)) {
             return tooltipItemIdMap.getOrDefault(id, EMPTY_ARRAY);
@@ -96,24 +94,24 @@ public class DescriptionHandler {
      * Called when the inventory is opened
      * checks for changes every once in a while and updates the description if
      * there was a change found
-     * 
+     *
      * @param event
      */
     public void loadDescriptionAndListenForChanges(GuiOpenEvent event) {
 
         GuiContainer gc = (GuiContainer) event.gui;
 
-        loadDescriptionForInventory(event, gc, false);
+        shouldUpdate = loadDescriptionForInventory(event, gc, false);
         int iteration = 1;
         while (IsOpen) {
             try {
-                Thread.sleep(300 + iteration++);
+                Thread.sleep(300 * iteration++);
+                iteration++;
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             if (shouldUpdate || hasAnyStackChanged(gc)) {
-                shouldUpdate = false;
-                loadDescriptionForInventory(event, gc, true);
+                shouldUpdate = loadDescriptionForInventory(event, gc, true);
                 // reduce update time since its more likely that more changes occure after one
                 iteration = 5;
             }
@@ -123,16 +121,22 @@ public class DescriptionHandler {
     }
 
     private static boolean hasAnyStackChanged(GuiContainer gc) {
-        for (Slot obj : gc.inventorySlots.inventorySlots) {
-            ItemStack stack = obj.getStack();
-            if (stack != null && !tooltipItemMap.containsKey(stack)) {
-                return true;
-            }
-        }
-        return false;
+        return !allItemIds.equals(getCurrentInventoryIds(gc));
     }
 
-    private static void loadDescriptionForInventory(GuiOpenEvent event, GuiContainer gc, boolean skipLoadCheck) {
+    private static String getCurrentInventoryIds(GuiContainer gc){
+        StringBuilder builder = new StringBuilder();
+
+        for (Slot obj : gc.inventorySlots.inventorySlots) {
+            ItemStack stack = obj.getStack();
+            String id = ExtractIdFromItemStack(stack);
+            builder.append(id);
+        }
+
+        return builder.toString();
+    }
+
+    private static boolean loadDescriptionForInventory(GuiOpenEvent event, GuiContainer gc, boolean skipLoadCheck) {
         InventoryWrapper wrapper = new InventoryWrapper();
         if (event.gui instanceof GuiChest) {
             if (!skipLoadCheck)
@@ -146,6 +150,8 @@ public class DescriptionHandler {
             }
         }
 
+        allItemIds = getCurrentInventoryIds(gc);
+
         NBTTagCompound compound = new NBTTagCompound();
         NBTTagList tl = new NBTTagList();
 
@@ -158,6 +164,7 @@ public class DescriptionHandler {
             }
         }
 
+        boolean shouldGetRefreshed = false;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             compound.setTag("i", tl);
@@ -174,18 +181,28 @@ public class DescriptionHandler {
             String info = QueryServerCommands.PostRequest(Config.BaseUrl + "/api/mod/description/modifications", data);
 
             DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
-            int i = 0;
-            for (ItemStack stack : stacks) {
-                tooltipItemMap.put(stack, arr[i]);
+            for (int i = 0; i < stacks.size(); i++) {
+                ItemStack stack = stacks.get(i);
                 String id = ExtractIdFromItemStack(stack);
                 if (id.length() > 0)
                     tooltipItemIdMap.put(id, arr[i]);
-                i++;
+
+                NBTTagList lore = stack.getTagCompound().getCompoundTag("display").getTagList("Lore", 8);
+                for (int j = 0; j < lore.tagCount(); j++) {
+                    String tag = lore.get(j).toString();
+                    System.out.println("tag: " + tag);
+                    if(tag.contains("§7Refreshing...")){
+                        shouldGetRefreshed = true;
+                    }
+                }
+
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return shouldGetRefreshed;
     }
 
     private static void waitForChestContentLoad(GuiOpenEvent event, GuiContainer gc) {
@@ -235,8 +252,6 @@ public class DescriptionHandler {
      * Called when the inventory is closed
      */
     public static void emptyTooltipData() {
-        tooltipItemMap.clear();
-        tooltipItemIdMap.clear();
         tooltipItemIdMap.clear();
     }
 }
