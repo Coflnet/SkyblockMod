@@ -38,6 +38,7 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnection
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.lwjgl.input.Keyboard;
 
 import static de.torui.coflsky.CoflSky.config;
 import static de.torui.coflsky.handlers.DescriptionHandler.*;
@@ -57,13 +58,22 @@ public class EventRegistry {
         }
     }
 
-    public long LastClick = System.currentTimeMillis();
+    public static long LastClick = System.currentTimeMillis();
+    public static Boolean LastHotkeyState;
     private DescriptionHandler descriptionHandler;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onKeyEvent(KeyInputEvent event) {
 
+        if (LastHotkeyState != null && Keyboard.getEventKeyState() == LastHotkeyState) {
+            return;
+        }
+        LastHotkeyState = Keyboard.getEventKeyState();
+        onAfterKeyPressed();
+    }
+
+    public static void onAfterKeyPressed() {
         if (CoflSky.keyBindings[0].isPressed()) {
             if (WSCommandHandler.lastOnClickEvent != null) {
                 FlipData f = WSCommandHandler.flipHandler.fds.GetLastFlip();
