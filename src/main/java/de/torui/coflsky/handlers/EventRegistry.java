@@ -287,6 +287,12 @@ public class EventRegistry {
         }).start();
     }
 
+    @SubscribeEvent
+    public void onBackgroundRenderDone(GuiScreenEvent.BackgroundDrawnEvent event) {
+        if(descriptionHandler != null)
+            descriptionHandler.highlightSlots(event);
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onItemTooltipEvent(ItemTooltipEvent event) {
         if (!config.extendedtooltips)
