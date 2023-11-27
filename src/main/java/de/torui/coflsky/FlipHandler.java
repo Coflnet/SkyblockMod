@@ -99,7 +99,6 @@ public class FlipHandler {
 
         public FlipData getFlipById(String id) {
             FlipData[] flips = Flips.values().stream().filter(flipData -> flipData.Id.equals(id)).toArray(FlipData[]::new);
-            Flips.forEach((key, value) -> System.out.println(value.Id));
             if (flips.length == 0) {
                 return null;
             }
