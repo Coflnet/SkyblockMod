@@ -3,8 +3,11 @@ package de.torui.coflsky.handlers;
 import de.torui.coflsky.Config;
 import de.torui.coflsky.network.QueryServerCommands;
 import de.torui.coflsky.network.WSClient;
+import de.torui.coflsky.utils.ReflectionUtil;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -13,10 +16,12 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -247,6 +252,39 @@ public class DescriptionHandler {
             }
         }
     }
+
+    public static MethodHandle xSizeField = ReflectionUtil.getField(GuiContainer.class, "xSize", "field_146999_f", "f");
+    public static MethodHandle ySizeField = ReflectionUtil.getField(GuiContainer.class, "ySize", "field_147000_g", "g");
+
+    public void highlightSlots(GuiScreenEvent.BackgroundDrawnEvent event) {
+        if (!(event.gui instanceof GuiContainer)) {
+            return;
+        }
+        GuiContainer containerGui = (GuiContainer) event.gui;
+        for (Slot inventorySlot : containerGui.inventorySlots.inventorySlots) {
+            if (!inventorySlot.getHasStack()) continue;
+            DescModification[] tooltipData = getTooltipData(inventorySlot.getStack());
+            for (DescModification modification : tooltipData) {
+                if ("HIGHLIGHT".equals(modification.type)) {
+                    int color = (int) (Long.parseLong(modification.value, 16) & 0xFFFFFFFFL);
+                    try {
+                        int guiTop = (containerGui.height - (int) ySizeField.invokeExact(containerGui)) / 2;
+                        int guiLeft = (containerGui.width - (int) xSizeField.invokeExact(containerGui)) / 2;
+                        int slotX = inventorySlot.xDisplayPosition + guiLeft;
+                        int slotY = inventorySlot.yDisplayPosition + guiTop;
+                        GlStateManager.pushMatrix();
+                        GlStateManager.translate(0, 0, 0.1);
+                        Gui.drawRect(slotX, slotY, slotX + 16, slotY + 16,
+                                modification.value.length() > 6 ? color : (color | 0xFF000000));
+                        GlStateManager.popMatrix();
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+    }
+
 
     /**
      * Called when the inventory is closed
