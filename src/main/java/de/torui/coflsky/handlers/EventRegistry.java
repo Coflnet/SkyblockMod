@@ -68,8 +68,6 @@ public class EventRegistry {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onMouseEvent(InputEvent.MouseInputEvent event) {
-
-
         if (LastEventButtonState != null && Mouse.getEventButtonState() == LastEventButtonState) {
             return;
         }
