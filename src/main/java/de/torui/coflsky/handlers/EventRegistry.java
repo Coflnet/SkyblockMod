@@ -33,12 +33,14 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import static de.torui.coflsky.CoflSky.config;
 import static de.torui.coflsky.handlers.DescriptionHandler.*;
@@ -60,12 +62,22 @@ public class EventRegistry {
 
     public static long LastClick = System.currentTimeMillis();
     public static Boolean LastHotkeyState;
+    public static Boolean LastEventButtonState;
     private DescriptionHandler descriptionHandler;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
-    public void onKeyEvent(KeyInputEvent event) {
+    public void onMouseEvent(InputEvent.MouseInputEvent event) {
+        if (LastEventButtonState != null && Mouse.getEventButtonState() == LastEventButtonState) {
+            return;
+        }
+        LastEventButtonState = Mouse.getEventButtonState();
+        onAfterKeyPressed();
+    }
 
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
+    public void onKeyEvent(KeyInputEvent event) {
         if (LastHotkeyState != null && Keyboard.getEventKeyState() == LastHotkeyState) {
             return;
         }
