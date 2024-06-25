@@ -187,7 +187,7 @@ public class CoflSkyCommand extends CommandBase {
                         SendCommandToServer(args, sender);
                 }
             } else {
-                SendCommandToServer("help", "general");
+                SendCommandToServer("help", "general", sender);
             }
         }).start();
     }
@@ -228,10 +228,10 @@ public class CoflSkyCommand extends CommandBase {
 
     public void SendCommandToServer(String[] args, ICommandSender sender) {
         String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-        SendCommandToServer(args[0], command);
+        SendCommandToServer(args[0], command, sender);
     }
 
-    public void SendCommandToServer(string command, string arguments) {
+    public void SendCommandToServer(String command, String arguments, ICommandSender sender) {
         RawCommand rc = new RawCommand(command, WSClient.gson.toJson(arguments));
         if (CoflSky.Wrapper.isRunning) {
             CoflSky.Wrapper.SendMessage(rc);
