@@ -18,4 +18,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "CoflMod"
+rootProject.name = "SkyCofl"

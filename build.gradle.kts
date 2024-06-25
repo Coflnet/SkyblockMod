@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "de.torui.coflmod"
-version = "1.5.5-alpha"
+version = "1.5.6-alpha"
 
 // Toolchains:
 java {
@@ -63,7 +63,7 @@ tasks.withType(JavaCompile::class) {
 }
 
 tasks.withType(Jar::class) {
-    archiveBaseName.set("CoflMod")
+    archiveBaseName.set("SkyCofl")
     manifest.attributes.run {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"

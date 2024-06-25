@@ -126,9 +126,9 @@ public class CoflSkyCommand extends CommandBase {
                             CoflSky.Wrapper.stop();
                             sender.addChatMessage(new ChatComponentText("Opening connection to " + destination));
                             if (CoflSky.Wrapper.initializeNewSocket(destination)) {
-                                sender.addChatMessage(new ChatComponentText("Success"));
+                                sender.addChatMessage(new ChatComponentText("SkyCofl server is reachable, waiting for connection to be established"));
                             } else {
-                                sender.addChatMessage(new ChatComponentText("Could not open connection, please check the logs"));
+                                sender.addChatMessage(new ChatComponentText("Could not open connection, please check the logs and report them on your Discord!"));
                             }
                         } else {
                             sender.addChatMessage(new ChatComponentText("§cPleace specify a server to connect to"));
@@ -187,7 +187,7 @@ public class CoflSkyCommand extends CommandBase {
                         SendCommandToServer(args, sender);
                 }
             } else {
-                ListHelp(sender);
+                SendCommandToServer("help", "general");
             }
         }).start();
     }
@@ -195,11 +195,11 @@ public class CoflSkyCommand extends CommandBase {
     private void HandleReset() {
         CoflSky.Wrapper.SendMessage(new Command<String>(CommandType.Reset, ""));
         CoflSky.Wrapper.stop();
-        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Stopping Connection to CoflNet"));
+        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Stopping Connection to SkyCofl"));
         CoflSessionManager.DeleteAllCoflSessions();
-        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Deleting CoflNet sessions..."));
+        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Deleting SkyCofl sessions..."));
         if (CoflSky.Wrapper.startConnection())
-            Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Started the Connection to CoflNet"));
+            Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Started the Connection to SkyCofl"));
     }
 
     public String StatusMessage() {
@@ -228,9 +228,11 @@ public class CoflSkyCommand extends CommandBase {
 
     public void SendCommandToServer(String[] args, ICommandSender sender) {
         String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        SendCommandToServer(args[0], command);
+    }
 
-        //JsonStringCommand sc = new JsonStringCommand(args[0], WSClient.gson.toJson(command));
-        RawCommand rc = new RawCommand(args[0], WSClient.gson.toJson(command));
+    public void SendCommandToServer(string command, string arguments) {
+        RawCommand rc = new RawCommand(command, WSClient.gson.toJson(arguments));
         if (CoflSky.Wrapper.isRunning) {
             CoflSky.Wrapper.SendMessage(rc);
         } else {

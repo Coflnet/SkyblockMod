@@ -46,7 +46,7 @@ public class WSClient extends WebSocketAdapter {
 		
 	}
 	
-	public void start() throws IOException, WebSocketException, NoSuchAlgorithmException {
+	public synchronized void start() throws IOException, WebSocketException, NoSuchAlgorithmException {
 		WebSocketFactory factory = new WebSocketFactory();
 		
 		/*// Create a custom SSL context.
@@ -70,7 +70,7 @@ public class WSClient extends WebSocketAdapter {
 		factory.*/
 		factory.setVerifyHostname(false);
 		factory.setSSLContext(NaiveSSLContext.getInstance("TLSv1.2"));
-		factory.setConnectionTimeout(10*1000);
+		factory.setConnectionTimeout(5*1000);
 		this.socket = factory.createSocket(uri);
 		this.socket.addListener(this);
 		this.socket.connect();
@@ -91,8 +91,12 @@ public class WSClient extends WebSocketAdapter {
 		System.out.println("WebSocket Changed state to: " + newState);
 		currentState = newState;
 		
-		if(newState == WebSocketState.CLOSED && shouldRun) {
+		boolean isActiveSocket = CoflSky.Wrapper.socket == this;
+		if(newState == WebSocketState.CLOSED && shouldRun && isActiveSocket) {
 			CoflSky.Wrapper.restartWebsocketConnection();
+		}
+		if(!isActiveSocket){
+			websocket.clearListeners();
 		}
 		
 		super.onStateChanged(websocket, newState);

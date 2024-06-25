@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 import com.neovisionaries.ws.client.WebSocketException;
+import com.neovisionaries.ws.client.WebSocketState;
 
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.commands.Command;
@@ -116,13 +117,11 @@ public class WSClientWrapper {
     	
     }
     
-    private synchronized boolean start() {
-    	if(!isRunning) {
+    private boolean start() {
+    	if(socket.currentState == WebSocketState.CLOSED) {
     		try {
-    			
 				socket.start();
 				isRunning = true;
-
 				return true;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -133,9 +132,11 @@ public class WSClientWrapper {
 			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			} 
     		return false;
-    	}
+    	} else {
+			System.out.println("Status is " + socket.currentState);
+		}
 		return false;
     }
     
