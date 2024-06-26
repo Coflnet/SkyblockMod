@@ -10,6 +10,7 @@ import de.torui.coflsky.commands.RawCommand;
 import de.torui.coflsky.commands.models.*;
 import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.handlers.EventRegistry;
+import de.torui.coflsky.handlers.EventHandler;
 import de.torui.coflsky.proxy.ProxyManager;
 import de.torui.coflsky.utils.FileUtils;
 import de.torui.coflsky.commands.models.TimerData;
@@ -68,12 +69,16 @@ public class WSCommandHandler {
                 break;
             case PrivacySettings:
                 new ConfigurationManager().UpdateConfiguration(cmd.getData());
+                EventHandler.UploadScoreboardData(); // on startup
+                break;
             case Countdown:
                 StartTimer(cmd.GetAs(new TypeToken<TimerData>() {
                 }));
                 break;
             case GetMods:
                 getMods();
+            case GetScoreboard:
+                EventHandler.UploadScoreboardData();
                 break;
             case ProxyRequest:
                 handleProxyRequest(cmd.GetAs(new TypeToken<ProxyRequest[]>() {
