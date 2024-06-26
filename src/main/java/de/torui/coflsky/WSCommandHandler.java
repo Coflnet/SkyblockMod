@@ -111,7 +111,7 @@ public class WSCommandHandler {
         for (File mods : modFolder.listFiles()) {
             modListData.addFilename(mods.getName());
             try {
-                modListData.addFileHashes(FileUtils.getMD5Checksum(mods));
+                modListData.addFileHashes(FileUtils.getSha256Checksum(mods));
             } catch (Exception exception) {
                 // Highly less likely to happen unless something goes wrong
                 exception.printStackTrace();

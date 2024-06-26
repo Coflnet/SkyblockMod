@@ -70,10 +70,12 @@ public class EventHandler {
 
         List<String> scoreBoardLines = getScoreboard();
         int size = scoreBoardLines.size() - 1;
+        boolean foundPurse = false;
         for (int i = 0; i < scoreBoardLines.size(); i++) {
             String line = EnumChatFormatting.getTextWithoutFormattingCodes(scoreBoardLines.get(size - i).toLowerCase());
             if (Configuration.getInstance().collectScoreboard) {
-                ProcessScoreboard(line);
+                if(ProcessScoreboard(line))
+                    foundPurse = true;
             }
             if (line.contains("⏣") && !line.equals(location)) {
                 location = line;
@@ -86,6 +88,14 @@ public class EventHandler {
                     e.printStackTrace();
                 }
             }
+        }
+        if(!foundPurse && purse != -1)
+        {
+            purse = -1; // no purse found, sync that to server
+            Command<Long> data = new Command<>(CommandType.updatePurse, purse);
+            CoflSky.Wrapper.SendMessage(data);
+            UploadScoreboardData();
+            UploadTabData();
         }
     }
 
@@ -178,7 +188,7 @@ public class EventHandler {
         }
     }
 
-    private static void ProcessScoreboard(String line) {
+    private static boolean ProcessScoreboard(String line) {
         if (line.contains("purse") || line.contains("piggy")) {
             long purse_ = 0;
             try {
@@ -193,6 +203,7 @@ public class EventHandler {
                 CoflSky.Wrapper.SendMessage(data);
                 UploadLocation();
             }
+            return true;
         } else if (line.contains("bits")) {
             long bits_ = 0;
             try {
@@ -205,6 +216,8 @@ public class EventHandler {
                 Command<Long> data = new Command<>(CommandType.updateBits, bits);
                 CoflSky.Wrapper.SendMessage(data);
             }
+            return true;
         }
+        return false;
     }
 }

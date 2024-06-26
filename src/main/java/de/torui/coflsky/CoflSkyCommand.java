@@ -52,16 +52,9 @@ public class CoflSkyCommand extends CommandBase {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return HelpText;
+        return "Sends sub-arguments to the SkyCofl command server\n"
+        + "§b/cofl §7will request help text with more info\n";
     }
-
-    public static final String HelpText = "Available local sub-commands:\n"
-            + "§bstart: §7starts a new connection\n"
-            + "§bstop: §7stops the connection\n"
-            + "§bconnect: §7Connects to a different server\n"
-            + "§breset: §7resets all local session information and stops the connection\n"
-            + "§bstatus: §7Emits status information\n"
-            + "§bsetgui: §7Changes the auction purchase GUI\nServer-Only Commands:";
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
@@ -74,7 +67,7 @@ public class CoflSkyCommand extends CommandBase {
                         //todo: start
                         //possible workaround for https://github.com/Coflnet/SkyblockMod/issues/48
                         CoflSky.Wrapper.stop();
-                        sender.addChatMessage(new ChatComponentText("starting connection..."));
+                        sender.addChatMessage(new ChatComponentText("starting SkyCofl connection..."));
                         CoflSky.Wrapper.startConnection();
                         break;
                     case "stop":
@@ -89,12 +82,6 @@ public class CoflSkyCommand extends CommandBase {
                                 .appendSibling(new ChatComponentText(" or click this message"))
                                 .setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start")))
                         );
-                        break;
-                    case "debug":
-                        //	WSCommandHandler.HandleCommand(new Command(CommandType.Execute, "/me hewwo"), sender.getCommandSenderEntity());
-                        //	WSCommandHandler.HandleCommand(new Command(CommandType.WriteToChat, " {\"type\":\"writeToChat\",\"data\":\"{\\\"text\\\":\\\"\\\\nFLIP: º9Goblin Eg\r\n"
-                        //			+ "g º87,000 -> 13,999 ºg[BUY]\\\",\\\"onClick\\\":\\\"/viewauction f7d7295ca72f43e9876bf6da7424000c\\\",\\\"hover\\\":\\\"\\\"}\"}"), sender.getCommandSenderEntity());
-                        //WSCommandHandler.HandleCommand(new Command(CommandType.PlaySound, "{\"name\":\"random.orb\",\"pitch\":0.5}"), sender.getCommandSenderEntity());
                         break;
                     case "callback":
                         CallbackCommand(args);
@@ -247,11 +234,6 @@ public class CoflSkyCommand extends CommandBase {
         CoflSky.Wrapper.SendMessage(rc);
     }
 
-    public void ListHelp(ICommandSender sender) {
-        sender.addChatMessage(new ChatComponentText(HelpText));
-        sender.addChatMessage(new ChatComponentText(QueryServerCommands.QueryCommands()));
-    }
-
     public void CallbackCommand(String[] args) {
 
         String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
@@ -263,7 +245,5 @@ public class CoflSkyCommand extends CommandBase {
 
         System.out.println("Sent!");
         //}).start();
-
     }
-
 }
