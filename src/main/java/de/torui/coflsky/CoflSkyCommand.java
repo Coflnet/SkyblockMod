@@ -13,7 +13,6 @@ import de.torui.coflsky.gui.bingui.BinGuiManager;
 import de.torui.coflsky.gui.tfm.ButtonRemapper;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager;
 import de.torui.coflsky.minecraft_integration.CoflSessionManager.CoflSession;
-import de.torui.coflsky.network.QueryServerCommands;
 import de.torui.coflsky.network.WSClient;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import net.minecraft.client.Minecraft;
