@@ -114,6 +114,8 @@ public class WSCommandHandler {
     public static void cacheMods() {
         File modFolder = new File(Minecraft.getMinecraft().mcDataDir, "mods");
         for (File mods : modFolder.listFiles()) {
+            if(mods.isDirectory())
+                continue;
             modListData.addFilename(mods.getName());
             try {
                 modListData.addFileHashes(FileUtils.getSha256Checksum(mods));

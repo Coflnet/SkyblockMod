@@ -32,7 +32,6 @@ public class FileUtils {
         for (int i=0; i < b.length; i++) {
             result += Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring( 1 );
         }
-        System.out.println("MD5: "+result);
         return result;
     }
 
