@@ -156,7 +156,7 @@ public class WSCommandHandler {
      * Starts a countdown
      */
     private static void StartTimer(Command<TimerData> cmd) {
-        de.torui.coflsky.CountdownTimer.startCountdown(cmd.getData());
+        de.torui.coflsky.minecraft_integration.CountdownTimer.startCountdown(cmd.getData());
     }
 
     public static void Execute(String cmd, Entity sender) {

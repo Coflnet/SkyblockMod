@@ -250,7 +250,7 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void OnRenderTick(TickEvent.RenderTickEvent event) {
-        de.torui.coflsky.CountdownTimer.onRenderTick(event);
+        de.torui.coflsky.minecraft_integration.CountdownTimer.onRenderTick(event);
     }
 
     long UpdateThisTick = 0;
