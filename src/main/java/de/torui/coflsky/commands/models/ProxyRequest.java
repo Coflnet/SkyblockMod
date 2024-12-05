@@ -3,8 +3,8 @@ package de.torui.coflsky.commands.models;
 import com.google.gson.annotations.SerializedName;
 
 public class ProxyRequest {
-    @SerializedName("upload")
-    private boolean uploadEnabled;
+    @SerializedName("uploadTo")
+    private String uploadTo;
 
     @SerializedName("id")
     private String id;
@@ -21,7 +21,11 @@ public class ProxyRequest {
         return url;
     }
 
-    public boolean isUploadEnabled(){
-        return this.uploadEnabled;
+    public boolean isUploadEnabled() {
+        return this.uploadTo != null;
+    }
+    
+    public String getUploadTo() {
+        return this.uploadTo;
     }
 }

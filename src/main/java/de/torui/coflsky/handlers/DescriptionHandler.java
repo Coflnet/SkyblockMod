@@ -60,11 +60,13 @@ public class DescriptionHandler {
                 NBTTagCompound serialized = stack.serializeNBT();
                 String itemTag = serialized.getCompoundTag("tag").getCompoundTag("ExtraAttributes")
                         .getString("id");
-                if (itemTag != null && itemTag.length() > 1)
+                if (itemTag != null && itemTag.length() > 1 && !itemTag.equals("RUNE") && !itemTag.equals("POTION"))
                     return itemTag + ":" + stack.stackSize;
-                return serialized.getCompoundTag("tag").getCompoundTag("display")
+                String name = serialized.getCompoundTag("tag").getCompoundTag("display")
                         .getString("Name");
+                return name;
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return "";
@@ -129,7 +131,7 @@ public class DescriptionHandler {
         return !allItemIds.equals(getCurrentInventoryIds(gc));
     }
 
-    private static String getCurrentInventoryIds(GuiContainer gc){
+    private static String getCurrentInventoryIds(GuiContainer gc) {
         StringBuilder builder = new StringBuilder();
 
         for (Slot obj : gc.inventorySlots.inventorySlots) {
@@ -192,12 +194,12 @@ public class DescriptionHandler {
                 if (id.length() > 0)
                     tooltipItemIdMap.put(id, arr[i]);
 
-                if(stack == null)
+                if (stack == null)
                     continue;
                 NBTTagList lore = stack.getTagCompound().getCompoundTag("display").getTagList("Lore", 8);
                 for (int j = 0; j < lore.tagCount(); j++) {
                     String tag = lore.get(j).toString();
-                    if(tag.contains("§7Refreshing...")){
+                    if (tag.contains("§7Refreshing...")) {
                         shouldGetRefreshed = true;
                     }
                 }
@@ -262,7 +264,8 @@ public class DescriptionHandler {
         }
         GuiContainer containerGui = (GuiContainer) event.gui;
         for (Slot inventorySlot : containerGui.inventorySlots.inventorySlots) {
-            if (!inventorySlot.getHasStack()) continue;
+            if (!inventorySlot.getHasStack())
+                continue;
             DescModification[] tooltipData = getTooltipData(inventorySlot.getStack());
             for (DescModification modification : tooltipData) {
                 if ("HIGHLIGHT".equals(modification.type)) {
@@ -284,7 +287,6 @@ public class DescriptionHandler {
             }
         }
     }
-
 
     /**
      * Called when the inventory is closed

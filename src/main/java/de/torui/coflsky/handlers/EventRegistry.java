@@ -56,6 +56,7 @@ public class EventRegistry {
         if (CoflSky.Wrapper.isRunning) {
             System.out.println("Disconnected from server");
             CoflSky.Wrapper.stop();
+            EventHandler.isInSkyblock = false;
             System.out.println("CoflSky stopped");
         }
     }

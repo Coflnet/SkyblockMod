@@ -43,7 +43,11 @@ public class WSCommandHandler {
     private static final ProxyManager proxyManager = new ProxyManager();
 
     public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
-        System.out.println("Handling Command=" + cmd.toString());
+        String commandString = cmd.toString();
+        System.out.println("Handling Command=" + commandString);
+        if(commandString.startsWith("Command [Type=null")) {
+            return false; // unknown command
+        }
 
         switch (cmd.getType()) {
             case WriteToChat:

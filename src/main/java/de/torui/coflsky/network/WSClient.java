@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 
-import javax.net.ssl.SSLContext;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.neovisionaries.ws.client.WebSocket;
@@ -13,12 +11,13 @@ import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketState;
-import net.minecraft.client.Minecraft;
+
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
 import de.torui.coflsky.commands.Command;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.RawCommand;
+import net.minecraft.client.Minecraft;
 
 public class WSClient extends WebSocketAdapter {
 
@@ -111,7 +110,11 @@ public class WSClient extends WebSocketAdapter {
 		 System.out.println("Received: "+ text);
 		JsonStringCommand cmd = gson.fromJson(text, JsonStringCommand.class);
 		//System.out.println(cmd);
-		WSCommandHandler.HandleCommand(cmd, Minecraft.getMinecraft().thePlayer);
+		try {
+			WSCommandHandler.HandleCommand(cmd, Minecraft.getMinecraft().thePlayer);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -122,7 +125,7 @@ public class WSClient extends WebSocketAdapter {
 		Send(cmd);
 	}
 	
-	public void Send(Object obj) {
+	public synchronized void Send(Object obj) {
 		String json = gson.toJson(obj);
 		System.out.println("###Sending message of json value " + json);
 		if(this.socket == null)
