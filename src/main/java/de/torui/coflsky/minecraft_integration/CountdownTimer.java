@@ -1,4 +1,4 @@
-package de.torui.coflsky;
+package de.torui.coflsky.minecraft_integration;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
