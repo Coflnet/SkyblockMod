@@ -76,8 +76,6 @@ public class ProxyManager {
                     URL url = new URL(targetUrl);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     con.setRequestMethod("GET");
-                    // ignore tls errors
-                    con.setHostnameVerifier((hostname, session) -> true);
                     con.setRequestProperty("Accept", "application/json");
                     con.setRequestProperty("User-Agent", "CoflMod");
 

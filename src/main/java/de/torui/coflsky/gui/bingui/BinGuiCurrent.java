@@ -80,6 +80,8 @@ public class BinGuiCurrent extends GuiChest {
     public void onGuiOpen(GuiOpenEvent event) {
 
         if (event.gui == null) {
+            MinecraftForge.EVENT_BUS.unregister(this);
+            mc.thePlayer.closeScreen();
             return;
         }
 
