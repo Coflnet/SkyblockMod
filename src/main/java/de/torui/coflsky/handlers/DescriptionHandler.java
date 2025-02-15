@@ -59,13 +59,9 @@ public class DescriptionHandler {
         if (stack != null) {
             try {
                 NBTTagCompound serialized = stack.serializeNBT();
-                String itemTag = serialized.getCompoundTag("tag").getCompoundTag("ExtraAttributes")
-                        .getString("id");
-                if (itemTag != null && itemTag.length() > 1 && !itemTag.equals("RUNE") && !itemTag.equals("POTION"))
-                    return itemTag + ":" + stack.stackSize;
                 String name = serialized.getCompoundTag("tag").getCompoundTag("display")
                         .getString("Name");
-                return name;
+                return name + ":" + stack.stackSize;
             } catch (Exception e) {
                 e.printStackTrace();
             }
