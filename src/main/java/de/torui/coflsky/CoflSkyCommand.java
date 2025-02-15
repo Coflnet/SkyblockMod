@@ -23,6 +23,7 @@ import net.minecraft.event.ClickEvent;
 import net.minecraft.event.ClickEvent.Action;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -52,7 +53,26 @@ public class CoflSkyCommand extends CommandBase {
     @Override
     public String getCommandUsage(ICommandSender sender) {
         return "Sends sub-arguments to the SkyCofl command server\n"
-        + "§b/cofl §7will request help text with more info\n";
+                + "§b/cofl §7will request help text with more info\n";
+    }
+    
+    @Override
+    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+        if (args.length == 1) {
+            List<String> options = Arrays.asList(
+                "start", "stop", "report", "online", "delay", "blacklist", "bl", "whitelist", "wl", 
+                "mute", "blocked", "chat", "c", "nickname", "nick", "profit", "worstflips", "bestflips", 
+                "leaderboard", "lb", "loserboard", "buyspeedboard", "trades", "flips", "set", "s", 
+                "purchase", "buy", "transactions", "balance", "help", "h", "logout", "backup", "restore", 
+                "captcha", "importtfm", "replayactive", "reminder", "filters", "emoji", "addremindertime", 
+                "lore", "fact", "flip", "preapi", "transfercoins", "ping", "setgui", "bazaar", "bz", 
+                "switchregion", "craftbreakdown", "cheapattrib", "ca", "attributeupgrade", "au", "ownconfigs", 
+                "configs", "config", "licenses", "license", "verify", "unverify", "attributeflip", "forge", 
+                "crafts", "craft", "upgradeplan", "updatecurrentconfig", "settimezone", "cheapmuseum", "cm", 
+                "replayflips", "lowball");
+            return CommandBase.getListOfStringsMatchingLastWord(args, options);
+        }
+        return null;
     }
 
     @Override
