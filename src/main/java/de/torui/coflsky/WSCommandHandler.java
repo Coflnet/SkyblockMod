@@ -84,6 +84,10 @@ public class WSCommandHandler {
             case GetScoreboard:
                 EventHandler.UploadScoreboardData();
                 break;
+            case RegisterKeybind:
+                EventRegistry.AddHotKeys(cmd.GetAs(new TypeToken<HotkeyRegister[]>() {
+                }).getData());
+                break;
             case ProxyRequest:
                 handleProxyRequest(cmd.GetAs(new TypeToken<ProxyRequest[]>() {
                 }).getData());

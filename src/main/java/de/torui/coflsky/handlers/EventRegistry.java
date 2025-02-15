@@ -7,6 +7,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// Removed swing KeyBinding import
+
 import com.mojang.realmsclient.util.Pair;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
@@ -15,9 +17,11 @@ import de.torui.coflsky.commands.CommandType;
 import de.torui.coflsky.commands.JsonStringCommand;
 import de.torui.coflsky.commands.models.AuctionData;
 import de.torui.coflsky.commands.models.FlipData;
+import de.torui.coflsky.commands.models.HotkeyRegister;
 import de.torui.coflsky.configuration.Configuration;
 import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.ContainerChest;
@@ -31,6 +35,7 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -43,6 +48,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import static de.torui.coflsky.CoflSky.config;
+import static de.torui.coflsky.CoflSky.keyBindings;
 import static de.torui.coflsky.handlers.DescriptionHandler.*;
 import static de.torui.coflsky.handlers.EventHandler.*;
 
@@ -95,7 +101,6 @@ public class EventRegistry {
                             Minecraft.getMinecraft().thePlayer);
                 }
             }
-
         }
         if (CoflSky.keyBindings[1].isKeyDown()) {
             if ((System.currentTimeMillis() - LastClick) >= 300) {
@@ -119,6 +124,14 @@ public class EventRegistry {
                 }
             }
         }
+        if (CoflSky.keyBindings.length <= 2)
+            return;
+        for (int i = 2; i < CoflSky.keyBindings.length; i++) {
+            if (CoflSky.keyBindings[i].isPressed()) {
+                String keyName = CoflSky.keyBindings[i].getKeyDescription();
+                WSCommandHandler.Execute("/cofl hotkey " + keyName, Minecraft.getMinecraft().thePlayer);
+            }
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -129,6 +142,21 @@ public class EventRegistry {
             Minecraft mc = Minecraft.getMinecraft();
             mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj,
                     "Flips in Pipeline:" + WSCommandHandler.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
+        }
+    }
+
+    public static void AddHotKeys(HotkeyRegister[] keys) {
+        if (CoflSky.keyBindings.length > 2) {
+            System.out.println("Hotkeys already registered");
+            return; // already registered
+        }
+        // resize the keybindings array
+        CoflSky.keyBindings = java.util.Arrays.copyOf(CoflSky.keyBindings, CoflSky.keyBindings.length + keys.length);
+        for (int i = 0; i < keys.length; i++) {
+            int key = Keyboard.getKeyIndex(keys[i].DefaultKey.toUpperCase());
+            CoflSky.keyBindings[i + 2] = new KeyBinding(keys[i].Name, key, "SkyCofl");
+            System.out.println("Registered Key: " + keys[i].Name + " with key " + key);
+            ClientRegistry.registerKeyBinding(CoflSky.keyBindings[i + 2]);
         }
     }
 
@@ -302,7 +330,7 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void onBackgroundRenderDone(GuiScreenEvent.BackgroundDrawnEvent event) {
-        if(descriptionHandler != null)
+        if (descriptionHandler != null)
             descriptionHandler.highlightSlots(event);
     }
 

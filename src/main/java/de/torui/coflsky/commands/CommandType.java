@@ -59,6 +59,8 @@ public enum CommandType {
 	GetMods,
 	@SerializedName("proxy")
 	ProxyRequest,
+	@SerializedName("registerKeybind")
+	RegisterKeybind,
 	@SerializedName("getScoreboard")
 	GetScoreboard;
 
