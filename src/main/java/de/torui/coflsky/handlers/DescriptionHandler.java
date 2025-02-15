@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.BlockPos;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -154,6 +155,10 @@ public class DescriptionHandler {
             if (inv.hasCustomName()) {
                 String chestName = inv.getName();
                 wrapper.chestName = chestName;
+            }
+            BlockPos chestPos = ChestUtils.getLookedAtChest();
+            if (chestPos != null) {
+                wrapper.chestName += chestPos.toString();
             }
         }
 
