@@ -1,6 +1,8 @@
 package de.torui.coflsky.handlers;
 
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -29,6 +31,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -129,9 +133,39 @@ public class EventRegistry {
         for (int i = 2; i < CoflSky.keyBindings.length; i++) {
             if (CoflSky.keyBindings[i].isPressed()) {
                 String keyName = CoflSky.keyBindings[i].getKeyDescription();
-                WSCommandHandler.Execute("/cofl hotkey " + keyName, Minecraft.getMinecraft().thePlayer);
+                String toAppend = getContextToAppend();
+
+                WSCommandHandler.Execute("/cofl hotkey " + keyName + toAppend,
+                        Minecraft.getMinecraft().thePlayer);
             }
         }
+    }
+
+    private static String getContextToAppend() {
+        String toAppend = "";
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.thePlayer == null) {
+            return toAppend;
+        }
+
+        // Get currently selected item
+        ItemStack heldItem = mc.thePlayer.getHeldItem();
+
+        if (heldItem != null && heldItem.hasTagCompound()) {
+            // Get the item's NBT data
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            NBTTagCompound nbt = heldItem.serializeNBT();
+            try {
+                CompressedStreamTools.writeCompressed(nbt, baos);
+                String item = Base64.getEncoder().encodeToString(baos.toByteArray());
+                toAppend = "|" + item;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No NBT data found for the selected item.");
+        }
+        return toAppend;
     }
 
     @SideOnly(Side.CLIENT)
