@@ -3,7 +3,7 @@
   "modid": "CoflSky",
   "name": "SkyCofl",
   "description": "Marketdata in item lore",
-  "version": "1.5.7-Alpha",
+  "version": "1.6.0",
   "mcversion": "${mcversion}",
   "url": "https://sky.coflnet.com/mod",
   "updateUrl": "https://github.com/Coflnet/SkyblockMod/tags",

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "de.torui.coflmod"
-version = "1.5.7-alpha"
+version = "1.6.0"
 
 // Toolchains:
 java {
