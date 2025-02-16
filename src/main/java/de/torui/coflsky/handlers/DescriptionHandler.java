@@ -151,10 +151,10 @@ public class DescriptionHandler {
             if (inv.hasCustomName()) {
                 String chestName = inv.getName();
                 wrapper.chestName = chestName;
-            }
-            BlockPos chestPos = ChestUtils.getLookedAtChest();
-            if (chestPos != null) {
-                wrapper.chestName += chestPos.toString();
+                BlockPos chestPos = ChestUtils.getLookedAtChest();
+                if (chestPos != null && chestName.endsWith("hest")) {
+                    wrapper.chestName += chestPos.toString();
+                }
             }
         }
 
