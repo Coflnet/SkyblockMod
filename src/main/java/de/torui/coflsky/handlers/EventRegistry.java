@@ -128,9 +128,15 @@ public class EventRegistry {
                 }
             }
         }
-        if (CoflSky.keyBindings.length <= 2)
+        if (CoflSky.keyBindings[2].isPressed()) {
+            String toAppend = getContextToAppend();
+
+            WSCommandHandler.Execute("/cofl hotkey upload_item" + toAppend,
+                    Minecraft.getMinecraft().thePlayer);
+        }
+        if (CoflSky.keyBindings.length <= 3)
             return;
-        for (int i = 2; i < CoflSky.keyBindings.length; i++) {
+        for (int i = 3; i < CoflSky.keyBindings.length; i++) {
             if (CoflSky.keyBindings[i].isPressed()) {
                 String keyName = CoflSky.keyBindings[i].getKeyDescription();
                 String toAppend = getContextToAppend();
@@ -180,7 +186,8 @@ public class EventRegistry {
     }
 
     public static void AddHotKeys(HotkeyRegister[] keys) {
-        if (CoflSky.keyBindings.length > 2) {
+        int defaultHotkeyCount = 3;
+        if (CoflSky.keyBindings.length > defaultHotkeyCount) {
             System.out.println("Hotkeys already registered");
             return; // already registered
         }
@@ -188,9 +195,9 @@ public class EventRegistry {
         CoflSky.keyBindings = java.util.Arrays.copyOf(CoflSky.keyBindings, CoflSky.keyBindings.length + keys.length);
         for (int i = 0; i < keys.length; i++) {
             int key = Keyboard.getKeyIndex(keys[i].DefaultKey.toUpperCase());
-            CoflSky.keyBindings[i + 2] = new KeyBinding(keys[i].Name, key, "SkyCofl");
+            CoflSky.keyBindings[i + defaultHotkeyCount] = new KeyBinding(keys[i].Name, key, "SkyCofl (unchangeable)");
             System.out.println("Registered Key: " + keys[i].Name + " with key " + key);
-            ClientRegistry.registerKeyBinding(CoflSky.keyBindings[i + 2]);
+            ClientRegistry.registerKeyBinding(CoflSky.keyBindings[i + defaultHotkeyCount]);
         }
     }
 

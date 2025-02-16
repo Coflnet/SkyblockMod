@@ -69,7 +69,7 @@ public class CoflSkyCommand extends CommandBase {
                 "switchregion", "craftbreakdown", "cheapattrib", "ca", "attributeupgrade", "au", "ownconfigs", 
                 "configs", "config", "licenses", "license", "verify", "unverify", "attributeflip", "forge", 
                 "crafts", "craft", "upgradeplan", "updatecurrentconfig", "settimezone", "cheapmuseum", "cm", 
-                "replayflips", "lowball");
+                "replayflips", "lowball", "ahtax");
             return CommandBase.getListOfStringsMatchingLastWord(args, options);
         }
         return null;
