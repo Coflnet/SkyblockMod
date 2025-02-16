@@ -6,11 +6,11 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class FlipperChatCommand extends CoflSkyCommand {
 
     public static boolean useChatOnlyMode = false;
-
 
     @Override
     public String getCommandName() {
@@ -35,7 +35,8 @@ public class FlipperChatCommand extends CoflSkyCommand {
 
             if (args.length == 1 && args[0].equals("toggle")) {
                 FlipperChatCommand.useChatOnlyMode = !FlipperChatCommand.useChatOnlyMode;
-                sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bChat only mode §7to: §f" + (FlipperChatCommand.useChatOnlyMode ? "true" : "false")));
+                sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bChat only mode §7to: §f"
+                        + (FlipperChatCommand.useChatOnlyMode ? "true" : "false")));
             } else {
                 String[] newArgs = new String[args.length + 1];
                 System.arraycopy(args, 0, newArgs, 1, args.length);
@@ -43,5 +44,21 @@ public class FlipperChatCommand extends CoflSkyCommand {
                 SendCommandToServer(newArgs, sender);
             }
         }).start();
+    }
+
+    @Override
+    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+        if (args.length == 1) {
+            List<String> options = Arrays.asList(
+                    ":tableflip:", ":sad:", ":smile:", ":grin:", ":heart:", ":skull:", ":airplane:", ":check:", "<3",
+                    ":star:", ":yes:", ":no:", ":java:", ":arrow", ":shrug:", "o/", ":123:", ":totem:", ":typing:",
+                    ":maths:", ":snail:", ":thinking:", ":gimme:", ":wizard:", ":pvp:", ":peace:", ":oof:", ":puffer:",
+                    ":yey:", ":cat:", ":dab:", ":dj:", ":snow:", ":^_^:", ":^-^:", ":sloth:", ":cute:", ":dog:",
+                    ":fyou:", ":angwyflip:", ":snipe:", ":preapi:", ":tm:", ":r:", ":c:", ":crown:", ":fire:",
+                    ":sword:", ":shield:", ":cross:", ":star1:", ":star2:", ":star3:", ":star4:", ":rich:", ":boop:",
+                    ":yay:", ":gg:");
+            return CommandBase.getListOfStringsMatchingLastWord(args, options);
+        }
+        return null;
     }
 }
