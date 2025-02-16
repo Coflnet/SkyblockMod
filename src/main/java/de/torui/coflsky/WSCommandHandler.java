@@ -193,6 +193,8 @@ public class WSCommandHandler {
                     style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.OPEN_URL, wcmd.OnClick));
                 } else if (wcmd.OnClick.startsWith("suggest:")) {
                     style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, wcmd.OnClick.substring(8)));
+                } else if (wmcd.OnClick.startsWith("copy:")) {
+                    style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.COPY_TO_CLIPBOARD, wcmd.OnClick.substring(5)));
                 } else {
                     style = new ChatStyle()
                             .setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, lastOnClickEvent));
