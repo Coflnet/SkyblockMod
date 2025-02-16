@@ -45,7 +45,7 @@ public class WSCommandHandler {
     public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
         String commandString = cmd.toString();
         System.out.println("Handling Command=" + commandString);
-        if(commandString.startsWith("Command [Type=null")) {
+        if (commandString.startsWith("Command [Type=null")) {
             return false; // unknown command
         }
 
@@ -100,7 +100,7 @@ public class WSCommandHandler {
     }
 
     private static void Flip(Command<FlipData> cmd) {
-        //handle chat message
+        // handle chat message
         ChatMessageData[] messages = cmd.getData().Messages;
         SoundData sound = cmd.getData().Sound;
         if (sound != null && sound.Name != null) {
@@ -109,7 +109,8 @@ public class WSCommandHandler {
         Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
         ChatMessage(showCmd);
         flipHandler.fds.Insert(cmd.getData());
-        // trigger the onAfterHotkeyPressed function to open the flip if the correct hotkey is currently still pressed
+        // trigger the onAfterHotkeyPressed function to open the flip if the correct
+        // hotkey is currently still pressed
         EventRegistry.onAfterKeyPressed();
     }
 
@@ -122,7 +123,7 @@ public class WSCommandHandler {
     public static void cacheMods() {
         File modFolder = new File(Minecraft.getMinecraft().mcDataDir, "mods");
         for (File mods : modFolder.listFiles()) {
-            if(mods.isDirectory())
+            if (mods.isDirectory())
                 continue;
             modListData.addFilename(mods.getName());
             try {
@@ -156,7 +157,7 @@ public class WSCommandHandler {
 
     private static void Execute(Command<String> cmd, Entity sender) {
         System.out.println("Execute: " + cmd.getData() + " sender:" + sender);
-        //String dummy = WSClient.gson.fromJson(cmd.getData(), String.class);
+        // String dummy = WSClient.gson.fromJson(cmd.getData(), String.class);
         Execute(cmd.getData(), sender);
     }
 
@@ -175,7 +176,6 @@ public class WSCommandHandler {
         }
     }
 
-
     private static IChatComponent CommandToChatComponent(ChatMessageData wcmd, String fullMessage) {
         if (wcmd.OnClick != null) {
             if (wcmd.Text != null && wcmd.OnClick.startsWith("/viewauction")) {
@@ -192,9 +192,11 @@ public class WSCommandHandler {
                 if (wcmd.OnClick.startsWith("http")) {
                     style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.OPEN_URL, wcmd.OnClick));
                 } else if (wcmd.OnClick.startsWith("suggest:")) {
-                    style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, wcmd.OnClick.substring(8)));
-                } else if (wmcd.OnClick.startsWith("copy:")) {
-                    style = new ChatStyle().setChatClickEvent(new ClickEvent(Action.COPY_TO_CLIPBOARD, wcmd.OnClick.substring(5)));
+                    style = new ChatStyle()
+                            .setChatClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, wcmd.OnClick.substring(8)));
+                } else if (wcmd.OnClick.startsWith("copy:")) {
+                    style = new ChatStyle().setChatClickEvent(
+                            new ClickEvent(Action.RUN_COMMAND, "/cofl copyToClipboard " + wcmd.OnClick.substring(5)));
                 } else {
                     style = new ChatStyle()
                             .setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, lastOnClickEvent));
@@ -231,7 +233,6 @@ public class WSCommandHandler {
         Minecraft.getMinecraft().thePlayer.addChatMessage(master);
         return master;
     }
-
 
     private static void WriteToChat(Command<ChatMessageData> cmd) {
         ChatMessageData wcmd = cmd.getData();

@@ -121,6 +121,18 @@ public class CoflSkyCommand extends CommandBase {
                     case "reset":
                         HandleReset();
                         break;
+                    case "copytoclipboard":
+                        String textForClipboard = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+                        try {
+                            java.awt.datatransfer.StringSelection selection = new java.awt.datatransfer.StringSelection(textForClipboard);
+                            java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                            Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Text copied to clipboard!"));
+                        } catch (Exception e) {
+                            Minecraft.getMinecraft().thePlayer
+                                    .addChatMessage(new ChatComponentText("Failed to copy text to clipboard!"));
+                        }
+                        CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, WSClient.gson.toJson("copy:" + textForClipboard)));
+                        break;
                     case "connect":
                         if (args.length == 2) {
                             String destination = args[1];
