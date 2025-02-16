@@ -29,7 +29,6 @@ import net.minecraftforge.common.MinecraftForge;
 
 public class CoflSkyCommand extends CommandBase {
 
-
     @Override
     public int getRequiredPermissionLevel() {
         // TODO Auto-generated method stub
@@ -55,21 +54,36 @@ public class CoflSkyCommand extends CommandBase {
         return "Sends sub-arguments to the SkyCofl command server\n"
                 + "§b/cofl §7will request help text with more info\n";
     }
-    
+
     @Override
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
         if (args.length == 1) {
             List<String> options = Arrays.asList(
-                "start", "stop", "report", "online", "delay", "blacklist", "bl", "whitelist", "wl", 
-                "mute", "blocked", "chat", "c", "nickname", "nick", "profit", "worstflips", "bestflips", 
-                "leaderboard", "lb", "loserboard", "buyspeedboard", "trades", "flips", "set", "s", 
-                "purchase", "buy", "transactions", "balance", "help", "h", "logout", "backup", "restore", 
-                "captcha", "importtfm", "replayactive", "reminder", "filters", "emoji", "addremindertime", 
-                "lore", "fact", "flip", "preapi", "transfercoins", "ping", "setgui", "bazaar", "bz", 
-                "switchregion", "craftbreakdown", "cheapattrib", "ca", "attributeupgrade", "au", "ownconfigs", 
-                "configs", "config", "licenses", "license", "verify", "unverify", "attributeflip", "forge", 
-                "crafts", "craft", "upgradeplan", "updatecurrentconfig", "settimezone", "cheapmuseum", "cm", 
-                "replayflips", "lowball", "ahtax");
+                    "start", "stop", "report", "online", "delay", "blacklist", "bl", "whitelist", "wl",
+                    "mute", "blocked", "chat", "c", "nickname", "nick", "profit", "worstflips", "bestflips",
+                    "leaderboard", "lb", "loserboard", "buyspeedboard", "trades", "flips", "set", "s",
+                    "purchase", "buy", "transactions", "balance", "help", "h", "logout", "backup", "restore",
+                    "captcha", "importtfm", "replayactive", "reminder", "filters", "emoji", "addremindertime",
+                    "lore", "fact", "flip", "preapi", "transfercoins", "ping", "setgui", "bazaar", "bz",
+                    "switchregion", "craftbreakdown", "cheapattrib", "ca", "attributeupgrade", "au", "ownconfigs",
+                    "configs", "config", "licenses", "license", "verify", "unverify", "attributeflip", "forge",
+                    "crafts", "craft", "upgradeplan", "updatecurrentconfig", "settimezone", "cheapmuseum", "cm",
+                    "replayflips", "lowball", "ahtax", "sethotkey");
+            return CommandBase.getListOfStringsMatchingLastWord(args, options);
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("set")) {
+            List<String> options = Arrays.asList("lbin", "finders", "onlyBin", "whitelistAftermain", "DisableFlips",
+                    "DebugMode", "blockHighCompetition", "minProfit", "minProfitPercent", "minVolume", "maxCost",
+                    "modjustProfit", "modsoundOnFlip", "modshortNumbers", "modshortNames", "modblockTenSecMsg",
+                    "modformat", "modblockedFormat", "modchat", "modcountdown", "modhideNoBestFlip", "modtimerX",
+                    "modtimerY", "modtimerSeconds", "modtimerScale", "modtimerPrefix", "modtimerPrecision",
+                    "modblockedMsg", "modmaxPercentOfPurse", "modnoBedDelay", "modstreamerMode", "modautoStartFlipper",
+                    "modnormalSoldFlips", "modtempBlacklistSpam", "moddataOnlyMode", "modahListHours", "modquickSell",
+                    "modmaxItemsInInventory", "moddisableSpamProtection", "showcost", "showestProfit", "showlbin",
+                    "showslbin", "showmedPrice", "showseller", "showvolume", "showextraFields", "showprofitPercent",
+                    "showprofit", "showsellerOpenBtn", "showlore", "showhideSold", "showhideManipulated",
+                    "privacyExtendDescriptions", "privacyAutoStart", "loreHighlightFilterMatch",
+                    "loreMinProfitForHighlight", "loreDisableHighlighting");
             return CommandBase.getListOfStringsMatchingLastWord(args, options);
         }
         return null;
@@ -83,8 +97,8 @@ public class CoflSkyCommand extends CommandBase {
             if (args.length >= 1) {
                 switch (args[0].toLowerCase()) {
                     case "start":
-                        //todo: start
-                        //possible workaround for https://github.com/Coflnet/SkyblockMod/issues/48
+                        // todo: start
+                        // possible workaround for https://github.com/Coflnet/SkyblockMod/issues/48
                         CoflSky.Wrapper.stop();
                         sender.addChatMessage(new ChatComponentText("starting SkyCofl connection..."));
                         CoflSky.Wrapper.startConnection();
@@ -92,15 +106,19 @@ public class CoflSkyCommand extends CommandBase {
                     case "stop":
                         CoflSky.Wrapper.stop();
                         sender.addChatMessage(new ChatComponentText("you stopped the connection to ")
-                                .appendSibling(new ChatComponentText("C").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
-                                .appendSibling(new ChatComponentText("oflnet").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
+                                .appendSibling(new ChatComponentText("C")
+                                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
+                                .appendSibling(new ChatComponentText("oflnet")
+                                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
                                 .appendSibling(new ChatComponentText(".\n    To reconnect enter "))
-                                .appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+                                .appendSibling(new ChatComponentText("\"")
+                                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
                                 .appendSibling(new ChatComponentText("/cofl start"))
-                                .appendSibling(new ChatComponentText("\"").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
+                                .appendSibling(new ChatComponentText("\"")
+                                        .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.AQUA)))
                                 .appendSibling(new ChatComponentText(" or click this message"))
-                                .setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start")))
-                        );
+                                .setChatStyle(new ChatStyle()
+                                        .setChatClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cofl start"))));
                         break;
                     case "callback":
                         CallbackCommand(args);
@@ -124,14 +142,17 @@ public class CoflSkyCommand extends CommandBase {
                     case "copytoclipboard":
                         String textForClipboard = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                         try {
-                            java.awt.datatransfer.StringSelection selection = new java.awt.datatransfer.StringSelection(textForClipboard);
+                            java.awt.datatransfer.StringSelection selection = new java.awt.datatransfer.StringSelection(
+                                    textForClipboard);
                             java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-                            Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Text copied to clipboard!"));
+                            Minecraft.getMinecraft().thePlayer
+                                    .addChatMessage(new ChatComponentText("Text copied to clipboard!"));
                         } catch (Exception e) {
                             Minecraft.getMinecraft().thePlayer
                                     .addChatMessage(new ChatComponentText("Failed to copy text to clipboard!"));
                         }
-                        CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, WSClient.gson.toJson("copy:" + textForClipboard)));
+                        CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked,
+                                WSClient.gson.toJson("copy:" + textForClipboard)));
                         break;
                     case "connect":
                         if (args.length == 2) {
@@ -144,9 +165,11 @@ public class CoflSkyCommand extends CommandBase {
                             CoflSky.Wrapper.stop();
                             sender.addChatMessage(new ChatComponentText("Opening connection to " + destination));
                             if (CoflSky.Wrapper.initializeNewSocket(destination)) {
-                                sender.addChatMessage(new ChatComponentText("SkyCofl server is reachable, waiting for connection to be established"));
+                                sender.addChatMessage(new ChatComponentText(
+                                        "SkyCofl server is reachable, waiting for connection to be established"));
                             } else {
-                                sender.addChatMessage(new ChatComponentText("Could not open connection, please check the logs and report them on your Discord!"));
+                                sender.addChatMessage(new ChatComponentText(
+                                        "Could not open connection, please check the logs and report them on your Discord!"));
                             }
                         } else {
                             sender.addChatMessage(new ChatComponentText("§cPleace specify a server to connect to"));
@@ -156,7 +179,6 @@ public class CoflSkyCommand extends CommandBase {
                         FlipData flip = WSCommandHandler.flipHandler.fds.getFlipById(args[1]);
                         boolean shouldInvalidate = args.length >= 3 && args[2].equals("true");
 
-
                         // Is not a stored flip -> just open the auction
                         if (flip == null) {
                             WSCommandHandler.flipHandler.lastClickedFlipMessage = "";
@@ -164,7 +186,8 @@ public class CoflSkyCommand extends CommandBase {
                             return;
                         }
 
-                        String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "").split(",§7 sellers ah")[0];
+                        String oneLineMessage = String.join(" ", flip.getMessageAsString()).replaceAll("\n", "")
+                                .split(",§7 sellers ah")[0];
 
                         if (shouldInvalidate) {
                             WSCommandHandler.flipHandler.fds.InvalidateFlip(flip);
@@ -187,17 +210,20 @@ public class CoflSkyCommand extends CommandBase {
 
                         if (args[1].equalsIgnoreCase("cofl")) {
                             CoflSky.config.purchaseOverlay = GUIType.COFL;
-                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fCofl"));
+                            sender.addChatMessage(
+                                    new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fCofl"));
                             MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
                         }
                         if (args[1].equalsIgnoreCase("tfm")) {
                             CoflSky.config.purchaseOverlay = GUIType.TFM;
-                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fTFM"));
+                            sender.addChatMessage(
+                                    new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fTFM"));
                             MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
                         }
                         if (args[1].equalsIgnoreCase("off") || args[1].equalsIgnoreCase("false")) {
                             CoflSky.config.purchaseOverlay = null;
-                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fOff"));
+                            sender.addChatMessage(
+                                    new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fOff"));
                             MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
                         }
                         break;
@@ -217,7 +243,8 @@ public class CoflSkyCommand extends CommandBase {
         CoflSessionManager.DeleteAllCoflSessions();
         Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Deleting SkyCofl sessions..."));
         if (CoflSky.Wrapper.startConnection())
-            Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Started the Connection to SkyCofl"));
+            Minecraft.getMinecraft().thePlayer
+                    .addChatMessage(new ChatComponentText("Started the Connection to SkyCofl"));
     }
 
     public String StatusMessage() {
@@ -227,12 +254,12 @@ public class CoflSkyCommand extends CommandBase {
         String version = System.getProperty("java.version");
         String detailedVersion = System.getProperty("java.vm.version");
 
-        String status = vendor + " " + name + " " + version + " " + detailedVersion + "|Connection = " + (CoflSky.Wrapper != null ? CoflSky.Wrapper.GetStatus() : "UNINITIALIZED_WRAPPER");
+        String status = vendor + " " + name + " " + version + " " + detailedVersion + "|Connection = "
+                + (CoflSky.Wrapper != null ? CoflSky.Wrapper.GetStatus() : "UNINITIALIZED_WRAPPER");
         try {
             status += "  uri=" + CoflSky.Wrapper.socket.uri.toString();
         } catch (NullPointerException npe) {
         }
-
 
         try {
             CoflSession session = CoflSessionManager.GetCoflSession(PlayerDataProvider.getUsername());
@@ -259,8 +286,9 @@ public class CoflSkyCommand extends CommandBase {
     }
 
     private static synchronized void SendAfterStart(ICommandSender sender, RawCommand rc) {
-        sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
-        //CoflSky.Wrapper.stop();
+        sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.")
+                .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+        // CoflSky.Wrapper.stop();
         CoflSky.Wrapper.startConnection();
         CoflSky.Wrapper.SendMessage(rc);
     }
@@ -269,12 +297,13 @@ public class CoflSkyCommand extends CommandBase {
 
         String command = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         System.out.println("CallbackData: " + command);
-        //new Thread(()->{
+        // new Thread(()->{
         System.out.println("Callback: " + command);
-        WSCommandHandler.HandleCommand(new JsonStringCommand(CommandType.Execute, WSClient.gson.toJson(command)), Minecraft.getMinecraft().thePlayer);
+        WSCommandHandler.HandleCommand(new JsonStringCommand(CommandType.Execute, WSClient.gson.toJson(command)),
+                Minecraft.getMinecraft().thePlayer);
         CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, WSClient.gson.toJson(command)));
 
         System.out.println("Sent!");
-        //}).start();
+        // }).start();
     }
 }

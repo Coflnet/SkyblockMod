@@ -98,8 +98,6 @@ public class CoflSky {
             for (int i = 0; i < keyBindings.length; ++i) {
                 ClientRegistry.registerKeyBinding(keyBindings[i]);
             }
-
-
         }
         Events = new EventRegistry();
         MinecraftForge.EVENT_BUS.register(Events);

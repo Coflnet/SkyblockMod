@@ -8,6 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 
 // Removed swing KeyBinding import
 
@@ -187,14 +189,18 @@ public class EventRegistry {
 
     public static void AddHotKeys(HotkeyRegister[] keys) {
         int defaultHotkeyCount = 3;
-        if (CoflSky.keyBindings.length > defaultHotkeyCount) {
-            System.out.println("Hotkeys already registered");
-            return; // already registered
+        Map<String, Integer> keyMap = new HashMap<String, Integer>();
+        for (int i = 0; i < CoflSky.keyBindings.length; i++) {
+            keyMap.put(CoflSky.keyBindings[i].getKeyDescription(), i);
         }
         // resize the keybindings array
-        CoflSky.keyBindings = java.util.Arrays.copyOf(CoflSky.keyBindings, CoflSky.keyBindings.length + keys.length);
+        CoflSky.keyBindings = java.util.Arrays.copyOf(CoflSky.keyBindings, defaultHotkeyCount + keys.length);
         for (int i = 0; i < keys.length; i++) {
             int key = Keyboard.getKeyIndex(keys[i].DefaultKey.toUpperCase());
+            if(keyMap.containsKey(keys[i].Name))
+            {
+                continue;
+            }
             CoflSky.keyBindings[i + defaultHotkeyCount] = new KeyBinding(keys[i].Name, key, "SkyCofl (unchangeable)");
             System.out.println("Registered Key: " + keys[i].Name + " with key " + key);
             ClientRegistry.registerKeyBinding(CoflSky.keyBindings[i + defaultHotkeyCount]);
