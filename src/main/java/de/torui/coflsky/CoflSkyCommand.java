@@ -195,7 +195,9 @@ public class CoflSkyCommand extends CommandBase {
 
                         WSCommandHandler.flipHandler.lastClickedFlipMessage = oneLineMessage;
 
-                        BinGuiManager.openNewFlipGui(oneLineMessage, flip.Render);
+                        Minecraft.getMinecraft().addScheduledTask(() -> {
+                            BinGuiManager.openNewFlipGui(oneLineMessage, flip.Render);
+                        });
 
                         Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + flip.Id);
                         break;
