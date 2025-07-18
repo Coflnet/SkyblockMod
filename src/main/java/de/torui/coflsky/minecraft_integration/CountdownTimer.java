@@ -1,5 +1,6 @@
 package de.torui.coflsky.minecraft_integration;
 
+import CoflCore.classes.Countdown;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiChat;
@@ -62,8 +63,8 @@ public class CountdownTimer {
         currentPrecision = maxPrecision;
     }
 
-    public static void startCountdown(TimerData data) {
-        startCountdown(data.seconds, data.width, data.height, data.scale, data.prefix, data.maxPrecision );
+    public static void startCountdown(Countdown data) {
+        startCountdown(data.getDuration(), data.getWidthPercentage(), data.getHeightPercentage(), data.getScale(), data.getPrefix(), data.getMaxPrecision() );
     }
 
     private static void drawTimer() {

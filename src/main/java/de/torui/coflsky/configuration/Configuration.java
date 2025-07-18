@@ -1,4 +1,4 @@
-package de.torui.coflsky.configuration;
+package de.torui.CoflCore.CoflCore.configuration;
 
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.handlers.EventRegistry;
@@ -20,8 +20,8 @@ public class Configuration {
 
 	public static void setInstance(Configuration config) {
 		instance = config;
-		CoflSky.config.autoStart = instance.autoStart;
-		CoflSky.config.extendedtooltips = instance.extendDescriptions;
+		CoflCore.CoflCore.config.autoStart = instance.autoStart;
+		CoflCore.CoflCore.config.extendedtooltips = instance.extendDescriptions;
 		EventRegistry.chatpattern = Pattern.compile(instance.chatRegex, Pattern.CASE_INSENSITIVE);;
 	}
 

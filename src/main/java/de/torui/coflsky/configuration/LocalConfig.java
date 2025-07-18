@@ -1,7 +1,7 @@
-package de.torui.coflsky.configuration;
+package de.torui.CoflCore.CoflCore.configuration;
 
 import com.google.gson.Gson;
-import de.torui.coflsky.gui.GUIType;
+import CoflCore.configuration.GUIType;
 
 import java.io.File;
 import java.io.IOException;

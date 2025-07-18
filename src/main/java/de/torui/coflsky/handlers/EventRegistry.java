@@ -13,6 +13,7 @@ import java.util.Map;
 
 // Removed swing KeyBinding import
 
+import CoflCore.CoflCore;
 import com.mojang.realmsclient.util.Pair;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
@@ -22,7 +23,7 @@ import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.models.AuctionData;
 import CoflCore.commands.models.FlipData;
 import CoflCore.commands.models.HotkeyRegister;
-import de.torui.coflsky.configuration.Configuration;
+import de.torui.CoflCore.CoflCore.configuration.Configuration;
 import CoflCore.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -53,7 +54,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import static de.torui.coflsky.CoflSky.config;
+import static CoflCore.CoflCore.config;
 import static de.torui.coflsky.CoflSky.keyBindings;
 import static de.torui.coflsky.handlers.DescriptionHandler.*;
 import static de.torui.coflsky.handlers.EventHandler.*;
@@ -65,9 +66,9 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
-        if (CoflSky.Wrapper.isRunning) {
+        if (CoflCore.Wrapper.isRunning) {
             System.out.println("Disconnected from server");
-            CoflSky.Wrapper.stop();
+            CoflCore.Wrapper.stop();
             EventHandler.isInSkyblock = false;
             System.out.println("CoflSky stopped");
         }
@@ -101,7 +102,7 @@ public class EventRegistry {
     public static void onAfterKeyPressed() {
         if (CoflSky.keyBindings[0].isPressed()) {
             if (WSCommandHandler.lastOnClickEvent != null) {
-                FlipData f = CoflCore.CoflCore.flipHandler.fds.GetLastFlip();
+                FlipData f = CoflCore.flipHandler.fds.GetLastFlip();
                 if (f != null) {
                     WSCommandHandler.Execute("/cofl openauctiongui " + f.Id + " false",
                             Minecraft.getMinecraft().thePlayer);
@@ -111,7 +112,7 @@ public class EventRegistry {
         if (CoflSky.keyBindings[1].isKeyDown()) {
             if ((System.currentTimeMillis() - LastClick) >= 300) {
 
-                FlipData f = CoflCore.CoflCore.flipHandler.fds.GetHighestFlip();
+                FlipData f = CoflCore.flipHandler.fds.GetHighestFlip();
 
                 if (f != null) {
                     WSCommandHandler.Execute("/cofl openauctiongui " + f.Id + " true",
@@ -121,7 +122,7 @@ public class EventRegistry {
                     LastClick = System.currentTimeMillis();
                     String command = WSClient.gson.toJson("/viewauction " + f.Id);
 
-                    CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
+                    CoflCore.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
                     WSCommandHandler.Execute("/cofl track besthotkey " + f.Id, Minecraft.getMinecraft().thePlayer);
                 } else {
                     // only display message once (if this is the key down event)
@@ -183,7 +184,7 @@ public class EventRegistry {
         if (rgoe.type == ElementType.CROSSHAIRS) {
             Minecraft mc = Minecraft.getMinecraft();
             mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj,
-                    "Flips in Pipeline:" + CoflCore.CoflCore.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
+                    "Flips in Pipeline:" + CoflCore.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
         }
     }
 
@@ -237,7 +238,7 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void HandleChatEvent(ClientChatReceivedEvent sce) {
-        if (!CoflSky.Wrapper.isRunning || !Configuration.getInstance().collectChat)
+        if (!CoflCore.Wrapper.isRunning || !Configuration.getInstance().collectChat)
             return;
         chatThreadPool.submit(() -> {
             try {
@@ -263,7 +264,7 @@ public class EventRegistry {
                         System.out.println("Sending batch of " + chatBatch.size() + " messages");
                         Command<String[]> data = new Command<>(CommandType.chatBatch, chatBatch.toArray(new String[0]));
                         chatBatch.clear();
-                        CoflSky.Wrapper.SendMessage(data);
+                        CoflCore.Wrapper.SendMessage(data);
                     }
                 }, 500);
 
@@ -281,7 +282,7 @@ public class EventRegistry {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void OnGuiClick(GuiScreenEvent.MouseInputEvent mie) {
-        if (!CoflSky.Wrapper.isRunning)
+        if (!CoflCore.Wrapper.isRunning)
             return;
         if (!(mie.gui instanceof GuiChest))
             return; // verify that it's really a chest
@@ -313,7 +314,7 @@ public class EventRegistry {
                             }
 
                             Command<AuctionData> data = new Command<>(CommandType.PurchaseStart, ad);
-                            CoflSky.Wrapper.SendMessage(data);
+                            CoflCore.Wrapper.SendMessage(data);
                             System.out.println("PurchaseStart");
                             last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
                             lastStartTime = System.currentTimeMillis() + 200 /* ensure a small debounce */;
@@ -353,7 +354,7 @@ public class EventRegistry {
         // therefore clear the lastClickFlipMessage, so it doesn't show on other
         // auctions
         if (event.gui == null) {
-            CoflCore.CoflCore.flipHandler.lastClickedFlipMessage = "";
+            CoflCore.flipHandler.lastClickedFlipMessage = "";
         }
 
         if (!config.extendedtooltips)

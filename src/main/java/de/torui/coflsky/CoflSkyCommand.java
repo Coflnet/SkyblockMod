@@ -8,7 +8,7 @@ import CoflCore.commands.CommandType;
 import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.RawCommand;
 import CoflCore.commands.models.FlipData;
-import de.torui.coflsky.gui.GUIType;
+import CoflCore.configuration.GUIType;
 import de.torui.coflsky.gui.bingui.BinGuiManager;
 import de.torui.coflsky.gui.tfm.ButtonRemapper;
 import CoflCore.misc.SessionManager;
@@ -108,7 +108,7 @@ public class CoflSkyCommand extends CommandBase {
                             Minecraft.getMinecraft().thePlayer
                                     .addChatMessage(new ChatComponentText("Failed to copy text to clipboard!"));
                         }
-                        CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked,
+                        CoflCore.CoflCore.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked,
                                 WSClient.gson.toJson("copy:" + textForClipboard)));
                         break;
                     case "setgui":
@@ -121,19 +121,19 @@ public class CoflSkyCommand extends CommandBase {
                         }
 
                         if (args[1].equalsIgnoreCase("cofl")) {
-                            CoflSky.config.purchaseOverlay = GUIType.COFL;
+                            CoflCore.CoflCore.config.purchaseOverlay = GUIType.COFL;
                             sender.addChatMessage(
                                     new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fCofl"));
                             MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
                         }
                         if (args[1].equalsIgnoreCase("tfm")) {
-                            CoflSky.config.purchaseOverlay = GUIType.TFM;
+                            CoflCore.CoflCore.config.purchaseOverlay = GUIType.TFM;
                             sender.addChatMessage(
                                     new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fTFM"));
                             MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
                         }
                         if (args[1].equalsIgnoreCase("off") || args[1].equalsIgnoreCase("false")) {
-                            CoflSky.config.purchaseOverlay = null;
+                            CoflCore.CoflCore.config.purchaseOverlay = null;
                             sender.addChatMessage(
                                     new ChatComponentText("[§1C§6oflnet§f]§7: §7Set §bPurchase Overlay §7to: §fOff"));
                             MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
@@ -157,8 +157,8 @@ public class CoflSkyCommand extends CommandBase {
 
     public void SendCommandToServer(String command, String arguments, ICommandSender sender) {
         RawCommand rc = new RawCommand(command, WSClient.gson.toJson(arguments));
-        if (CoflSky.Wrapper.isRunning) {
-            CoflSky.Wrapper.SendMessage(rc);
+        if (CoflCore.CoflCore.Wrapper.isRunning) {
+            CoflCore.CoflCore.Wrapper.SendMessage(rc);
         } else {
             SendAfterStart(sender, rc);
         }
@@ -168,7 +168,7 @@ public class CoflSkyCommand extends CommandBase {
         sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.")
                 .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
         // CoflSky.Wrapper.stop();
-        CoflSky.Wrapper.startConnection(PlayerDataProvider.getUsername());
-        CoflSky.Wrapper.SendMessage(rc);
+        CoflCore.CoflCore.Wrapper.startConnection(PlayerDataProvider.getUsername());
+        CoflCore.CoflCore.Wrapper.SendMessage(rc);
     }
 }
