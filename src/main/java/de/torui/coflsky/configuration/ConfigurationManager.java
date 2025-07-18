@@ -3,7 +3,7 @@ package de.torui.coflsky.configuration;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import de.torui.coflsky.network.WSClient;
+import CoflCore.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;

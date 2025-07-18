@@ -37,6 +37,7 @@ repositories {
     maven("https://repo.spongepowered.org/maven/")
     // If you don't want to log in with your real minecraft account, remove this line
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+    maven ("https://jitpack.io" )
 }
 
 val shadowImpl by configurations.creating {
@@ -49,7 +50,9 @@ dependencies {
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
     annotationProcessor("org.spongepowered:mixin:0.8.4-SNAPSHOT")
-
+    //modImplementation(include("org.greenrobot:eventbus-java:3.3.1"))
+    shadowImpl("org.greenrobot:eventbus-java:3.3.1")
+    shadowImpl("com.github.Coflnet:coflskycore:4a03709e6e")
     shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
 
     // If you don't want to log in with your real minecraft account, remove this line

@@ -1,19 +1,21 @@
 package de.torui.coflsky;
 
+import CoflCore.classes.Sound;
+import CoflCore.events.OnFlipReceive;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import de.torui.coflsky.commands.Command;
-import de.torui.coflsky.commands.CommandType;
-import de.torui.coflsky.commands.JsonStringCommand;
-import de.torui.coflsky.commands.RawCommand;
-import de.torui.coflsky.commands.models.*;
+import CoflCore.commands.Command;
+import CoflCore.commands.CommandType;
+import CoflCore.commands.JsonStringCommand;
+import CoflCore.commands.RawCommand;
+import CoflCore.commands.models.*;
 import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.handlers.EventHandler;
-import de.torui.coflsky.proxy.ProxyManager;
+import CoflCore.proxy.ProxyManager;
 import de.torui.coflsky.utils.FileUtils;
-import de.torui.coflsky.commands.models.TimerData;
+import CoflCore.commands.models.TimerData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -28,87 +30,41 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
+import org.greenrobot.eventbus.Subscribe;
+import CoflCore.CoflCore;
 
 import java.io.File;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class WSCommandHandler {
 
     public static transient String lastOnClickEvent;
-    public static FlipHandler flipHandler = new FlipHandler();
     private static final ModListData modListData = new ModListData();
     private static final Gson gson = new Gson();
     private static final ProxyManager proxyManager = new ProxyManager();
 
     public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
         String commandString = cmd.toString();
-        System.out.println("Handling Command=" + commandString);
-        if (commandString.startsWith("Command [Type=null")) {
-            return false; // unknown command
-        }
-
-        switch (cmd.getType()) {
-            case WriteToChat:
-                WriteToChat(cmd.GetAs(new TypeToken<ChatMessageData>() {
-                }));
-                break;
-            case Execute:
-                Execute(cmd.GetAs(new TypeToken<String>() {
-                }), sender);
-                break;
-            case PlaySound:
-                SoundData sc = cmd.GetAs(new TypeToken<SoundData>() {
-                }).getData();
-                PlaySound(sc.Name, sc.Pitch);
-                break;
-            case ChatMessage:
-                ChatMessage(cmd.GetAs(new TypeToken<ChatMessageData[]>() {
-                }));
-                break;
-            case Flip:
-                Flip(cmd.GetAs(new TypeToken<FlipData>() {
-                }));
-                break;
-            case PrivacySettings:
-                new ConfigurationManager().UpdateConfiguration(cmd.getData());
-                EventHandler.UploadScoreboardData(); // on startup
-                break;
-            case Countdown:
-                StartTimer(cmd.GetAs(new TypeToken<TimerData>() {
-                }));
-                break;
-            case GetMods:
-                getMods();
-            case GetScoreboard:
-                EventHandler.UploadScoreboardData();
-                break;
-            case RegisterKeybind:
-                EventRegistry.AddHotKeys(cmd.GetAs(new TypeToken<HotkeyRegister[]>() {
-                }).getData());
-                break;
-            case ProxyRequest:
-                handleProxyRequest(cmd.GetAs(new TypeToken<ProxyRequest[]>() {
-                }).getData());
-                break;
-            default:
-                break;
-        }
-
+        // parsing moved to core
+        // TODO: check that all commands are handled
         return true;
     }
 
-    private static void Flip(Command<FlipData> cmd) {
+    @Subscribe
+    public void onFlipReceive(OnFlipReceive event){
         // handle chat message
-        ChatMessageData[] messages = cmd.getData().Messages;
-        SoundData sound = cmd.getData().Sound;
+
+        ChatMessageData[] messages = event.FlipData.Messages;
+        SoundData sound = event.FlipData.Sound;
         if (sound != null && sound.Name != null) {
             PlaySound(sound.Name, sound.Pitch);
         }
         Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
         ChatMessage(showCmd);
-        flipHandler.fds.Insert(cmd.getData());
+        CoflCore.flipHandler.fds.Insert(event.FlipData);
         // trigger the onAfterHotkeyPressed function to open the flip if the correct
         // hotkey is currently still pressed
         EventRegistry.onAfterKeyPressed();
@@ -220,12 +176,11 @@ public class WSCommandHandler {
     }
 
     public static IChatComponent ChatMessage(Command<ChatMessageData[]> cmd) {
-        ChatMessageData[] list = cmd.getData();
-
+        ChatMessageData[] array = cmd.getData();
         IChatComponent master = new ChatComponentText("");
-        String fullMessage = ChatMessageDataToString(list);
+        String fullMessage = ChatMessageDataToString(array);
 
-        for (ChatMessageData wcmd : list) {
+        for (ChatMessageData wcmd : array) {
             IChatComponent comp = CommandToChatComponent(wcmd, fullMessage);
             if (comp != null)
                 master.appendSibling(comp);

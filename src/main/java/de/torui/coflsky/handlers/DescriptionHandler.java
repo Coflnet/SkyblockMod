@@ -1,8 +1,9 @@
 package de.torui.coflsky.handlers;
 
 import de.torui.coflsky.Config;
-import de.torui.coflsky.network.QueryServerCommands;
-import de.torui.coflsky.network.WSClient;
+import CoflCore.network.QueryServerCommands;
+import CoflCore.network.WSClient;
+import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import de.torui.coflsky.utils.ReflectionUtil;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -181,14 +182,18 @@ public class DescriptionHandler {
             wrapper.fullInventoryNbt = Base64.getEncoder().encodeToString(baos.toByteArray());
 
             List<ItemStack> stacks = new ArrayList<>();
+            List<String> itemIds = new ArrayList<>();
             for (Slot obj : gc.inventorySlots.inventorySlots) {
-                stacks.add(obj.getStack());
+                ItemStack stack = obj.getStack();
+                stacks.add(stack);
+                String id = ExtractIdFromItemStack(stack);
+                itemIds.add(id);
             }
 
             String data = WSClient.gson.toJson(wrapper);
-            String info = QueryServerCommands.PostRequest(Config.BaseUrl + "/api/mod/description/modifications", data);
+            CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIds.toArray(new String[0]), wrapper.chestName, data, PlayerDataProvider.getUsername());
 
-            DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
+            /* TODO: migrate this
             for (int i = 0; i < stacks.size(); i++) {
                 ItemStack stack = stacks.get(i);
                 String id = ExtractIdFromItemStack(stack);
@@ -204,7 +209,7 @@ public class DescriptionHandler {
                         shouldGetRefreshed = true;
                     }
                 }
-            }
+            }*/
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -11,12 +11,11 @@ import de.torui.coflsky.configuration.LocalConfig;
 import de.torui.coflsky.gui.GUIType;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.listeners.ChatListener;
-import de.torui.coflsky.proxy.APIKeyManager;
 import de.torui.coflsky.gui.tfm.ButtonRemapper;
 import de.torui.coflsky.gui.tfm.ChatMessageSendHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.input.Keyboard;
-import de.torui.coflsky.network.WSClientWrapper;
+import CoflCore.network.WSClientWrapper;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -46,7 +45,6 @@ public class CoflSky {
     };
 
     public static String CommandUri = Config.BaseUrl + "/api/mod/commands";
-    private final static APIKeyManager apiKeyManager = new APIKeyManager();
 
 
     @EventHandler
@@ -66,12 +64,6 @@ public class CoflSky {
         }
         if (config == null) {
             config = LocalConfig.createDefaultConfig();
-        }
-
-        try {
-            this.apiKeyManager.loadIfExists();
-        } catch (Exception exception) {
-            exception.printStackTrace();
         }
 
         MinecraftForge.EVENT_BUS.register(new ChatListener());
@@ -107,17 +99,7 @@ public class CoflSky {
         MinecraftForge.EVENT_BUS.register(new ChatMessageSendHandler());
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             config.saveConfig(configFile, config);
-            try {
-                apiKeyManager.saveKey();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
         }));
     }
-
-    public static APIKeyManager getAPIKeyManager() {
-        return apiKeyManager;
-    }
-
 }
 	

@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
 
-import de.torui.coflsky.network.WSClient;
+import CoflCore.network.WSClient;
 import net.minecraft.client.Minecraft;
 
 public class PlayerDataProvider {

@@ -1,8 +1,8 @@
 package de.torui.coflsky.handlers;
 
 import de.torui.coflsky.CoflSky;
-import de.torui.coflsky.commands.Command;
-import de.torui.coflsky.commands.CommandType;
+import CoflCore.commands.Command;
+import CoflCore.commands.CommandType;
 import de.torui.coflsky.configuration.Configuration;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider.PlayerPosition;
@@ -167,7 +167,7 @@ public class EventHandler {
         if ((s.contains("SKYBLOCK") || s.contains("E")) && !isInSkyblock) {
             if (config.autoStart) {
                 CoflSky.Wrapper.stop();
-                CoflSky.Wrapper.startConnection();
+                CoflSky.Wrapper.startConnection(PlayerDataProvider.getUsername());
             }
             isInSkyblock = true;
         } else if (!s.contains("SKYBLOCK") && !s.contains("E") && isInSkyblock) {

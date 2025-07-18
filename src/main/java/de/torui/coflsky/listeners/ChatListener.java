@@ -11,11 +11,6 @@ public class ChatListener {
     @SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = true)
     public void onGuiChat(ClientChatReceivedEvent e) {
         String unformatted = ChatUtils.cleanColour(e.message.getUnformattedText());
-
-        if(unformatted.startsWith("Your new API key is ")){
-            // We have found the api key YAY!
-            CoflSky.getAPIKeyManager().getApiInfo().key = unformatted.substring("Your new API key is ".length()).substring(0, 36);
-        }
     }
 
 
