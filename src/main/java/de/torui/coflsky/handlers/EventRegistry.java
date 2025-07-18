@@ -16,14 +16,14 @@ import java.util.Map;
 import com.mojang.realmsclient.util.Pair;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
-import de.torui.coflsky.commands.Command;
-import de.torui.coflsky.commands.CommandType;
-import de.torui.coflsky.commands.JsonStringCommand;
-import de.torui.coflsky.commands.models.AuctionData;
-import de.torui.coflsky.commands.models.FlipData;
-import de.torui.coflsky.commands.models.HotkeyRegister;
+import CoflCore.commands.Command;
+import CoflCore.commands.CommandType;
+import CoflCore.commands.JsonStringCommand;
+import CoflCore.commands.models.AuctionData;
+import CoflCore.commands.models.FlipData;
+import CoflCore.commands.models.HotkeyRegister;
 import de.torui.coflsky.configuration.Configuration;
-import de.torui.coflsky.network.WSClient;
+import CoflCore.network.WSClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -101,7 +101,7 @@ public class EventRegistry {
     public static void onAfterKeyPressed() {
         if (CoflSky.keyBindings[0].isPressed()) {
             if (WSCommandHandler.lastOnClickEvent != null) {
-                FlipData f = WSCommandHandler.flipHandler.fds.GetLastFlip();
+                FlipData f = CoflCore.CoflCore.flipHandler.fds.GetLastFlip();
                 if (f != null) {
                     WSCommandHandler.Execute("/cofl openauctiongui " + f.Id + " false",
                             Minecraft.getMinecraft().thePlayer);
@@ -111,7 +111,7 @@ public class EventRegistry {
         if (CoflSky.keyBindings[1].isKeyDown()) {
             if ((System.currentTimeMillis() - LastClick) >= 300) {
 
-                FlipData f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
+                FlipData f = CoflCore.CoflCore.flipHandler.fds.GetHighestFlip();
 
                 if (f != null) {
                     WSCommandHandler.Execute("/cofl openauctiongui " + f.Id + " true",
@@ -183,7 +183,7 @@ public class EventRegistry {
         if (rgoe.type == ElementType.CROSSHAIRS) {
             Minecraft mc = Minecraft.getMinecraft();
             mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj,
-                    "Flips in Pipeline:" + WSCommandHandler.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
+                    "Flips in Pipeline:" + CoflCore.CoflCore.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
         }
     }
 
@@ -353,7 +353,7 @@ public class EventRegistry {
         // therefore clear the lastClickFlipMessage, so it doesn't show on other
         // auctions
         if (event.gui == null) {
-            WSCommandHandler.flipHandler.lastClickedFlipMessage = "";
+            CoflCore.CoflCore.flipHandler.lastClickedFlipMessage = "";
         }
 
         if (!config.extendedtooltips)

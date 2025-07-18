@@ -165,7 +165,7 @@ public class ButtonRemapper {
 
     public void drawProfitInfo() {
         FontRenderer font = Minecraft.getMinecraft().fontRendererObj;
-        String text = WSCommandHandler.flipHandler.lastClickedFlipMessage;
+        String text = CoflCore.CoflCore.flipHandler.lastClickedFlipMessage;
 
         if (text == null) {
             return;

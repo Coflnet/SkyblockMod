@@ -1,5 +1,6 @@
 package de.torui.coflsky.commands;
 
+import CoflCore.commands.CommandType;
 import com.google.gson.annotations.SerializedName;
 
 public class Command<T> {
