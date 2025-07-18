@@ -2,7 +2,7 @@ package de.torui.coflsky.gui.bingui;
 
 
 import de.torui.coflsky.CoflSky;
-import de.torui.coflsky.gui.GUIType;
+import CoflCore.configuration.GUIType;
 import de.torui.coflsky.gui.bingui.helper.ColorPallet;
 import de.torui.coflsky.gui.bingui.helper.RenderUtils;
 import de.torui.coflsky.handlers.EventHandler;
@@ -73,7 +73,7 @@ public class BinGuiCurrent extends GuiChest {
     }
 
     private boolean shouldSkip(GuiScreen screen) {
-        return !(screen instanceof GuiChest) || CoflSky.config.purchaseOverlay != GUIType.COFL || !EventHandler.isInSkyblock;
+        return !(screen instanceof GuiChest) || CoflCore.CoflCore.config.purchaseOverlay != GUIType.COFL || !EventHandler.isInSkyblock;
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

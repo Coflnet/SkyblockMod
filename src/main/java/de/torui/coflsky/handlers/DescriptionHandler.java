@@ -1,6 +1,7 @@
 package de.torui.coflsky.handlers;
 
-import de.torui.coflsky.Config;
+
+import CoflCore.classes.Position;
 import CoflCore.network.QueryServerCommands;
 import CoflCore.network.WSClient;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
@@ -36,17 +37,8 @@ public class DescriptionHandler {
         public String fullInventoryNbt;
     }
 
-    private static class DescModification {
-        public String type;
-        public String value;
-        public int line;
-    }
-
     public static String allItemIds;
 
-    public static HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<>();
-
-    public static final DescModification[] EMPTY_ARRAY = new DescModification[0];
     public static final NBTTagCompound EMPTY_COMPOUND = new NBTTagCompound();
 
     private boolean IsOpen = true;
@@ -85,14 +77,9 @@ public class DescriptionHandler {
         return ExtractStackableIdFromItemStack(stack);
     }
 
-    private DescModification[] getTooltipData(ItemStack itemStack) {
+    private CoflCore.handlers.DescriptionHandler.DescModification[] getTooltipData(ItemStack itemStack) {
         String id = ExtractIdFromItemStack(itemStack);
-        if (tooltipItemIdMap.containsKey(id)) {
-            return tooltipItemIdMap.getOrDefault(id, EMPTY_ARRAY);
-        }
-        shouldUpdate = true;
-
-        return EMPTY_ARRAY;
+        return CoflCore.handlers.DescriptionHandler.getTooltipData(id);
     }
 
     /**
@@ -143,6 +130,7 @@ public class DescriptionHandler {
 
     private static boolean loadDescriptionForInventory(GuiOpenEvent event, GuiContainer gc, boolean skipLoadCheck) {
         InventoryWrapper wrapper = new InventoryWrapper();
+        Position pos = null;
         if (event.gui instanceof GuiChest) {
             if (!skipLoadCheck)
                 waitForChestContentLoad(event, gc);
@@ -154,7 +142,7 @@ public class DescriptionHandler {
                 wrapper.chestName = chestName;
                 BlockPos chestPos = ChestUtils.getLookedAtChest();
                 if (chestPos != null && chestName.endsWith("hest")) {
-                    wrapper.chestName += chestPos.toString();
+                    pos = new Position(chestPos.getX(), chestPos.getY(), chestPos.getZ());
                 }
             }
         }
@@ -190,8 +178,8 @@ public class DescriptionHandler {
                 itemIds.add(id);
             }
 
-            String data = WSClient.gson.toJson(wrapper);
-            CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIds.toArray(new String[0]), wrapper.chestName, data, PlayerDataProvider.getUsername());
+            System.out.println("Loading description for inventory: " + wrapper.chestName + " with " + itemIds.size() + " items");
+            CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIds.toArray(new String[0]), wrapper.chestName, wrapper.fullInventoryNbt, PlayerDataProvider.getUsername(), pos);
 
             /* TODO: migrate this
             for (int i = 0; i < stacks.size(); i++) {
@@ -233,12 +221,13 @@ public class DescriptionHandler {
     }
 
     public void setTooltips(ItemTooltipEvent event) {
-        DescModification[] data = getTooltipData(event.itemStack);
+        CoflCore.handlers.DescriptionHandler.DescModification[] data = getTooltipData(event.itemStack);
 
-        if (data == null || data.length == 0)
+        if (data == null || data.length == 0){
             return;
+        }
 
-        for (DescModification datum : data) {
+        for (CoflCore.handlers.DescriptionHandler.DescModification datum : data) {
             if (event.toolTip.size() <= datum.line) {
                 System.out.println(
                         "Skipped line modification " + datum.line + " for " + event.itemStack.getDisplayName());
@@ -272,8 +261,8 @@ public class DescriptionHandler {
         for (Slot inventorySlot : containerGui.inventorySlots.inventorySlots) {
             if (!inventorySlot.getHasStack())
                 continue;
-            DescModification[] tooltipData = getTooltipData(inventorySlot.getStack());
-            for (DescModification modification : tooltipData) {
+            CoflCore.handlers.DescriptionHandler.DescModification[] tooltipData = getTooltipData(inventorySlot.getStack());
+            for (CoflCore.handlers.DescriptionHandler.DescModification modification : tooltipData) {
                 if ("HIGHLIGHT".equals(modification.type)) {
                     int color = (int) (Long.parseLong(modification.value, 16) & 0xFFFFFFFFL);
                     try {
@@ -298,6 +287,6 @@ public class DescriptionHandler {
      * Called when the inventory is closed
      */
     public static void emptyTooltipData() {
-        tooltipItemIdMap.clear();
+        //TODO: clear tooltip data
     }
 }

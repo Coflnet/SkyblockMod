@@ -1,4 +1,4 @@
-package de.torui.coflsky.configuration;
+package de.torui.CoflCore.CoflCore.configuration;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

@@ -1,9 +1,10 @@
 package de.torui.coflsky.handlers;
 
+import CoflCore.CoflCore;
 import de.torui.coflsky.CoflSky;
 import CoflCore.commands.Command;
 import CoflCore.commands.CommandType;
-import de.torui.coflsky.configuration.Configuration;
+import de.torui.CoflCore.CoflCore.configuration.Configuration;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider.PlayerPosition;
 import net.minecraft.client.Minecraft;
@@ -18,7 +19,7 @@ import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import java.util.*;
 
-import static de.torui.coflsky.CoflSky.config;
+import static CoflCore.CoflCore.config;
 import static java.lang.Long.parseLong;
 
 public class EventHandler {
@@ -31,7 +32,7 @@ public class EventHandler {
     private static String server = "";
 
     public static void TabMenuData() {
-        if (isInSkyblock && CoflSky.Wrapper.isRunning && Configuration.getInstance().collectTab) {
+        if (isInSkyblock && CoflCore.Wrapper.isRunning && Configuration.getInstance().collectTab) {
             List<String> tabdata = getTabList();
             int size = tabdata.size() - 1;
             for (int i = 0; i < tabdata.size(); i++) {
@@ -42,17 +43,17 @@ public class EventHandler {
     }
 
     public static void UploadTabData() {
-        if (!CoflSky.Wrapper.isRunning)
+        if (!CoflCore.Wrapper.isRunning)
             return;
         Command<List<String>> data = new Command<>(CommandType.uploadTab, getTabList());
-        CoflSky.Wrapper.SendMessage(data);
+        CoflCore.Wrapper.SendMessage(data);
     }
 
     public static void UploadScoreboardData() {
-        if (!CoflSky.Wrapper.isRunning)
+        if (!CoflCore.Wrapper.isRunning)
             return;
         Command<List<String>> data = new Command<>(CommandType.uploadScoreboard, getScoreboard());
-        CoflSky.Wrapper.SendMessage(data);
+        CoflCore.Wrapper.SendMessage(data);
     }
 
     public static void ScoreboardData() {
@@ -65,7 +66,7 @@ public class EventHandler {
             return;
         }
         checkIfInSkyblock(s);
-        if (!isInSkyblock || !CoflSky.Wrapper.isRunning)
+        if (!isInSkyblock || !CoflCore.Wrapper.isRunning)
             return;
 
         List<String> scoreBoardLines = getScoreboard();
@@ -93,7 +94,7 @@ public class EventHandler {
         {
             purse = -1; // no purse found, sync that to server
             Command<Long> data = new Command<>(CommandType.updatePurse, purse);
-            CoflSky.Wrapper.SendMessage(data);
+            CoflCore.Wrapper.SendMessage(data);
             UploadScoreboardData();
             UploadTabData();
         }
@@ -104,7 +105,7 @@ public class EventHandler {
             return;
         Command<PlayerPosition> data = new Command<>(CommandType.updateLocation,
                 PlayerDataProvider.getPlayerPosition());
-        CoflSky.Wrapper.SendMessage(data);
+        CoflCore.Wrapper.SendMessage(data);
     }
 
     private static List<String> getScoreboard() {
@@ -166,13 +167,13 @@ public class EventHandler {
     private static void checkIfInSkyblock(String s) {
         if ((s.contains("SKYBLOCK") || s.contains("E")) && !isInSkyblock) {
             if (config.autoStart) {
-                CoflSky.Wrapper.stop();
-                CoflSky.Wrapper.startConnection(PlayerDataProvider.getUsername());
+                CoflCore.Wrapper.stop();
+                CoflCore.Wrapper.startConnection(PlayerDataProvider.getUsername());
             }
             isInSkyblock = true;
         } else if (!s.contains("SKYBLOCK") && !s.contains("E") && isInSkyblock) {
             if (config.autoStart) {
-                CoflSky.Wrapper.stop();
+                CoflCore.Wrapper.stop();
                 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("connection to ")
                         .appendSibling(new ChatComponentText("C").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.DARK_BLUE)))
                         .appendSibling(new ChatComponentText("oflnet").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GOLD)))
@@ -200,7 +201,7 @@ public class EventHandler {
             if (purse != purse_) {
                 purse = purse_;
                 Command<Long> data = new Command<>(CommandType.updatePurse, purse);
-                CoflSky.Wrapper.SendMessage(data);
+                CoflCore.Wrapper.SendMessage(data);
                 UploadLocation();
             }
             return true;
@@ -214,7 +215,7 @@ public class EventHandler {
             if (bits != bits_) {
                 bits = bits_;
                 Command<Long> data = new Command<>(CommandType.updateBits, bits);
-                CoflSky.Wrapper.SendMessage(data);
+                CoflCore.Wrapper.SendMessage(data);
             }
             return true;
         }

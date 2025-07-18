@@ -1,7 +1,7 @@
 package de.torui.coflsky;
 
 import CoflCore.classes.Sound;
-import CoflCore.events.OnFlipReceive;
+import CoflCore.events.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -10,7 +10,7 @@ import CoflCore.commands.CommandType;
 import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.RawCommand;
 import CoflCore.commands.models.*;
-import de.torui.coflsky.configuration.ConfigurationManager;
+import de.torui.CoflCore.CoflCore.configuration.ConfigurationManager;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.handlers.EventHandler;
 import CoflCore.proxy.ProxyManager;
@@ -62,12 +62,59 @@ public class WSCommandHandler {
         if (sound != null && sound.Name != null) {
             PlaySound(sound.Name, sound.Pitch);
         }
-        Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
-        ChatMessage(showCmd);
+        ChatMessage(messages);
         CoflCore.flipHandler.fds.Insert(event.FlipData);
         // trigger the onAfterHotkeyPressed function to open the flip if the correct
         // hotkey is currently still pressed
         EventRegistry.onAfterKeyPressed();
+    }
+    @Subscribe
+    public void onChatMessage(OnChatMessageReceive event){
+        ChatMessage(event.ChatMessages);
+    }
+
+    @Subscribe
+    public void onModChatMessage(OnModChatMessage event){
+        ChatMessage(new ChatMessageData[]{
+                new ChatMessageData(event.message, null,null)
+        });
+    }
+
+    @Subscribe
+    public void onPlaySoundReceive(OnPlaySoundReceive event){
+        if(event.Sound == null || event.Sound.getSoundName() == null) return;
+
+        String soundName = event.Sound.getSoundName();
+        float pitch = event.Sound.getSoundPitch();
+        PlaySound(soundName, pitch);
+    }
+
+    @Subscribe
+    public void onCountdownReceive(OnCountdownReceive event){
+        de.torui.coflsky.minecraft_integration.CountdownTimer.startCountdown(event.CountdownData);
+    }
+
+    @Subscribe
+    public void onOpenAuctionGUI(OnOpenAuctionGUI event){
+        System.out.println("TODO: Opening auction GUI with command: " + event.openAuctionCommand);
+    }
+
+    @Subscribe
+    public void onExecuteCommand(OnExecuteCommand event){
+        Execute(event.Command, Minecraft.getMinecraft().thePlayer);
+    }
+    @Subscribe
+    public void onCloseGUI(OnCloseGUI event){
+        // close the current open gui if any
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.currentScreen != null) {
+            mc.displayGuiScreen(null);
+        }
+    }
+
+    @Subscribe
+    public void onGetInventory(OnGetInventory event) {
+        // TODO
     }
 
     private static void handleProxyRequest(ProxyRequest[] request) {
@@ -98,7 +145,7 @@ public class WSCommandHandler {
 
     private static void getMods() {
         // the Cofl server has asked for an mod list now let's respond with all the info
-        CoflSky.Wrapper.SendMessage(new RawCommand("foundMods", gson.toJson(modListData)));
+        CoflCore.Wrapper.SendMessage(new RawCommand("foundMods", gson.toJson(modListData)));
     }
 
     private static void PlaySound(String soundName, float pitch) {
@@ -117,12 +164,6 @@ public class WSCommandHandler {
         Execute(cmd.getData(), sender);
     }
 
-    /**
-     * Starts a countdown
-     */
-    private static void StartTimer(Command<TimerData> cmd) {
-        de.torui.coflsky.minecraft_integration.CountdownTimer.startCountdown(cmd.getData());
-    }
 
     public static void Execute(String cmd, Entity sender) {
         if (cmd.startsWith("/cofl") || cmd.startsWith("http")) {
@@ -175,8 +216,7 @@ public class WSCommandHandler {
         Minecraft.getMinecraft().thePlayer.addChatMessage(message);
     }
 
-    public static IChatComponent ChatMessage(Command<ChatMessageData[]> cmd) {
-        ChatMessageData[] array = cmd.getData();
+    public static IChatComponent ChatMessage(ChatMessageData[] array) {
         IChatComponent master = new ChatComponentText("");
         String fullMessage = ChatMessageDataToString(array);
 
