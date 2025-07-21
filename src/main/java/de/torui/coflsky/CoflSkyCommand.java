@@ -73,7 +73,7 @@ public class CoflSkyCommand extends CommandBase {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("set")) {
             List<String> options = Arrays.asList("lbin", "finders", "onlyBin", "whitelistAftermain", "DisableFlips",
-                    "DebugMode", "blockHighCompetition", "minProfit", "minProfitPercent", "minVolume", "maxCost",
+                    "DebugMode", "blockHighCompetition", "minProfit", "MinProfitPercent", "minVolume", "maxCost",
                     "modjustProfit", "modsoundOnFlip", "modshortNumbers", "modshortNames", "modblockTenSecMsg",
                     "modformat", "modblockedFormat", "modchat", "modcountdown", "modhideNoBestFlip", "modtimerX",
                     "modtimerY", "modtimerSeconds", "modtimerScale", "modtimerPrefix", "modtimerPrecision",

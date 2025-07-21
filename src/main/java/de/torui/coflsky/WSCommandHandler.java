@@ -46,6 +46,12 @@ public class WSCommandHandler {
         String commandString = cmd.toString();
         System.out.println("Handling Command=" + commandString);
         if (commandString.startsWith("Command [Type=null")) {
+            // Attempt to detect settings blob (array of objects with key/name/value) and apply directly
+            if (cmd.getData() != null && cmd.getData().trim().startsWith("[") && cmd.getData().contains("\"key\"")) {
+                // Probably settings json coming via websocket
+                de.torui.coflsky.util.ServerSettingsLoader.applySettings(cmd.getData());
+                return true;
+            }
             return false; // unknown command
         }
 

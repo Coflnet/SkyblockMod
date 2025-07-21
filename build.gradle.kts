@@ -1,4 +1,3 @@
-
 plugins {
     idea
     java
@@ -19,6 +18,7 @@ java {
 loom {
     launchConfigs {
         "client" {
+            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
         }
     }
     forge {
@@ -37,6 +37,8 @@ repositories {
     maven("https://repo.spongepowered.org/maven/")
     // If you don't want to log in with your real minecraft account, remove this line
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+    // Polyfrost repo for OneConfig
+    maven("https://repo.polyfrost.org/releases")
 }
 
 val shadowImpl by configurations.creating {
@@ -51,6 +53,10 @@ dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.4-SNAPSHOT")
 
     shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
+    // OneConfig library for legacy Forge 1.8.9 (compile-time only, wrapper will fetch at runtime)
+    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
+    // Shade the LaunchWrapper tweaker inside the mod jar so it runs before Forge
+    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
 
     // If you don't want to log in with your real minecraft account, remove this line
     modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.0")
@@ -69,6 +75,7 @@ tasks.withType(Jar::class) {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
         this["Manifest-Version"] = "1.0"
+        this["TweakClass"] = "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
     }
 }
 
@@ -90,4 +97,3 @@ tasks.shadowJar {
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
-

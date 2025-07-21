@@ -1,6 +1,5 @@
 package de.torui.coflsky;
 
-
 import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -8,9 +7,11 @@ import java.nio.file.Paths;
 
 import com.google.gson.Gson;
 import de.torui.coflsky.configuration.LocalConfig;
+import de.torui.coflsky.config.CoflConfig;
 import de.torui.coflsky.gui.GUIType;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.listeners.ChatListener;
+import de.torui.coflsky.listeners.OneConfigOpenListener;
 import de.torui.coflsky.proxy.APIKeyManager;
 import de.torui.coflsky.gui.tfm.ButtonRemapper;
 import de.torui.coflsky.gui.tfm.ChatMessageSendHandler;
@@ -19,12 +20,12 @@ import org.lwjgl.input.Keyboard;
 import de.torui.coflsky.network.WSClientWrapper;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.common.MinecraftForge;
 
 @Mod(modid = CoflSky.MODID, version = CoflSky.VERSION)
 public class CoflSky {
@@ -75,7 +76,8 @@ public class CoflSky {
         }
 
         MinecraftForge.EVENT_BUS.register(new ChatListener());
-
+        // Initialise OneConfig configuration (GUI will open via keybind automatically)
+        CoflConfig oneConfig = new CoflConfig();
         // Cache all the mods on load
         WSCommandHandler.cacheMods();
     }
@@ -94,6 +96,8 @@ public class CoflSky {
             ClientCommandHandler.instance.registerCommand(new CoflSkyCommand());
             ClientCommandHandler.instance.registerCommand(new ColfCommand());
             ClientCommandHandler.instance.registerCommand(new FlipperChatCommand());
+            // register OneConfig command
+            ClientCommandHandler.instance.registerCommand(new de.torui.coflsky.commands.CoflGuiCommand());
 
             for (int i = 0; i < keyBindings.length; ++i) {
                 ClientRegistry.registerKeyBinding(keyBindings[i]);
@@ -105,6 +109,8 @@ public class CoflSky {
             MinecraftForge.EVENT_BUS.register(ButtonRemapper.getInstance());
         }
         MinecraftForge.EVENT_BUS.register(new ChatMessageSendHandler());
+        // GUI open listener for OneConfig to fetch server settings
+        MinecraftForge.EVENT_BUS.register(new OneConfigOpenListener());
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             config.saveConfig(configFile, config);
             try {
@@ -120,4 +126,3 @@ public class CoflSky {
     }
 
 }
-	
