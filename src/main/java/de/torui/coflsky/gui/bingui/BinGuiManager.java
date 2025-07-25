@@ -16,6 +16,6 @@ public class BinGuiManager {
 
         GuiChest currentGui = new BinGuiCurrent(Minecraft.getMinecraft().thePlayer.inventory, new InventoryBasic("", false, 27), message, extraData);
         Mouse.setGrabbed(false);
-        Minecraft.getMinecraft().displayGuiScreen(currentGui);
+        Minecraft.getMinecraft().addScheduledTask(() -> Minecraft.getMinecraft().displayGuiScreen(currentGui));
     }
 }
