@@ -183,6 +183,12 @@ public class EventRegistry {
         return toAppend;
     }
 
+    @SubscribeEvent
+    public void onDimensionLoad(net.minecraftforge.event.world.WorldEvent.Load event) {
+        // Callback for when a dimension (world) is loaded, in skyblock used when switching islands
+        WSCommandHandler.highlightCoordinates = new int[0][];
+    }
+
     @SideOnly(Side.CLIENT)
     // @SubscribeEvent
     public void DrawOntoGUI(RenderGameOverlayEvent rgoe) {
