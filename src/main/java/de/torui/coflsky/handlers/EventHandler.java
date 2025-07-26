@@ -4,7 +4,7 @@ import CoflCore.CoflCore;
 import de.torui.coflsky.CoflSky;
 import CoflCore.commands.Command;
 import CoflCore.commands.CommandType;
-import de.torui.CoflCore.CoflCore.configuration.Configuration;
+import CoflCore.configuration.Configuration;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider.PlayerPosition;
 import net.minecraft.client.Minecraft;
