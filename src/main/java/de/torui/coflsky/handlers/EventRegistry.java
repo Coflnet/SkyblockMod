@@ -375,7 +375,7 @@ public class EventRegistry {
                         }
                     }
                     else if(mod.type.equals("SUGGEST")) {
-                        lines.add("§bWill suggest: " + mod.value.split(": ")[1]);
+                        lines.add("§7Will suggest: §r" + mod.value.split(": ")[1]);
                     }
                 }
             }
