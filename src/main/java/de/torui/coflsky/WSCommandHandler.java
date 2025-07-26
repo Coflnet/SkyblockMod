@@ -1,23 +1,16 @@
 package de.torui.coflsky;
 
-import CoflCore.classes.Sound;
 import CoflCore.events.*;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import CoflCore.commands.Command;
-import CoflCore.commands.CommandType;
-import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.RawCommand;
 import CoflCore.commands.models.*;
-import de.torui.CoflCore.CoflCore.configuration.ConfigurationManager;
 import de.torui.coflsky.gui.bingui.BinGuiManager;
-import de.torui.coflsky.handlers.DescriptionHandler;
+import de.torui.coflsky.handlers.ForgeDescriptionHandler;
 import de.torui.coflsky.handlers.EventRegistry;
-import de.torui.coflsky.handlers.EventHandler;
 import CoflCore.proxy.ProxyManager;
 import de.torui.coflsky.utils.FileUtils;
-import CoflCore.commands.models.TimerData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -38,7 +31,6 @@ import CoflCore.CoflCore;
 import java.io.File;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Stream;
 
 public class WSCommandHandler {
@@ -117,7 +109,7 @@ public class WSCommandHandler {
 
     @Subscribe
     public void onGetInventory(OnGetInventory event) {
-        DescriptionHandler.uploadInventory();
+        ForgeDescriptionHandler.uploadInventory();
     }
     @Subscribe
     public void onHighlightBlocks(OnHighlightBlocks event) {

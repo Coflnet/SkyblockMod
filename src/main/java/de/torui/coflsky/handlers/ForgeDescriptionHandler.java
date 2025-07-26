@@ -2,8 +2,6 @@ package de.torui.coflsky.handlers;
 
 
 import CoflCore.classes.Position;
-import CoflCore.network.QueryServerCommands;
-import CoflCore.network.WSClient;
 import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
 import de.torui.coflsky.utils.ReflectionUtil;
 import net.minecraft.client.gui.Gui;
@@ -27,10 +25,9 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 
-public class DescriptionHandler {
+public class ForgeDescriptionHandler {
 
     private static class InventoryWrapper {
         public String chestName;
