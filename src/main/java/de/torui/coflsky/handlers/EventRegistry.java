@@ -228,7 +228,6 @@ public class EventRegistry {
                 if (uuid.length() == 0) {
                     throw new Exception();
                 }
-                System.out.println("Item has the UUID: " + uuid);
                 return uuid;
             } catch (Exception e) {
                 System.out.println(
@@ -243,8 +242,6 @@ public class EventRegistry {
 
     public static final Pair<String, Pair<String, LocalDateTime>> EMPTY = Pair.of(null, Pair.of("", LocalDateTime.MIN));
     public static Pair<String, Pair<String, LocalDateTime>> last = EMPTY;
-    private LocalDateTime lastBatchStart = LocalDateTime.now();
-    private LinkedBlockingQueue<String> chatBatch = new LinkedBlockingQueue<String>();
 
     @SubscribeEvent
     public void HandleChatEvent(ClientChatReceivedEvent sce) {
@@ -257,35 +254,7 @@ public class EventRegistry {
                 if (text.equals(previousHover))
                     continue; // skip if the text is the same as the previous one, different colored text often has the same hover text
                 previousHover = text;
-                System.out.println("Hover text: " + text);
                 CoflCore.handlers.EventRegistry.onChatMessage(text);
-            }
-        }
-        extractAndPrintHoverText(sce.message, "  ");
-    }
-        private void extractAndPrintHoverText(IChatComponent component, String indent) {
-        // Get the style of the current component
-        ChatStyle style = component.getChatStyle();
-
-        // Check for hover event
-        if (style != null && style.getChatHoverEvent() != null) {
-            String hoverAction = style.getChatHoverEvent().getAction().getCanonicalName();
-            IChatComponent hoverValue = style.getChatHoverEvent().getValue();
-
-            System.out.println(indent + "  Component Text: \"" + component.getUnformattedTextForChat() + "\"");
-            System.out.println(indent + "  Hover Action: " + hoverAction);
-            System.out.println(indent + "  Hover Value: " + hoverValue.getUnformattedText());
-
-            // If the hover value itself contains more components (e.g., a complex item NBT tooltip)
-            // you might want to recursively extract from it, but typically hoverValue is simpler.
-            // For example, if it's SHOW_TEXT, hoverValue is the text. If SHOW_ITEM, hoverValue is item NBT.
-        }
-
-        // Recursively check child components
-        List<IChatComponent> siblings = component.getSiblings();
-        if (siblings != null && !siblings.isEmpty()) {
-            for (IChatComponent sibling : siblings) {
-                extractAndPrintHoverText(sibling, indent + "  "); // Increase indent for children
             }
         }
     }

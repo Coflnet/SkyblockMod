@@ -82,8 +82,6 @@ public class EventHandler {
                 location = line;
                 try {
                     Thread.sleep(20);
-                    UploadLocation();
-                    Thread.sleep(20);
                     UploadScoreboardData();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
