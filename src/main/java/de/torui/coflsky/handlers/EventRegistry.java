@@ -2,6 +2,7 @@ package de.torui.coflsky.handlers;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +15,7 @@ import java.util.Map;
 // Removed swing KeyBinding import
 
 import CoflCore.CoflCore;
+import CoflCore.handlers.DescriptionHandler;
 import com.mojang.realmsclient.util.Pair;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
@@ -26,7 +28,11 @@ import CoflCore.commands.models.HotkeyRegister;
 import de.torui.CoflCore.CoflCore.configuration.Configuration;
 import CoflCore.network.WSClient;
 import de.torui.coflsky.gui.bingui.helper.RenderUtils;
+import de.torui.coflsky.mixins.AccessorGuiEditSign;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.inventory.GuiEditSign;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -34,6 +40,8 @@ import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntitySign;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -51,10 +59,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 import static CoflCore.CoflCore.config;
-import static de.torui.coflsky.CoflSky.keyBindings;
-import static de.torui.coflsky.handlers.DescriptionHandler.*;
+import static CoflCore.handlers.DescriptionHandler.*;
 import static de.torui.coflsky.handlers.EventHandler.*;
 
 public class EventRegistry {
@@ -75,7 +83,7 @@ public class EventRegistry {
     public static long LastClick = System.currentTimeMillis();
     public static Boolean LastHotkeyState;
     public static Boolean LastEventButtonState;
-    private DescriptionHandler descriptionHandler;
+    private ForgeDescriptionHandler forgeDescriptionHandler;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
@@ -335,6 +343,62 @@ public class EventRegistry {
         }
     }
 
+    @SubscribeEvent
+    public void onGuiDraw(GuiScreenEvent.DrawScreenEvent.Post event) {
+        Minecraft mc = Minecraft.getMinecraft();
+
+        // Check if the current GUI screen is the player's inventory or a chest GUI
+        if (event.gui instanceof GuiContainer) {
+            DescriptionHandler.DescModification[] toDisplay = DescriptionHandler.getInfoDisplay();
+            if(toDisplay.length == 0)
+                return; // No info to display, exit early
+            GuiContainer inventoryGui = (GuiContainer) event.gui;
+            FontRenderer fontRenderer = mc.fontRendererObj;
+
+            // --- Get the actual rendered top-left position of the inventory GUI ---
+            // 'guiLeft' and 'guiTop' are protected but directly accessible from the instance
+            // (or via a getter if one existed, but direct access is common for protected fields in mods).
+            // This position accounts for potion effect shifts.
+            int inventoryGuiLeft = inventoryGui.guiLeft;
+            int inventoryGuiTop = inventoryGui.guiTop;
+
+            // --- Define your info text lines ---
+            ArrayList<String> lines = new ArrayList<>();
+            int maxWidth = 0;
+            for(DescriptionHandler.DescModification mod : toDisplay) {
+                if (mod != null && mod.value != null) {
+                    if(mod.type.equals("APPEND")) {
+                        lines.add(mod.value);
+                        int width = fontRenderer.getStringWidth(mod.value);
+                        if (width > maxWidth) {
+                            maxWidth = width;
+                        }
+                    }
+                    else if(mod.type.equals("SUGGEST")) {
+                        lines.add("§bWill suggest: " + mod.value.split(": ")[1]);
+                    }
+                }
+            }
+
+            // Start position for the text on the left.
+            // (inventoryGuiLeft - padding - maxTextWidth) will place the right edge of the text
+            // 'padding' pixels to the left of the inventory's left edge.
+            int textX = inventoryGuiLeft - 10 - maxWidth; // 10 pixels padding to the left
+            int textY = inventoryGuiTop + 10; // 10 pixels down from the top of the inventory
+
+            net.minecraft.client.renderer.GlStateManager.pushMatrix();
+            net.minecraft.client.renderer.GlStateManager.enableBlend(); // Enable blending for transparency
+            net.minecraft.client.renderer.GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); // Standard alpha blend function
+            for(int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
+                // Draw each line with a vertical offset
+                fontRenderer.drawString(line, textX, textY + (fontRenderer.FONT_HEIGHT + 2) * i, 0xFFFFFFFF, true); // White
+            }
+            net.minecraft.client.renderer.GlStateManager.disableBlend(); // Disable blending
+            net.minecraft.client.renderer.GlStateManager.popMatrix();
+        }
+    }
+
     long UpdateThisTick = 0;
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -362,10 +426,32 @@ public class EventRegistry {
             CoflCore.flipHandler.lastClickedFlipMessage = "";
         }
 
+        if (event.gui instanceof GuiEditSign) {
+            GuiEditSign signGui = (GuiEditSign) event.gui;
+            DescriptionHandler.DescModification[] toDisplay = DescriptionHandler.getInfoDisplay();
+            for (DescriptionHandler.DescModification mod : toDisplay) {
+                if (mod == null || !mod.type.equals("SUGGEST")) {
+                    continue;
+                }
+                String[] parts = mod.value.split(": ");
+                if (parts.length < 2)
+                    return;
+                try {
+                    TileEntitySign tileEntitySign = ((AccessorGuiEditSign) signGui).getTileSign();
+                    if(tileEntitySign.signText[3].getUnformattedText().contains(parts[0]))
+                        tileEntitySign.signText[0] = new ChatComponentText(parts[1]);
+                } catch (RuntimeException e) {
+                    System.err.println("Failed to access tileSign field in GuiEditSign: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            return;
+        }
+
         if (!config.extendedtooltips)
             return;
-        if (descriptionHandler != null)
-            descriptionHandler.Close();
+        if (forgeDescriptionHandler != null)
+            forgeDescriptionHandler.Close();
         if (event.gui == null)
             emptyTooltipData();
 
@@ -373,8 +459,8 @@ public class EventRegistry {
             return;
         new Thread(() -> {
             try {
-                descriptionHandler = new DescriptionHandler();
-                descriptionHandler.loadDescriptionAndListenForChanges(event);
+                forgeDescriptionHandler = new ForgeDescriptionHandler();
+                forgeDescriptionHandler.loadDescriptionAndListenForChanges(event);
             } catch (Exception e) {
                 System.out.println("failed to update description " + e);
             }
@@ -383,16 +469,16 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void onBackgroundRenderDone(GuiScreenEvent.BackgroundDrawnEvent event) {
-        if (descriptionHandler != null)
-            descriptionHandler.highlightSlots(event);
+        if (forgeDescriptionHandler != null)
+            forgeDescriptionHandler.highlightSlots(event);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onItemTooltipEvent(ItemTooltipEvent event) {
         if (!config.extendedtooltips)
             return;
-        if (descriptionHandler == null)
+        if (forgeDescriptionHandler == null)
             return;
-        descriptionHandler.setTooltips(event);
+        forgeDescriptionHandler.setTooltips(event);
     }
 }
