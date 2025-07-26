@@ -364,4 +364,42 @@ public class RenderUtils {
     public static void rotate(float angle) {
         GL11.glRotatef(angle, 0.0F, 0.0F, 1.0F);
     }
+
+    /**
+     * Renders green highlight boxes around blocks at specified coordinates for waypoints.
+     * @param blockCoords Array of block coordinates (each as int[3] {x, y, z})
+     */
+    public static void renderWaypointHighlightBoxes(int[][] blockCoords) {
+        GL11.glPushMatrix();
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        setColor(new Color(0, 255, 0, 128)); // semi-transparent green
+
+        for (int[] coord : blockCoords) {
+            double x = coord[0] - mc.getRenderManager().viewerPosX;
+            double y = coord[1] - mc.getRenderManager().viewerPosY;
+            double z = coord[2] - mc.getRenderManager().viewerPosZ;
+
+            GL11.glPushMatrix();
+            GL11.glTranslated(x, y, z);
+            GL11.glLineWidth(2.0F);
+            GL11.glBegin(GL11.GL_LINE_LOOP);
+            // Draw box outline (cube)
+            GL11.glVertex3d(0, 0, 0);
+            GL11.glVertex3d(1, 0, 0);
+            GL11.glVertex3d(1, 1, 0);
+            GL11.glVertex3d(0, 1, 0);
+            GL11.glVertex3d(0, 1, 1);
+            GL11.glVertex3d(1, 1, 1);
+            GL11.glVertex3d(1, 0, 1);
+            GL11.glVertex3d(0, 0, 1);
+            GL11.glEnd();
+            GL11.glPopMatrix();
+        }
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glPopMatrix();
+    }
 }

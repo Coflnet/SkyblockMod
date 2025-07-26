@@ -25,6 +25,7 @@ import CoflCore.commands.models.FlipData;
 import CoflCore.commands.models.HotkeyRegister;
 import de.torui.CoflCore.CoflCore.configuration.Configuration;
 import CoflCore.network.WSClient;
+import de.torui.coflsky.gui.bingui.helper.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -36,10 +37,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -328,6 +326,13 @@ public class EventRegistry {
     @SubscribeEvent
     public void OnRenderTick(TickEvent.RenderTickEvent event) {
         de.torui.coflsky.minecraft_integration.CountdownTimer.onRenderTick(event);
+    }
+
+    @SubscribeEvent
+    public void highlightChests(DrawBlockHighlightEvent e){
+        if (WSCommandHandler.highlightCoordinates.length > 0) {
+            RenderUtils.renderWaypointHighlightBoxes(WSCommandHandler.highlightCoordinates);
+        }
     }
 
     long UpdateThisTick = 0;
