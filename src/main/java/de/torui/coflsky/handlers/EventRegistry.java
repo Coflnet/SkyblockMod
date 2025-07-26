@@ -2,19 +2,15 @@ package de.torui.coflsky.handlers;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.HashMap;
-import java.util.Map;
 
 // Removed swing KeyBinding import
 
-import CoflCore.CoflCore;
 import CoflCore.handlers.DescriptionHandler;
 import com.mojang.realmsclient.util.Pair;
 import de.torui.coflsky.CoflSky;
@@ -25,7 +21,6 @@ import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.models.AuctionData;
 import CoflCore.commands.models.FlipData;
 import CoflCore.commands.models.HotkeyRegister;
-import de.torui.CoflCore.CoflCore.configuration.Configuration;
 import CoflCore.network.WSClient;
 import de.torui.coflsky.gui.bingui.helper.RenderUtils;
 import de.torui.coflsky.mixins.AccessorGuiEditSign;
@@ -36,12 +31,15 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.event.HoverEvent;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -72,9 +70,9 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
-        if (CoflCore.Wrapper.isRunning) {
+        if (CoflCore.CoflCore.Wrapper.isRunning) {
             System.out.println("Disconnected from server");
-            CoflCore.Wrapper.stop();
+            CoflCore.CoflCore.Wrapper.stop();
             EventHandler.isInSkyblock = false;
             System.out.println("CoflSky stopped");
         }
@@ -108,7 +106,7 @@ public class EventRegistry {
     public static void onAfterKeyPressed() {
         if (CoflSky.keyBindings[0].isPressed()) {
             if (WSCommandHandler.lastOnClickEvent != null) {
-                FlipData f = CoflCore.flipHandler.fds.GetLastFlip();
+                FlipData f = CoflCore.CoflCore.flipHandler.fds.GetLastFlip();
                 if (f != null) {
                     WSCommandHandler.Execute("/cofl openauctiongui " + f.Id + " false",
                             Minecraft.getMinecraft().thePlayer);
@@ -118,7 +116,7 @@ public class EventRegistry {
         if (CoflSky.keyBindings[1].isKeyDown()) {
             if ((System.currentTimeMillis() - LastClick) >= 300) {
 
-                FlipData f = CoflCore.flipHandler.fds.GetHighestFlip();
+                FlipData f = CoflCore.CoflCore.flipHandler.fds.GetHighestFlip();
 
                 if (f != null) {
                     WSCommandHandler.Execute("/cofl openauctiongui " + f.Id + " true",
@@ -128,7 +126,7 @@ public class EventRegistry {
                     LastClick = System.currentTimeMillis();
                     String command = WSClient.gson.toJson("/viewauction " + f.Id);
 
-                    CoflCore.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
+                    CoflCore.CoflCore.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
                     WSCommandHandler.Execute("/cofl track besthotkey " + f.Id, Minecraft.getMinecraft().thePlayer);
                 } else {
                     // only display message once (if this is the key down event)
@@ -196,7 +194,7 @@ public class EventRegistry {
         if (rgoe.type == ElementType.CROSSHAIRS) {
             Minecraft mc = Minecraft.getMinecraft();
             mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj,
-                    "Flips in Pipeline:" + CoflCore.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
+                    "Flips in Pipeline:" + CoflCore.CoflCore.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
         }
     }
 
@@ -250,40 +248,46 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void HandleChatEvent(ClientChatReceivedEvent sce) {
-        if (!CoflCore.Wrapper.isRunning || !Configuration.getInstance().collectChat)
-            return;
-        chatThreadPool.submit(() -> {
-            try {
-
-                String msg = sce.message.getUnformattedText();
-                Matcher matcher = chatpattern.matcher(msg);
-                boolean matchFound = matcher.find();
-                if (!matchFound)
-                    return;
-
-                chatBatch.add(msg);
-                // add 500ms to the last batch start time
-                long nanoSeconds = 500_000_000;
-                if (!lastBatchStart.plusNanos(nanoSeconds).isBefore(LocalDateTime.now())) {
-                    System.out.println(msg + " was not sent because it was too soon");
-                    return;
-                }
-                lastBatchStart = LocalDateTime.now();
-
-                new java.util.Timer().schedule(new java.util.TimerTask() {
-                    @Override
-                    public void run() {
-                        System.out.println("Sending batch of " + chatBatch.size() + " messages");
-                        Command<String[]> data = new Command<>(CommandType.chatBatch, chatBatch.toArray(new String[0]));
-                        chatBatch.clear();
-                        CoflCore.Wrapper.SendMessage(data);
-                    }
-                }, 500);
-
-            } catch (Exception e) {
-                e.printStackTrace();
+        CoflCore.handlers.EventRegistry.onChatMessage(sce.message.getUnformattedText());
+        String previousHover = null;
+        for (IChatComponent component : sce.message.getSiblings()) {
+            if(component.getChatStyle().getChatHoverEvent() != null
+                    && component.getChatStyle().getChatHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT) {
+                String text = component.getChatStyle().getChatHoverEvent().getValue().getUnformattedText();
+                if (text.equals(previousHover))
+                    continue; // skip if the text is the same as the previous one, different colored text often has the same hover text
+                previousHover = text;
+                System.out.println("Hover text: " + text);
+                CoflCore.handlers.EventRegistry.onChatMessage(text);
             }
-        });
+        }
+        extractAndPrintHoverText(sce.message, "  ");
+    }
+        private void extractAndPrintHoverText(IChatComponent component, String indent) {
+        // Get the style of the current component
+        ChatStyle style = component.getChatStyle();
+
+        // Check for hover event
+        if (style != null && style.getChatHoverEvent() != null) {
+            String hoverAction = style.getChatHoverEvent().getAction().getCanonicalName();
+            IChatComponent hoverValue = style.getChatHoverEvent().getValue();
+
+            System.out.println(indent + "  Component Text: \"" + component.getUnformattedTextForChat() + "\"");
+            System.out.println(indent + "  Hover Action: " + hoverAction);
+            System.out.println(indent + "  Hover Value: " + hoverValue.getUnformattedText());
+
+            // If the hover value itself contains more components (e.g., a complex item NBT tooltip)
+            // you might want to recursively extract from it, but typically hoverValue is simpler.
+            // For example, if it's SHOW_TEXT, hoverValue is the text. If SHOW_ITEM, hoverValue is item NBT.
+        }
+
+        // Recursively check child components
+        List<IChatComponent> siblings = component.getSiblings();
+        if (siblings != null && !siblings.isEmpty()) {
+            for (IChatComponent sibling : siblings) {
+                extractAndPrintHoverText(sibling, indent + "  "); // Increase indent for children
+            }
+        }
     }
 
     public static long lastStartTime = Long.MIN_VALUE;
@@ -294,7 +298,7 @@ public class EventRegistry {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void OnGuiClick(GuiScreenEvent.MouseInputEvent mie) {
-        if (!CoflCore.Wrapper.isRunning)
+        if (!CoflCore.CoflCore.Wrapper.isRunning)
             return;
         if (!(mie.gui instanceof GuiChest))
             return; // verify that it's really a chest
@@ -326,7 +330,7 @@ public class EventRegistry {
                             }
 
                             Command<AuctionData> data = new Command<>(CommandType.PurchaseStart, ad);
-                            CoflCore.Wrapper.SendMessage(data);
+                            CoflCore.CoflCore.Wrapper.SendMessage(data);
                             System.out.println("PurchaseStart");
                             last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
                             lastStartTime = System.currentTimeMillis() + 200 /* ensure a small debounce */;
@@ -429,7 +433,7 @@ public class EventRegistry {
         // therefore clear the lastClickFlipMessage, so it doesn't show on other
         // auctions
         if (event.gui == null) {
-            CoflCore.flipHandler.lastClickedFlipMessage = "";
+            CoflCore.CoflCore.flipHandler.lastClickedFlipMessage = "";
         }
 
         if (event.gui instanceof GuiEditSign) {

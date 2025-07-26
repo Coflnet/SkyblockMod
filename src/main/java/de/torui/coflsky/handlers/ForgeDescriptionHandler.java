@@ -99,6 +99,9 @@ public class ForgeDescriptionHandler {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            if(!IsOpen) {
+                break;
+            }
             if (shouldUpdate || hasAnyStackChanged(gc)) {
                 shouldUpdate = loadDescriptionForInventory(event, gc, true);
                 // reduce update time since its more likely that more changes occure after one
