@@ -11,6 +11,8 @@ import CoflCore.commands.JsonStringCommand;
 import CoflCore.commands.RawCommand;
 import CoflCore.commands.models.*;
 import de.torui.CoflCore.CoflCore.configuration.ConfigurationManager;
+import de.torui.coflsky.gui.bingui.BinGuiManager;
+import de.torui.coflsky.handlers.DescriptionHandler;
 import de.torui.coflsky.handlers.EventRegistry;
 import de.torui.coflsky.handlers.EventHandler;
 import CoflCore.proxy.ProxyManager;
@@ -45,12 +47,11 @@ public class WSCommandHandler {
     private static final ModListData modListData = new ModListData();
     private static final Gson gson = new Gson();
     private static final ProxyManager proxyManager = new ProxyManager();
+    public static int[][] highlightCoordinates = new int[0][];
 
-    public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
-        String commandString = cmd.toString();
-        // parsing moved to core
-        // TODO: check that all commands are handled
-        return true;
+    @Subscribe
+    public void onReceiveCommand(ReceiveCommand event){
+        // called on every command
     }
 
     @Subscribe
@@ -96,7 +97,9 @@ public class WSCommandHandler {
 
     @Subscribe
     public void onOpenAuctionGUI(OnOpenAuctionGUI event){
-        System.out.println("TODO: Opening auction GUI with command: " + event.openAuctionCommand);
+        BinGuiManager.openNewFlipGui(event.flip.getMessageAsString().replaceAll("\n", "")
+                .split(",§7 sellers ah")[0], event.flip.Render);
+        Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + event.flip.Id);
     }
 
     @Subscribe
@@ -114,7 +117,18 @@ public class WSCommandHandler {
 
     @Subscribe
     public void onGetInventory(OnGetInventory event) {
-        // TODO
+        DescriptionHandler.uploadInventory();
+    }
+    @Subscribe
+    public void onHighlightBlocks(OnHighlightBlocks event) {
+        highlightCoordinates = new int[event.positions.size()][];
+        for (int i = 0; i < event.positions.size(); i++) {
+            highlightCoordinates[i] = new int[]{
+                    event.positions.get(i).getX(),
+                    event.positions.get(i).getY(),
+                    event.positions.get(i).getZ()
+            };
+        }
     }
 
     private static void handleProxyRequest(ProxyRequest[] request) {

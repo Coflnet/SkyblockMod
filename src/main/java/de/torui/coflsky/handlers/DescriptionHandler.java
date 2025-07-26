@@ -128,10 +128,43 @@ public class DescriptionHandler {
         return builder.toString();
     }
 
+    public static void uploadInventory() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
+        if (mc.thePlayer == null || mc.thePlayer.inventory == null) {
+            return;
+        }
+        NBTTagCompound compound = new NBTTagCompound();
+        NBTTagList tl = new NBTTagList();
+        List<ItemStack> items = new ArrayList<>();
+        List<String> itemIds = new ArrayList<>();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        for (int i = 0; i < mc.thePlayer.inventory.getSizeInventory(); i++) {
+            ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
+            String id = ExtractIdFromItemStack(stack);
+            itemIds.add(id);
+            items.add(stack);
+            if (stack != null) {
+                tl.appendTag(stack.serializeNBT());
+            } else {
+                tl.appendTag(EMPTY_COMPOUND);
+            }
+        }
+        try
+        {
+        compound.setTag("i", tl);
+        CompressedStreamTools.writeCompressed(compound, baos);
+
+        CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIds.toArray(new String[0]), "Crafting", Base64.getEncoder().encodeToString(baos.toByteArray()), PlayerDataProvider.getUsername());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static boolean loadDescriptionForInventory(GuiOpenEvent event, GuiContainer gc, boolean skipLoadCheck) {
         InventoryWrapper wrapper = new InventoryWrapper();
         Position pos = null;
-        if (event.gui instanceof GuiChest) {
+        if (event.gui != null && event.gui instanceof GuiChest) {
             if (!skipLoadCheck)
                 waitForChestContentLoad(event, gc);
 
