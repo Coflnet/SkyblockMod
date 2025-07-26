@@ -371,6 +371,9 @@ public class RenderUtils {
      */
     public static void renderWaypointHighlightBoxes(int[][] blockCoords) {
         GL11.glPushMatrix();
+        // Disable depth test so highlight boxes render above everything
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -384,22 +387,50 @@ public class RenderUtils {
             GL11.glPushMatrix();
             GL11.glTranslated(x, y, z);
             GL11.glLineWidth(2.0F);
-            GL11.glBegin(GL11.GL_LINE_LOOP);
-            // Draw box outline (cube)
+
+            // Draw cube faces
+            GL11.glBegin(GL11.GL_QUADS);
+            // Bottom face
+            GL11.glVertex3d(0, 0, 0);
+            GL11.glVertex3d(1, 0, 0);
+            GL11.glVertex3d(1, 0, 1);
+            GL11.glVertex3d(0, 0, 1);
+            // Top face
+            GL11.glVertex3d(0, 1, 0);
+            GL11.glVertex3d(1, 1, 0);
+            GL11.glVertex3d(1, 1, 1);
+            GL11.glVertex3d(0, 1, 1);
+            // Front face
+            GL11.glVertex3d(0, 0, 1);
+            GL11.glVertex3d(1, 0, 1);
+            GL11.glVertex3d(1, 1, 1);
+            GL11.glVertex3d(0, 1, 1);
+            // Back face
             GL11.glVertex3d(0, 0, 0);
             GL11.glVertex3d(1, 0, 0);
             GL11.glVertex3d(1, 1, 0);
             GL11.glVertex3d(0, 1, 0);
-            GL11.glVertex3d(0, 1, 1);
-            GL11.glVertex3d(1, 1, 1);
-            GL11.glVertex3d(1, 0, 1);
+            // Left face
+            GL11.glVertex3d(0, 0, 0);
             GL11.glVertex3d(0, 0, 1);
+            GL11.glVertex3d(0, 1, 1);
+            GL11.glVertex3d(0, 1, 0);
+            // Right face
+            GL11.glVertex3d(1, 0, 0);
+            GL11.glVertex3d(1, 0, 1);
+            GL11.glVertex3d(1, 1, 1);
+            GL11.glVertex3d(1, 1, 0);
             GL11.glEnd();
+
             GL11.glPopMatrix();
         }
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_BLEND);
+
+        // Re-enable depth test after rendering
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
         GL11.glPopMatrix();
     }
 }
