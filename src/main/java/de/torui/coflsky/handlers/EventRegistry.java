@@ -362,8 +362,8 @@ public class EventRegistry {
             // Start position for the text on the left.
             // (inventoryGuiLeft - padding - maxTextWidth) will place the right edge of the text
             // 'padding' pixels to the left of the inventory's left edge.
-            int textX = inventoryGuiLeft - 10 - maxWidth; // 10 pixels padding to the left
-            int textY = inventoryGuiTop + 10; // 10 pixels down from the top of the inventory
+            int textX = inventoryGuiLeft - 5 - maxWidth;
+            int textY = inventoryGuiTop + 5;
 
             net.minecraft.client.renderer.GlStateManager.pushMatrix();
             net.minecraft.client.renderer.GlStateManager.enableBlend(); // Enable blending for transparency

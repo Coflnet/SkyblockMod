@@ -74,6 +74,13 @@ public class WSCommandHandler {
     }
 
     @Subscribe
+    public void onChatMessageDataReceive(OnWriteToChatReceive event){
+        ChatMessage(new ChatMessageData[]{
+                event.ChatMessage
+        });
+    }
+
+    @Subscribe
     public void onPlaySoundReceive(OnPlaySoundReceive event){
         if(event.Sound == null || event.Sound.getSoundName() == null) return;
 
