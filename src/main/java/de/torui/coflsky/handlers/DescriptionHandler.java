@@ -1,8 +1,8 @@
 package de.torui.coflsky.handlers;
 
-
-import CoflCore.classes.Position;
-import de.torui.coflsky.minecraft_integration.PlayerDataProvider;
+import de.torui.coflsky.Config;
+import de.torui.coflsky.network.QueryServerCommands;
+import de.torui.coflsky.network.WSClient;
 import de.torui.coflsky.utils.ReflectionUtil;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -25,17 +25,27 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 
-public class ForgeDescriptionHandler {
+public class DescriptionHandler {
 
     private static class InventoryWrapper {
         public String chestName;
         public String fullInventoryNbt;
     }
 
+    private static class DescModification {
+        public String type;
+        public String value;
+        public int line;
+    }
+
     public static String allItemIds;
 
+    public static HashMap<String, DescModification[]> tooltipItemIdMap = new HashMap<>();
+
+    public static final DescModification[] EMPTY_ARRAY = new DescModification[0];
     public static final NBTTagCompound EMPTY_COMPOUND = new NBTTagCompound();
 
     private boolean IsOpen = true;
@@ -74,9 +84,14 @@ public class ForgeDescriptionHandler {
         return ExtractStackableIdFromItemStack(stack);
     }
 
-    private CoflCore.handlers.DescriptionHandler.DescModification[] getTooltipData(ItemStack itemStack) {
+    private DescModification[] getTooltipData(ItemStack itemStack) {
         String id = ExtractIdFromItemStack(itemStack);
-        return CoflCore.handlers.DescriptionHandler.getTooltipData(id);
+        if (tooltipItemIdMap.containsKey(id)) {
+            return tooltipItemIdMap.getOrDefault(id, EMPTY_ARRAY);
+        }
+        shouldUpdate = true;
+
+        return EMPTY_ARRAY;
     }
 
     /**
@@ -98,9 +113,6 @@ public class ForgeDescriptionHandler {
                 iteration++;
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
-            }
-            if(!IsOpen) {
-                break;
             }
             if (shouldUpdate || hasAnyStackChanged(gc)) {
                 shouldUpdate = loadDescriptionForInventory(event, gc, true);
@@ -128,43 +140,9 @@ public class ForgeDescriptionHandler {
         return builder.toString();
     }
 
-    public static void uploadInventory() {
-        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
-        if (mc.thePlayer == null || mc.thePlayer.inventory == null) {
-            return;
-        }
-        NBTTagCompound compound = new NBTTagCompound();
-        NBTTagList tl = new NBTTagList();
-        List<ItemStack> items = new ArrayList<>();
-        List<String> itemIds = new ArrayList<>();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        for (int i = 0; i < mc.thePlayer.inventory.getSizeInventory(); i++) {
-            ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
-            String id = ExtractIdFromItemStack(stack);
-            itemIds.add(id);
-            items.add(stack);
-            if (stack != null) {
-                tl.appendTag(stack.serializeNBT());
-            } else {
-                tl.appendTag(EMPTY_COMPOUND);
-            }
-        }
-        try
-        {
-        compound.setTag("i", tl);
-        CompressedStreamTools.writeCompressed(compound, baos);
-
-        CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIds.toArray(new String[0]), "Crafting", Base64.getEncoder().encodeToString(baos.toByteArray()), PlayerDataProvider.getUsername());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private static boolean loadDescriptionForInventory(GuiOpenEvent event, GuiContainer gc, boolean skipLoadCheck) {
         InventoryWrapper wrapper = new InventoryWrapper();
-        Position pos = null;
-        if (event.gui != null && event.gui instanceof GuiChest) {
+        if (event.gui instanceof GuiChest) {
             if (!skipLoadCheck)
                 waitForChestContentLoad(event, gc);
 
@@ -175,7 +153,7 @@ public class ForgeDescriptionHandler {
                 wrapper.chestName = chestName;
                 BlockPos chestPos = ChestUtils.getLookedAtChest();
                 if (chestPos != null && chestName.endsWith("hest")) {
-                    pos = new Position(chestPos.getX(), chestPos.getY(), chestPos.getZ());
+                    wrapper.chestName += chestPos.toString();
                 }
             }
         }
@@ -203,18 +181,14 @@ public class ForgeDescriptionHandler {
             wrapper.fullInventoryNbt = Base64.getEncoder().encodeToString(baos.toByteArray());
 
             List<ItemStack> stacks = new ArrayList<>();
-            List<String> itemIds = new ArrayList<>();
             for (Slot obj : gc.inventorySlots.inventorySlots) {
-                ItemStack stack = obj.getStack();
-                stacks.add(stack);
-                String id = ExtractIdFromItemStack(stack);
-                itemIds.add(id);
+                stacks.add(obj.getStack());
             }
 
-            System.out.println("Loading description for inventory: " + wrapper.chestName + " with " + itemIds.size() + " items");
-            CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIds.toArray(new String[0]), wrapper.chestName, wrapper.fullInventoryNbt, PlayerDataProvider.getUsername(), pos);
+            String data = WSClient.gson.toJson(wrapper);
+            String info = QueryServerCommands.PostRequest(Config.BaseUrl + "/api/mod/description/modifications", data);
 
-            /* TODO: migrate this
+            DescModification[][] arr = WSClient.gson.fromJson(info, DescModification[][].class);
             for (int i = 0; i < stacks.size(); i++) {
                 ItemStack stack = stacks.get(i);
                 String id = ExtractIdFromItemStack(stack);
@@ -230,7 +204,7 @@ public class ForgeDescriptionHandler {
                         shouldGetRefreshed = true;
                     }
                 }
-            }*/
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -254,13 +228,12 @@ public class ForgeDescriptionHandler {
     }
 
     public void setTooltips(ItemTooltipEvent event) {
-        CoflCore.handlers.DescriptionHandler.DescModification[] data = getTooltipData(event.itemStack);
+        DescModification[] data = getTooltipData(event.itemStack);
 
-        if (data == null || data.length == 0){
+        if (data == null || data.length == 0)
             return;
-        }
 
-        for (CoflCore.handlers.DescriptionHandler.DescModification datum : data) {
+        for (DescModification datum : data) {
             if (event.toolTip.size() <= datum.line) {
                 System.out.println(
                         "Skipped line modification " + datum.line + " for " + event.itemStack.getDisplayName());
@@ -294,8 +267,8 @@ public class ForgeDescriptionHandler {
         for (Slot inventorySlot : containerGui.inventorySlots.inventorySlots) {
             if (!inventorySlot.getHasStack())
                 continue;
-            CoflCore.handlers.DescriptionHandler.DescModification[] tooltipData = getTooltipData(inventorySlot.getStack());
-            for (CoflCore.handlers.DescriptionHandler.DescModification modification : tooltipData) {
+            DescModification[] tooltipData = getTooltipData(inventorySlot.getStack());
+            for (DescModification modification : tooltipData) {
                 if ("HIGHLIGHT".equals(modification.type)) {
                     int color = (int) (Long.parseLong(modification.value, 16) & 0xFFFFFFFFL);
                     try {
@@ -320,6 +293,6 @@ public class ForgeDescriptionHandler {
      * Called when the inventory is closed
      */
     public static void emptyTooltipData() {
-        //TODO: clear tooltip data
+        tooltipItemIdMap.clear();
     }
 }

@@ -1,6 +1,5 @@
 package de.torui.coflsky.minecraft_integration;
 
-import CoflCore.classes.Countdown;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiChat;
@@ -11,7 +10,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import CoflCore.commands.models.TimerData;
+import de.torui.coflsky.commands.models.TimerData;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Locale;
@@ -63,8 +62,8 @@ public class CountdownTimer {
         currentPrecision = maxPrecision;
     }
 
-    public static void startCountdown(Countdown data) {
-        startCountdown(data.getDuration(), data.getWidthPercentage(), data.getHeightPercentage(), data.getScale(), data.getPrefix(), data.getMaxPrecision() );
+    public static void startCountdown(TimerData data) {
+        startCountdown(data.seconds, data.width, data.height, data.scale, data.prefix, data.maxPrecision );
     }
 
     private static void drawTimer() {

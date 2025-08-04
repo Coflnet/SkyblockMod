@@ -9,7 +9,7 @@
       "console": "internalConsole",
       "stopOnEntry": false,
       "mainClass": "net.fabricmc.devlaunchinjector.Main",
-      "vmArgs": "\"-Dfabric.dli.config\u003dE:\\CoflWork\\SkyblockMod\\.gradle\\loom-cache\\launch.cfg\" \"-Dfabric.dli.env\u003dclient\" \"-Dfabric.dli.main\u003dnet.minecraft.launchwrapper.Launch\"",
+      "vmArgs": "\"-Dfabric.dli.config\u003dC:\\Coding\\Cofl\\SkyCofl-GUI\\.gradle\\loom-cache\\launch.cfg\" \"-Dfabric.dli.env\u003dclient\" \"-Dfabric.dli.main\u003dnet.minecraft.launchwrapper.Launch\"",
       "args": "",
       "env": {},
       "projectName": ""
@@ -22,7 +22,7 @@
       "console": "internalConsole",
       "stopOnEntry": false,
       "mainClass": "net.fabricmc.devlaunchinjector.Main",
-      "vmArgs": "\"-Dfabric.dli.config\u003dE:\\CoflWork\\SkyblockMod\\.gradle\\loom-cache\\launch.cfg\" \"-Dfabric.dli.env\u003dserver\" \"-Dfabric.dli.main\u003dnet.minecraft.launchwrapper.Launch\"",
+      "vmArgs": "\"-Dfabric.dli.config\u003dC:\\Coding\\Cofl\\SkyCofl-GUI\\.gradle\\loom-cache\\launch.cfg\" \"-Dfabric.dli.env\u003dserver\" \"-Dfabric.dli.main\u003dnet.minecraft.launchwrapper.Launch\"",
       "args": "\"nogui\"",
       "env": {},
       "projectName": ""
