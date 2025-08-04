@@ -1,16 +1,19 @@
 package de.torui.coflsky;
 
-import CoflCore.events.*;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import CoflCore.commands.Command;
-import CoflCore.commands.RawCommand;
-import CoflCore.commands.models.*;
-import de.torui.coflsky.gui.bingui.BinGuiManager;
-import de.torui.coflsky.handlers.ForgeDescriptionHandler;
+import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.CommandType;
+import de.torui.coflsky.commands.JsonStringCommand;
+import de.torui.coflsky.commands.RawCommand;
+import de.torui.coflsky.commands.models.*;
+import de.torui.coflsky.configuration.ConfigurationManager;
 import de.torui.coflsky.handlers.EventRegistry;
-import CoflCore.proxy.ProxyManager;
+import de.torui.coflsky.handlers.EventHandler;
+import de.torui.coflsky.proxy.ProxyManager;
 import de.torui.coflsky.utils.FileUtils;
+import de.torui.coflsky.commands.models.TimerData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -25,8 +28,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import org.greenrobot.eventbus.Subscribe;
-import CoflCore.CoflCore;
 
 import java.io.File;
 
@@ -36,98 +37,87 @@ import java.util.stream.Stream;
 public class WSCommandHandler {
 
     public static transient String lastOnClickEvent;
+    public static FlipHandler flipHandler = new FlipHandler();
     private static final ModListData modListData = new ModListData();
     private static final Gson gson = new Gson();
     private static final ProxyManager proxyManager = new ProxyManager();
-    public static int[][] highlightCoordinates = new int[0][];
 
-    @Subscribe
-    public void onReceiveCommand(ReceiveCommand event){
-        // called on every command
+    public static boolean HandleCommand(JsonStringCommand cmd, Entity sender) {
+        String commandString = cmd.toString();
+        System.out.println("Handling Command=" + commandString);
+        if (commandString.startsWith("Command [Type=null")) {
+            // Attempt to detect settings blob (array of objects with key/name/value) and apply directly
+            if (cmd.getData() != null && cmd.getData().trim().startsWith("[") && cmd.getData().contains("\"key\"")) {
+                // Probably settings json coming via websocket
+                de.torui.coflsky.util.ServerSettingsLoader.applySettings(cmd.getData());
+                return true;
+            }
+            return false; // unknown command
+        }
+
+        switch (cmd.getType()) {
+            case WriteToChat:
+                WriteToChat(cmd.GetAs(new TypeToken<ChatMessageData>() {
+                }));
+                break;
+            case Execute:
+                Execute(cmd.GetAs(new TypeToken<String>() {
+                }), sender);
+                break;
+            case PlaySound:
+                SoundData sc = cmd.GetAs(new TypeToken<SoundData>() {
+                }).getData();
+                PlaySound(sc.Name, sc.Pitch);
+                break;
+            case ChatMessage:
+                ChatMessage(cmd.GetAs(new TypeToken<ChatMessageData[]>() {
+                }));
+                break;
+            case Flip:
+                Flip(cmd.GetAs(new TypeToken<FlipData>() {
+                }));
+                break;
+            case PrivacySettings:
+                new ConfigurationManager().UpdateConfiguration(cmd.getData());
+                EventHandler.UploadScoreboardData(); // on startup
+                break;
+            case Countdown:
+                StartTimer(cmd.GetAs(new TypeToken<TimerData>() {
+                }));
+                break;
+            case GetMods:
+                getMods();
+            case GetScoreboard:
+                EventHandler.UploadScoreboardData();
+                break;
+            case RegisterKeybind:
+                EventRegistry.AddHotKeys(cmd.GetAs(new TypeToken<HotkeyRegister[]>() {
+                }).getData());
+                break;
+            case ProxyRequest:
+                handleProxyRequest(cmd.GetAs(new TypeToken<ProxyRequest[]>() {
+                }).getData());
+                break;
+            default:
+                break;
+        }
+
+        return true;
     }
 
-    @Subscribe
-    public void onFlipReceive(OnFlipReceive event){
+    private static void Flip(Command<FlipData> cmd) {
         // handle chat message
-
-        ChatMessageData[] messages = event.FlipData.Messages;
-        SoundData sound = event.FlipData.Sound;
+        ChatMessageData[] messages = cmd.getData().Messages;
+        SoundData sound = cmd.getData().Sound;
         if (sound != null && sound.Name != null) {
             PlaySound(sound.Name, sound.Pitch);
         }
-        ChatMessage(messages);
-        CoflCore.flipHandler.fds.Insert(event.FlipData);
+        Command<ChatMessageData[]> showCmd = new Command<ChatMessageData[]>(CommandType.ChatMessage, messages);
+        ChatMessage(showCmd);
+        flipHandler.fds.Insert(cmd.getData());
         // trigger the onAfterHotkeyPressed function to open the flip if the correct
         // hotkey is currently still pressed
         EventRegistry.onAfterKeyPressed();
-    }
-    @Subscribe
-    public void onChatMessage(OnChatMessageReceive event){
-        ChatMessage(event.ChatMessages);
-    }
-
-    @Subscribe
-    public void onModChatMessage(OnModChatMessage event){
-        ChatMessage(new ChatMessageData[]{
-                new ChatMessageData(event.message, null,null)
-        });
-    }
-
-    @Subscribe
-    public void onChatMessageDataReceive(OnWriteToChatReceive event){
-        ChatMessage(new ChatMessageData[]{
-                event.ChatMessage
-        });
-    }
-
-    @Subscribe
-    public void onPlaySoundReceive(OnPlaySoundReceive event){
-        if(event.Sound == null || event.Sound.getSoundName() == null) return;
-
-        String soundName = event.Sound.getSoundName();
-        float pitch = event.Sound.getSoundPitch();
-        PlaySound(soundName, pitch);
-    }
-
-    @Subscribe
-    public void onCountdownReceive(OnCountdownReceive event){
-        de.torui.coflsky.minecraft_integration.CountdownTimer.startCountdown(event.CountdownData);
-    }
-
-    @Subscribe
-    public void onOpenAuctionGUI(OnOpenAuctionGUI event){
-        BinGuiManager.openNewFlipGui(event.flip.getMessageAsString().replaceAll("\n", "")
-                .split(",§7 sellers ah")[0], event.flip.Render);
-        Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + event.flip.Id);
-    }
-
-    @Subscribe
-    public void onExecuteCommand(OnExecuteCommand event){
-        Execute(event.Command, Minecraft.getMinecraft().thePlayer);
-    }
-    @Subscribe
-    public void onCloseGUI(OnCloseGUI event){
-        // close the current open gui if any
-        Minecraft mc = Minecraft.getMinecraft();
-        if (mc.currentScreen != null) {
-            mc.displayGuiScreen(null);
-        }
-    }
-
-    @Subscribe
-    public void onGetInventory(OnGetInventory event) {
-        ForgeDescriptionHandler.uploadInventory();
-    }
-    @Subscribe
-    public void onHighlightBlocks(OnHighlightBlocks event) {
-        highlightCoordinates = new int[event.positions.size()][];
-        for (int i = 0; i < event.positions.size(); i++) {
-            highlightCoordinates[i] = new int[]{
-                    event.positions.get(i).getX(),
-                    event.positions.get(i).getY(),
-                    event.positions.get(i).getZ()
-            };
-        }
     }
 
     private static void handleProxyRequest(ProxyRequest[] request) {
@@ -158,7 +148,7 @@ public class WSCommandHandler {
 
     private static void getMods() {
         // the Cofl server has asked for an mod list now let's respond with all the info
-        CoflCore.Wrapper.SendMessage(new RawCommand("foundMods", gson.toJson(modListData)));
+        CoflSky.Wrapper.SendMessage(new RawCommand("foundMods", gson.toJson(modListData)));
     }
 
     private static void PlaySound(String soundName, float pitch) {
@@ -177,6 +167,12 @@ public class WSCommandHandler {
         Execute(cmd.getData(), sender);
     }
 
+    /**
+     * Starts a countdown
+     */
+    private static void StartTimer(Command<TimerData> cmd) {
+        de.torui.coflsky.minecraft_integration.CountdownTimer.startCountdown(cmd.getData());
+    }
 
     public static void Execute(String cmd, Entity sender) {
         if (cmd.startsWith("/cofl") || cmd.startsWith("http")) {
@@ -229,11 +225,13 @@ public class WSCommandHandler {
         Minecraft.getMinecraft().thePlayer.addChatMessage(message);
     }
 
-    public static IChatComponent ChatMessage(ChatMessageData[] array) {
-        IChatComponent master = new ChatComponentText("");
-        String fullMessage = ChatMessageDataToString(array);
+    public static IChatComponent ChatMessage(Command<ChatMessageData[]> cmd) {
+        ChatMessageData[] list = cmd.getData();
 
-        for (ChatMessageData wcmd : array) {
+        IChatComponent master = new ChatComponentText("");
+        String fullMessage = ChatMessageDataToString(list);
+
+        for (ChatMessageData wcmd : list) {
             IChatComponent comp = CommandToChatComponent(wcmd, fullMessage);
             if (comp != null)
                 master.appendSibling(comp);

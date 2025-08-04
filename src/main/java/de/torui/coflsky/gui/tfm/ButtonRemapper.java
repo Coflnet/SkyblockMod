@@ -2,7 +2,7 @@ package de.torui.coflsky.gui.tfm;
 
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
-import CoflCore.configuration.GUIType;
+import de.torui.coflsky.gui.GUIType;
 import de.torui.coflsky.handlers.EventHandler;
 import de.torui.coflsky.handlers.EventRegistry;
 import net.minecraft.client.Minecraft;
@@ -165,7 +165,7 @@ public class ButtonRemapper {
 
     public void drawProfitInfo() {
         FontRenderer font = Minecraft.getMinecraft().fontRendererObj;
-        String text = CoflCore.CoflCore.flipHandler.lastClickedFlipMessage;
+        String text = WSCommandHandler.flipHandler.lastClickedFlipMessage;
 
         if (text == null) {
             return;
@@ -243,7 +243,7 @@ public class ButtonRemapper {
     }
 
     private boolean shouldSkip(GuiScreen screen) {
-        return !(screen instanceof GuiChest) || CoflCore.CoflCore.config.purchaseOverlay != GUIType.TFM || !EventHandler.isInSkyblock;
+        return !(screen instanceof GuiChest) || CoflSky.config.purchaseOverlay != GUIType.TFM || !EventHandler.isInSkyblock;
     }
 
     @SubscribeEvent

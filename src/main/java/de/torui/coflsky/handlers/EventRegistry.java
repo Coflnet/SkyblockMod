@@ -2,48 +2,44 @@ package de.torui.coflsky.handlers;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 
-// Removed swing KeyBinding import
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-import CoflCore.handlers.DescriptionHandler;
 import com.mojang.realmsclient.util.Pair;
 import de.torui.coflsky.CoflSky;
 import de.torui.coflsky.WSCommandHandler;
-import CoflCore.commands.Command;
-import CoflCore.commands.CommandType;
-import CoflCore.commands.JsonStringCommand;
-import CoflCore.commands.models.AuctionData;
-import CoflCore.commands.models.FlipData;
-import CoflCore.commands.models.HotkeyRegister;
-import CoflCore.network.WSClient;
-import de.torui.coflsky.gui.bingui.helper.RenderUtils;
-import de.torui.coflsky.mixins.AccessorGuiEditSign;
+import de.torui.coflsky.commands.Command;
+import de.torui.coflsky.commands.CommandType;
+import de.torui.coflsky.commands.JsonStringCommand;
+import de.torui.coflsky.commands.models.AuctionData;
+import de.torui.coflsky.commands.models.FlipData;
+import de.torui.coflsky.commands.models.HotkeyRegister;
+import de.torui.coflsky.configuration.Configuration;
+import de.torui.coflsky.network.WSClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.inventory.GuiEditSign;
-import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.event.HoverEvent;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntitySign;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -52,15 +48,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
-import static CoflCore.CoflCore.config;
-import static CoflCore.handlers.DescriptionHandler.*;
+import static de.torui.coflsky.CoflSky.config;
+import static de.torui.coflsky.CoflSky.keyBindings;
+import static de.torui.coflsky.handlers.DescriptionHandler.*;
 import static de.torui.coflsky.handlers.EventHandler.*;
 
 public class EventRegistry {
@@ -70,9 +64,9 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
-        if (CoflCore.CoflCore.Wrapper.isRunning) {
+        if (CoflSky.Wrapper.isRunning) {
             System.out.println("Disconnected from server");
-            CoflCore.CoflCore.Wrapper.stop();
+            CoflSky.Wrapper.stop();
             EventHandler.isInSkyblock = false;
             System.out.println("CoflSky stopped");
         }
@@ -81,7 +75,7 @@ public class EventRegistry {
     public static long LastClick = System.currentTimeMillis();
     public static Boolean LastHotkeyState;
     public static Boolean LastEventButtonState;
-    private ForgeDescriptionHandler forgeDescriptionHandler;
+    private DescriptionHandler descriptionHandler;
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
@@ -106,7 +100,7 @@ public class EventRegistry {
     public static void onAfterKeyPressed() {
         if (CoflSky.keyBindings[0].isPressed()) {
             if (WSCommandHandler.lastOnClickEvent != null) {
-                FlipData f = CoflCore.CoflCore.flipHandler.fds.GetLastFlip();
+                FlipData f = WSCommandHandler.flipHandler.fds.GetLastFlip();
                 if (f != null) {
                     WSCommandHandler.Execute("/cofl openauctiongui " + f.Id + " false",
                             Minecraft.getMinecraft().thePlayer);
@@ -116,7 +110,7 @@ public class EventRegistry {
         if (CoflSky.keyBindings[1].isKeyDown()) {
             if ((System.currentTimeMillis() - LastClick) >= 300) {
 
-                FlipData f = CoflCore.CoflCore.flipHandler.fds.GetHighestFlip();
+                FlipData f = WSCommandHandler.flipHandler.fds.GetHighestFlip();
 
                 if (f != null) {
                     WSCommandHandler.Execute("/cofl openauctiongui " + f.Id + " true",
@@ -126,7 +120,7 @@ public class EventRegistry {
                     LastClick = System.currentTimeMillis();
                     String command = WSClient.gson.toJson("/viewauction " + f.Id);
 
-                    CoflCore.CoflCore.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
+                    CoflSky.Wrapper.SendMessage(new JsonStringCommand(CommandType.Clicked, command));
                     WSCommandHandler.Execute("/cofl track besthotkey " + f.Id, Minecraft.getMinecraft().thePlayer);
                 } else {
                     // only display message once (if this is the key down event)
@@ -181,12 +175,6 @@ public class EventRegistry {
         return toAppend;
     }
 
-    @SubscribeEvent
-    public void onDimensionLoad(net.minecraftforge.event.world.WorldEvent.Load event) {
-        // Callback for when a dimension (world) is loaded, in skyblock used when switching islands
-        WSCommandHandler.highlightCoordinates = new int[0][];
-    }
-
     @SideOnly(Side.CLIENT)
     // @SubscribeEvent
     public void DrawOntoGUI(RenderGameOverlayEvent rgoe) {
@@ -194,7 +182,7 @@ public class EventRegistry {
         if (rgoe.type == ElementType.CROSSHAIRS) {
             Minecraft mc = Minecraft.getMinecraft();
             mc.ingameGUI.drawString(Minecraft.getMinecraft().fontRendererObj,
-                    "Flips in Pipeline:" + CoflCore.CoflCore.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
+                    "Flips in Pipeline:" + WSCommandHandler.flipHandler.fds.CurrentFlips(), 0, 0, Integer.MAX_VALUE);
         }
     }
 
@@ -228,6 +216,7 @@ public class EventRegistry {
                 if (uuid.length() == 0) {
                     throw new Exception();
                 }
+                System.out.println("Item has the UUID: " + uuid);
                 return uuid;
             } catch (Exception e) {
                 System.out.println(
@@ -242,21 +231,47 @@ public class EventRegistry {
 
     public static final Pair<String, Pair<String, LocalDateTime>> EMPTY = Pair.of(null, Pair.of("", LocalDateTime.MIN));
     public static Pair<String, Pair<String, LocalDateTime>> last = EMPTY;
+    private LocalDateTime lastBatchStart = LocalDateTime.now();
+    private LinkedBlockingQueue<String> chatBatch = new LinkedBlockingQueue<String>();
 
     @SubscribeEvent
     public void HandleChatEvent(ClientChatReceivedEvent sce) {
-        CoflCore.handlers.EventRegistry.onChatMessage(sce.message.getUnformattedText());
-        String previousHover = null;
-        for (IChatComponent component : sce.message.getSiblings()) {
-            if(component.getChatStyle().getChatHoverEvent() != null
-                    && component.getChatStyle().getChatHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT) {
-                String text = component.getChatStyle().getChatHoverEvent().getValue().getUnformattedText();
-                if (text.equals(previousHover))
-                    continue; // skip if the text is the same as the previous one, different colored text often has the same hover text
-                previousHover = text;
-                CoflCore.handlers.EventRegistry.onChatMessage(text);
+        // use SettingsCache instead of legacy Configuration
+        boolean collectChat = de.torui.coflsky.config.SettingsCache.getBool("collectChat", true);
+        if (!CoflSky.Wrapper.isRunning || !collectChat)
+            return;
+        chatThreadPool.submit(() -> {
+            try {
+
+                String msg = sce.message.getUnformattedText();
+                Matcher matcher = chatpattern.matcher(msg);
+                boolean matchFound = matcher.find();
+                if (!matchFound)
+                    return;
+
+                chatBatch.add(msg);
+                // add 500ms to the last batch start time
+                long nanoSeconds = 500_000_000;
+                if (!lastBatchStart.plusNanos(nanoSeconds).isBefore(LocalDateTime.now())) {
+                    System.out.println(msg + " was not sent because it was too soon");
+                    return;
+                }
+                lastBatchStart = LocalDateTime.now();
+
+                new java.util.Timer().schedule(new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println("Sending batch of " + chatBatch.size() + " messages");
+                        Command<String[]> data = new Command<>(CommandType.chatBatch, chatBatch.toArray(new String[0]));
+                        chatBatch.clear();
+                        CoflSky.Wrapper.SendMessage(data);
+                    }
+                }, 500);
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
+        });
     }
 
     public static long lastStartTime = Long.MIN_VALUE;
@@ -267,7 +282,7 @@ public class EventRegistry {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void OnGuiClick(GuiScreenEvent.MouseInputEvent mie) {
-        if (!CoflCore.CoflCore.Wrapper.isRunning)
+        if (!CoflSky.Wrapper.isRunning)
             return;
         if (!(mie.gui instanceof GuiChest))
             return; // verify that it's really a chest
@@ -299,7 +314,7 @@ public class EventRegistry {
                             }
 
                             Command<AuctionData> data = new Command<>(CommandType.PurchaseStart, ad);
-                            CoflCore.CoflCore.Wrapper.SendMessage(data);
+                            CoflSky.Wrapper.SendMessage(data);
                             System.out.println("PurchaseStart");
                             last = Pair.of("You claimed ", Pair.of(itemUUID, LocalDateTime.now()));
                             lastStartTime = System.currentTimeMillis() + 200 /* ensure a small debounce */;
@@ -313,69 +328,6 @@ public class EventRegistry {
     @SubscribeEvent
     public void OnRenderTick(TickEvent.RenderTickEvent event) {
         de.torui.coflsky.minecraft_integration.CountdownTimer.onRenderTick(event);
-    }
-
-    @SubscribeEvent
-    public void highlightChests(DrawBlockHighlightEvent e){
-        if (WSCommandHandler.highlightCoordinates.length > 0) {
-            RenderUtils.renderWaypointHighlightBoxes(WSCommandHandler.highlightCoordinates);
-        }
-    }
-
-    @SubscribeEvent
-    public void onGuiDraw(GuiScreenEvent.DrawScreenEvent.Post event) {
-        Minecraft mc = Minecraft.getMinecraft();
-
-        // Check if the current GUI screen is the player's inventory or a chest GUI
-        if (event.gui instanceof GuiContainer) {
-            DescriptionHandler.DescModification[] toDisplay = DescriptionHandler.getInfoDisplay();
-            if(toDisplay.length == 0)
-                return; // No info to display, exit early
-            GuiContainer inventoryGui = (GuiContainer) event.gui;
-            FontRenderer fontRenderer = mc.fontRendererObj;
-
-            // --- Get the actual rendered top-left position of the inventory GUI ---
-            // 'guiLeft' and 'guiTop' are protected but directly accessible from the instance
-            // (or via a getter if one existed, but direct access is common for protected fields in mods).
-            // This position accounts for potion effect shifts.
-            int inventoryGuiLeft = inventoryGui.guiLeft;
-            int inventoryGuiTop = inventoryGui.guiTop;
-
-            // --- Define your info text lines ---
-            ArrayList<String> lines = new ArrayList<>();
-            int maxWidth = 0;
-            for(DescriptionHandler.DescModification mod : toDisplay) {
-                if (mod != null && mod.value != null) {
-                    if(mod.type.equals("APPEND")) {
-                        lines.add(mod.value);
-                        int width = fontRenderer.getStringWidth(mod.value);
-                        if (width > maxWidth) {
-                            maxWidth = width;
-                        }
-                    }
-                    else if(mod.type.equals("SUGGEST")) {
-                        lines.add("§7Will suggest: §r" + mod.value.split(": ")[1]);
-                    }
-                }
-            }
-
-            // Start position for the text on the left.
-            // (inventoryGuiLeft - padding - maxTextWidth) will place the right edge of the text
-            // 'padding' pixels to the left of the inventory's left edge.
-            int textX = inventoryGuiLeft - 5 - maxWidth;
-            int textY = inventoryGuiTop + 5;
-
-            net.minecraft.client.renderer.GlStateManager.pushMatrix();
-            net.minecraft.client.renderer.GlStateManager.enableBlend(); // Enable blending for transparency
-            net.minecraft.client.renderer.GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); // Standard alpha blend function
-            for(int i = 0; i < lines.size(); i++) {
-                String line = lines.get(i);
-                // Draw each line with a vertical offset
-                fontRenderer.drawString(line, textX, textY + (fontRenderer.FONT_HEIGHT + 2) * i, 0xFFFFFFFF, true); // White
-            }
-            net.minecraft.client.renderer.GlStateManager.disableBlend(); // Disable blending
-            net.minecraft.client.renderer.GlStateManager.popMatrix();
-        }
     }
 
     long UpdateThisTick = 0;
@@ -402,35 +354,13 @@ public class EventRegistry {
         // therefore clear the lastClickFlipMessage, so it doesn't show on other
         // auctions
         if (event.gui == null) {
-            CoflCore.CoflCore.flipHandler.lastClickedFlipMessage = "";
-        }
-
-        if (event.gui instanceof GuiEditSign) {
-            GuiEditSign signGui = (GuiEditSign) event.gui;
-            DescriptionHandler.DescModification[] toDisplay = DescriptionHandler.getInfoDisplay();
-            for (DescriptionHandler.DescModification mod : toDisplay) {
-                if (mod == null || !mod.type.equals("SUGGEST")) {
-                    continue;
-                }
-                String[] parts = mod.value.split(": ");
-                if (parts.length < 2)
-                    return;
-                try {
-                    TileEntitySign tileEntitySign = ((AccessorGuiEditSign) signGui).getTileSign();
-                    if(tileEntitySign.signText[3].getUnformattedText().contains(parts[0]))
-                        tileEntitySign.signText[0] = new ChatComponentText(parts[1]);
-                } catch (RuntimeException e) {
-                    System.err.println("Failed to access tileSign field in GuiEditSign: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-            return;
+            WSCommandHandler.flipHandler.lastClickedFlipMessage = "";
         }
 
         if (!config.extendedtooltips)
             return;
-        if (forgeDescriptionHandler != null)
-            forgeDescriptionHandler.Close();
+        if (descriptionHandler != null)
+            descriptionHandler.Close();
         if (event.gui == null)
             emptyTooltipData();
 
@@ -438,8 +368,8 @@ public class EventRegistry {
             return;
         new Thread(() -> {
             try {
-                forgeDescriptionHandler = new ForgeDescriptionHandler();
-                forgeDescriptionHandler.loadDescriptionAndListenForChanges(event);
+                descriptionHandler = new DescriptionHandler();
+                descriptionHandler.loadDescriptionAndListenForChanges(event);
             } catch (Exception e) {
                 System.out.println("failed to update description " + e);
             }
@@ -448,16 +378,16 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void onBackgroundRenderDone(GuiScreenEvent.BackgroundDrawnEvent event) {
-        if (forgeDescriptionHandler != null)
-            forgeDescriptionHandler.highlightSlots(event);
+        if (descriptionHandler != null)
+            descriptionHandler.highlightSlots(event);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onItemTooltipEvent(ItemTooltipEvent event) {
         if (!config.extendedtooltips)
             return;
-        if (forgeDescriptionHandler == null)
+        if (descriptionHandler == null)
             return;
-        forgeDescriptionHandler.setTooltips(event);
+        descriptionHandler.setTooltips(event);
     }
 }

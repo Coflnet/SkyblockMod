@@ -1,4 +1,3 @@
-import org.apache.commons.lang3.SystemUtils
 plugins {
     idea
     java
@@ -7,13 +6,8 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-group = "de.torui.coflsky"
-val baseGroup: String by project
-val mcVersion: String by project
-val version: String by project
-val mixinGroup = "$baseGroup.mixin"
-val modid: String by project
-val transformerFile = file("src/main/resources/accesstransformer.cfg")
+group = "de.torui.coflmod"
+version = "1.6.0"
 
 // Toolchains:
 java {
@@ -22,34 +16,13 @@ java {
 
 // Minecraft configuration:
 loom {
-    log4jConfigs.from(file("log4j2.xml"))
     launchConfigs {
         "client" {
-            // If you don't want mixins, remove these lines
-            property("mixin.debug", "true")
-            arg("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
+            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
         }
-    }
-    runConfigs {
-        "client" {
-            if (SystemUtils.IS_OS_MAC_OSX) {
-                // This argument causes a crash on macOS
-                vmArgs.remove("-XstartOnFirstThread")
-            }
-        }
-        remove(getByName("server"))
     }
     forge {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
-        // If you don't want mixins, remove this lines
-        mixinConfig("mixins.$modid.json")
-	    if (transformerFile.exists()) {
-			println("Installing access transformer")
-		    accessTransformer(transformerFile)
-	    }
-    }
-    mixin {
-        defaultRefmapName.set("mixins.$modid.refmap.json")
     }
 }
 
@@ -64,7 +37,8 @@ repositories {
     maven("https://repo.spongepowered.org/maven/")
     // If you don't want to log in with your real minecraft account, remove this line
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
-    maven ("https://jitpack.io" )
+    // Polyfrost repo for OneConfig
+    maven("https://repo.polyfrost.org/releases")
 }
 
 val shadowImpl by configurations.creating {
@@ -77,19 +51,21 @@ dependencies {
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
     annotationProcessor("org.spongepowered:mixin:0.8.4-SNAPSHOT")
-    //modImplementation(include("org.greenrobot:eventbus-java:3.3.1"))
-    shadowImpl("org.greenrobot:eventbus-java:3.3.1")
-    shadowImpl("com.github.Coflnet:coflskycore:5691541e14")
-    shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
 
-    // If you don't want mixins, remove these lines
-    shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
-        isTransitive = false
-    }
-    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
+    shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
+    // OneConfig library for legacy Forge 1.8.9 (compile-time only, wrapper will fetch at runtime)
+    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
+    // Shade the LaunchWrapper tweaker inside the mod jar so it runs before Forge
+    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
+
+    // ByteBuddy for runtime class generation
+    shadowImpl("net.bytebuddy:byte-buddy-dep:1.11.22")
 
     // If you don't want to log in with your real minecraft account, remove this line
-    runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
+    modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.0") {
+        exclude(group = "org.jetbrains.kotlin")
+        exclude(group = "org.jetbrains.kotlinx")
+    }
 
 }
 
@@ -99,32 +75,16 @@ tasks.withType(JavaCompile::class) {
     options.encoding = "UTF-8"
 }
 
-tasks.withType(org.gradle.jvm.tasks.Jar::class) {
-    archiveBaseName.set(modid)
+tasks.withType(Jar::class) {
+    archiveBaseName.set("SkyCofl")
     manifest.attributes.run {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
-
-        // If you don't want mixins, remove these lines
-        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
-        this["MixinConfigs"] = "mixins.$modid.json"
-	    if (transformerFile.exists())
-			this["FMLAT"] = "${modid}_at.cfg"
+        this["Manifest-Version"] = "1.0"
+        this["TweakClass"] = "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
     }
 }
 
-tasks.processResources {
-    inputs.property("version", project.version)
-    inputs.property("mcversion", mcVersion)
-    inputs.property("modid", modid)
-    inputs.property("basePackage", baseGroup)
-
-    filesMatching(listOf("mcmod.info", "mixins.$modid.json")) {
-        expand(inputs.properties)
-    }
-
-    rename("accesstransformer.cfg", "META-INF/${modid}_at.cfg")
-}
 
 val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
     archiveClassifier.set("all")
@@ -143,4 +103,3 @@ tasks.shadowJar {
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
-
