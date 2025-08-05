@@ -1,7 +1,7 @@
 package de.torui.coflsky.gui.bingui;
 
 
-import de.torui.coflsky.CoflSky;
+import de.torui.coflsky.SkyCofl;
 import CoflCore.configuration.GUIType;
 import de.torui.coflsky.gui.bingui.helper.ColorPallet;
 import de.torui.coflsky.gui.bingui.helper.RenderUtils;

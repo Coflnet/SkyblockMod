@@ -10,7 +10,7 @@ import net.minecraft.util.ChatComponentText;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class FlipperChatCommand extends CoflSkyCommand {
+public class FlipperChatCommand extends SkyCoflCommand {
 
     public static boolean useChatOnlyMode = false;
 

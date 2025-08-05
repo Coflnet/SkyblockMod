@@ -1,6 +1,6 @@
 package de.torui.coflsky.gui.bingui;
 
-import de.torui.coflsky.CoflSky;
+import de.torui.coflsky.SkyCofl;
 import CoflCore.configuration.GUIType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;

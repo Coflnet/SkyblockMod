@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 import CoflCore.handlers.DescriptionHandler;
 import com.mojang.realmsclient.util.Pair;
-import de.torui.coflsky.CoflSky;
+import de.torui.coflsky.SkyCofl;
 import de.torui.coflsky.WSCommandHandler;
 import CoflCore.commands.Command;
 import CoflCore.commands.CommandType;
@@ -74,7 +74,7 @@ public class EventRegistry {
             System.out.println("Disconnected from server");
             CoflCore.CoflCore.Wrapper.stop();
             EventHandler.isInSkyblock = false;
-            System.out.println("CoflSky stopped");
+            System.out.println("SkyCofl stopped");
         }
     }
 
@@ -104,7 +104,7 @@ public class EventRegistry {
     }
 
     public static void onAfterKeyPressed() {
-        if (CoflSky.keyBindings[0].isPressed()) {
+        if (SkyCofl.keyBindings[0].isPressed()) {
             if (WSCommandHandler.lastOnClickEvent != null) {
                 FlipData f = CoflCore.CoflCore.flipHandler.fds.GetLastFlip();
                 if (f != null) {
@@ -113,7 +113,7 @@ public class EventRegistry {
                 }
             }
         }
-        if (CoflSky.keyBindings[1].isKeyDown()) {
+        if (SkyCofl.keyBindings[1].isKeyDown()) {
             if ((System.currentTimeMillis() - LastClick) >= 300) {
 
                 FlipData f = CoflCore.CoflCore.flipHandler.fds.GetHighestFlip();
@@ -130,22 +130,22 @@ public class EventRegistry {
                     WSCommandHandler.Execute("/cofl track besthotkey " + f.Id, Minecraft.getMinecraft().thePlayer);
                 } else {
                     // only display message once (if this is the key down event)
-                    if (CoflSky.keyBindings[1].isPressed())
+                    if (SkyCofl.keyBindings[1].isPressed())
                         WSCommandHandler.Execute("/cofl dialog nobestflip", Minecraft.getMinecraft().thePlayer);
                 }
             }
         }
-        if (CoflSky.keyBindings[2].isPressed()) {
+        if (SkyCofl.keyBindings[2].isPressed()) {
             String toAppend = getContextToAppend();
 
             WSCommandHandler.Execute("/cofl hotkey upload_item" + toAppend,
                     Minecraft.getMinecraft().thePlayer);
         }
-        if (CoflSky.keyBindings.length <= 3)
+        if (SkyCofl.keyBindings.length <= 3)
             return;
-        for (int i = 3; i < CoflSky.keyBindings.length; i++) {
-            if (CoflSky.keyBindings[i].isPressed()) {
-                String keyName = CoflSky.keyBindings[i].getKeyDescription();
+        for (int i = 3; i < SkyCofl.keyBindings.length; i++) {
+            if (SkyCofl.keyBindings[i].isPressed()) {
+                String keyName = SkyCofl.keyBindings[i].getKeyDescription();
                 String toAppend = getContextToAppend();
 
                 WSCommandHandler.Execute("/cofl hotkey " + keyName + toAppend,
@@ -201,20 +201,20 @@ public class EventRegistry {
     public static void AddHotKeys(HotkeyRegister[] keys) {
         int defaultHotkeyCount = 3;
         Map<String, Integer> keyMap = new HashMap<String, Integer>();
-        for (int i = 0; i < CoflSky.keyBindings.length; i++) {
-            keyMap.put(CoflSky.keyBindings[i].getKeyDescription(), i);
+        for (int i = 0; i < SkyCofl.keyBindings.length; i++) {
+            keyMap.put(SkyCofl.keyBindings[i].getKeyDescription(), i);
         }
         // resize the keybindings array
-        CoflSky.keyBindings = java.util.Arrays.copyOf(CoflSky.keyBindings, defaultHotkeyCount + keys.length);
+        SkyCofl.keyBindings = java.util.Arrays.copyOf(SkyCofl.keyBindings, defaultHotkeyCount + keys.length);
         for (int i = 0; i < keys.length; i++) {
             int key = Keyboard.getKeyIndex(keys[i].DefaultKey.toUpperCase());
             if(keyMap.containsKey(keys[i].Name))
             {
                 continue;
             }
-            CoflSky.keyBindings[i + defaultHotkeyCount] = new KeyBinding(keys[i].Name, key, "SkyCofl (unchangeable)");
+            SkyCofl.keyBindings[i + defaultHotkeyCount] = new KeyBinding(keys[i].Name, key, "SkyCofl (unchangeable)");
             System.out.println("Registered Key: " + keys[i].Name + " with key " + key);
-            ClientRegistry.registerKeyBinding(CoflSky.keyBindings[i + defaultHotkeyCount]);
+            ClientRegistry.registerKeyBinding(SkyCofl.keyBindings[i + defaultHotkeyCount]);
         }
     }
 

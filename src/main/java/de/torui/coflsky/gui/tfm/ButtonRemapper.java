@@ -1,6 +1,6 @@
 package de.torui.coflsky.gui.tfm;
 
-import de.torui.coflsky.CoflSky;
+import de.torui.coflsky.SkyCofl;
 import de.torui.coflsky.WSCommandHandler;
 import CoflCore.configuration.GUIType;
 import de.torui.coflsky.handlers.EventHandler;

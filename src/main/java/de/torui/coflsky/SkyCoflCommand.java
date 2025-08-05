@@ -27,7 +27,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.MinecraftForge;
 
-public class CoflSkyCommand extends CommandBase {
+public class SkyCoflCommand extends CommandBase {
 
     @Override
     public int getRequiredPermissionLevel() {
@@ -165,9 +165,9 @@ public class CoflSkyCommand extends CommandBase {
     }
 
     private static synchronized void SendAfterStart(ICommandSender sender, RawCommand rc) {
-        sender.addChatMessage(new ChatComponentText("CoflSky wasn't active.")
+        sender.addChatMessage(new ChatComponentText("SkyCofl wasn't active.")
                 .setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
-        // CoflSky.Wrapper.stop();
+        // SkyCofl.Wrapper.stop();
         CoflCore.CoflCore.Wrapper.startConnection(PlayerDataProvider.getUsername());
         CoflCore.CoflCore.Wrapper.SendMessage(rc);
     }

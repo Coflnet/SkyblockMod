@@ -1,7 +1,7 @@
 package de.torui.coflsky.handlers;
 
 import CoflCore.CoflCore;
-import de.torui.coflsky.CoflSky;
+import de.torui.coflsky.SkyCofl;
 import CoflCore.commands.Command;
 import CoflCore.commands.CommandType;
 import CoflCore.configuration.Configuration;

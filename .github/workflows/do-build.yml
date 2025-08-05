@@ -17,5 +17,5 @@ jobs:
       - name: 'Upload Jar'
         uses: actions/upload-artifact@v4
         with:
-          name: CoflSky-CI
+          name: SkyCofl-CI
           path: build/libs/SkyCofl-*-all.jar
