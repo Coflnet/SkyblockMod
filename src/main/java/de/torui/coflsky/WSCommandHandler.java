@@ -96,6 +96,13 @@ public class WSCommandHandler {
 
     @Subscribe
     public void onOpenAuctionGUI(OnOpenAuctionGUI event){
+        if(event.flip == null)
+        {
+            // open only the gui without any flip data
+            BinGuiManager.openNewFlipGui("", "simulated-item-0000-0000-0000-000000000000");
+            Minecraft.getMinecraft().thePlayer.sendChatMessage(event.openAuctionCommand);
+            return;
+        }
         BinGuiManager.openNewFlipGui(event.flip.getMessageAsString().replaceAll("\n", "")
                 .split(",§7 sellers ah")[0], event.flip.Render);
         Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + event.flip.Id);
