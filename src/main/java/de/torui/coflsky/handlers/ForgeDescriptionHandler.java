@@ -51,6 +51,15 @@ public class ForgeDescriptionHandler {
                 NBTTagCompound serialized = stack.serializeNBT();
                 String name = serialized.getCompoundTag("tag").getCompoundTag("display")
                         .getString("Name");
+                if(name != null && (name.contains("BUY") || name.contains("SELL"))) {
+                    NBTTagList loreNbtList = serialized.getCompoundTag("tag").getCompoundTag("display").getTagList("Lore", 8);
+
+                    for (int i = 0; i < loreNbtList.tagCount(); i++) {
+                        if (loreNbtList.getStringTagAt(i).contains("Price per unit")) {
+                            return name + loreNbtList.getStringTagAt(i);
+                        }
+                    }
+                }
                 return name + ":" + stack.stackSize;
             } catch (Exception e) {
                 e.printStackTrace();
