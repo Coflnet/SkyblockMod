@@ -304,6 +304,9 @@ public class ForgeDescriptionHandler {
             if (!inventorySlot.getHasStack())
                 continue;
             CoflCore.handlers.DescriptionHandler.DescModification[] tooltipData = getTooltipData(inventorySlot.getStack());
+            if (tooltipData == null || tooltipData.length == 0) {
+                continue;
+            }
             for (CoflCore.handlers.DescriptionHandler.DescModification modification : tooltipData) {
                 if ("HIGHLIGHT".equals(modification.type)) {
                     int color = (int) (Long.parseLong(modification.value, 16) & 0xFFFFFFFFL);
