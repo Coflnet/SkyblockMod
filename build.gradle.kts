@@ -7,7 +7,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-group = "de.torui.coflsky"
+group = "com.coflnet.sky"
 val baseGroup: String by project
 val mcVersion: String by project
 val version: String by project

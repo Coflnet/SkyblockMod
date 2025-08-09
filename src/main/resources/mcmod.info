@@ -1,16 +1,16 @@
 [
 {
-  "modid": "SkyCofl",
+  "modid": "skycofl",
   "name": "SkyCofl",
-  "description": "Marketdata in item lore",
-  "version": "1.6.0",
+  "description": "Skyblock Marketdata in item lore and other money making helpers for Hypixel Skyblock.",
+  "version": "1.7.2",
   "mcversion": "${mcversion}",
   "url": "https://sky.coflnet.com/mod",
   "updateUrl": "https://github.com/Coflnet/SkyblockMod/tags",
   "authorList": ["Torui","Äkwav","Ragult","HackOS"],
-  "credits": "Coflnet for comissioning this mod.",
+  "credits": "Coflnet GmbH",
   "logoFile": "",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": [],
 }
 ]
