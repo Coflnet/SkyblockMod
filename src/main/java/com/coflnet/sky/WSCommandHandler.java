@@ -136,6 +136,10 @@ public class WSCommandHandler {
             };
         }
     }
+    @Subscribe
+    public void onHotkeyRegister(HotkeyRegister[] hotkeys){
+        EventRegistry.AddHotKeys(hotkeys);
+    }
 
     private static void handleProxyRequest(ProxyRequest[] request) {
         for (ProxyRequest req : request) {
