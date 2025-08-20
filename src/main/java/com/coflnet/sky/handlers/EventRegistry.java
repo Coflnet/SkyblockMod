@@ -34,6 +34,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntitySign;
@@ -135,7 +136,11 @@ public class EventRegistry {
                 }
             }
         }
-        if (SkyCofl.keyBindings[2].isPressed()) {
+        triggerItemKeys(false);
+    }
+
+    public static void triggerItemKeys(boolean checkForKey) {
+        if (SkyCofl.keyBindings[2].isPressed() || checkForKey && Keyboard.getEventKey() == SkyCofl.keyBindings[2].getKeyCode()) {
             String toAppend = getContextToAppend();
 
             WSCommandHandler.Execute("/cofl hotkey upload_item" + toAppend,
@@ -143,8 +148,9 @@ public class EventRegistry {
         }
         if (SkyCofl.keyBindings.length <= 3)
             return;
+        System.out.println("Checking for additional hotkeys...");
         for (int i = 3; i < SkyCofl.keyBindings.length; i++) {
-            if (SkyCofl.keyBindings[i].isPressed()) {
+            if (SkyCofl.keyBindings[i].isPressed()  || checkForKey && Keyboard.getEventKey() == SkyCofl.keyBindings[i].getKeyCode()) {
                 String keyName = SkyCofl.keyBindings[i].getKeyDescription();
                 String toAppend = getContextToAppend();
 
@@ -161,13 +167,54 @@ public class EventRegistry {
             return toAppend;
         }
 
-        // Get currently selected item
-        ItemStack heldItem = mc.thePlayer.getHeldItem();
+        // Prefer hovered item in open inventory GUIs
+        ItemStack relevantItem = null;
+        if (mc.currentScreen instanceof GuiContainer) {
+            GuiContainer gui = (GuiContainer) mc.currentScreen;
+            int mx = Mouse.getX() * gui.width / mc.displayWidth;
+            int my = gui.height - Mouse.getY() * gui.height / mc.displayHeight - 1;
+            try {
+                Slot hovered = null;
 
-        if (heldItem != null && heldItem.hasTagCompound()) {
+                // Try to call getSlotAtPosition if present via reflection
+                try {
+                    java.lang.reflect.Method m = GuiContainer.class.getMethod("getSlotAtPosition", int.class, int.class);
+                    Object res = m.invoke(gui, mx, my);
+                    if (res instanceof Slot) hovered = (Slot) res;
+                } catch (NoSuchMethodException ignored) {
+                    // method not present, will fallback to manual lookup
+                }
+
+                // Fallback: iterate slots and compare coordinates
+                if (hovered == null) {
+                    for (Object o : gui.inventorySlots.inventorySlots) {
+                        if (!(o instanceof Slot)) continue;
+                        Slot s = (Slot) o;
+                        int slotX = gui.guiLeft + s.xDisplayPosition;
+                        int slotY = gui.guiTop + s.yDisplayPosition;
+                        if (mx >= slotX && mx < slotX + 16 && my >= slotY && my < slotY + 16) {
+                            hovered = s;
+                            break;
+                        }
+                    }
+                }
+
+                if (hovered != null && hovered.getHasStack()) {
+                    relevantItem = hovered.getStack();
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+
+        // Fallback to held item
+        if (relevantItem == null) {
+            relevantItem = mc.thePlayer.getHeldItem();
+        }
+
+        if (relevantItem != null && relevantItem.hasTagCompound()) {
             // Get the item's NBT data
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            NBTTagCompound nbt = heldItem.serializeNBT();
+            NBTTagCompound nbt = relevantItem.serializeNBT();
             try {
                 CompressedStreamTools.writeCompressed(nbt, baos);
                 String item = Base64.getEncoder().encodeToString(baos.toByteArray());
@@ -176,7 +223,7 @@ public class EventRegistry {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No NBT data found for the selected item.");
+            System.out.println("No NBT data found for the selected or hovered item.");
         }
         return toAppend;
     }
