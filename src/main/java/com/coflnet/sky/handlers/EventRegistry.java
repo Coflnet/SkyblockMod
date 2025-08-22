@@ -411,6 +411,9 @@ public class EventRegistry {
             // 'padding' pixels to the left of the inventory's left edge.
             int textX = inventoryGuiLeft - 5 - maxWidth;
             int textY = inventoryGuiTop + 5;
+            if (inventoryGui instanceof GuiInventory) {
+                textY += 30;
+            }
 
             net.minecraft.client.renderer.GlStateManager.pushMatrix();
             net.minecraft.client.renderer.GlStateManager.enableBlend(); // Enable blending for transparency
