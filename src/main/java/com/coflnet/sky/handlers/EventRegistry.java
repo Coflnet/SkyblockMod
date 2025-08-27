@@ -15,6 +15,10 @@ import CoflCore.handlers.DescriptionHandler;
 import com.mojang.realmsclient.util.Pair;
 import com.coflnet.sky.SkyCofl;
 import com.coflnet.sky.WSCommandHandler;
+import com.coflnet.sky.models.ClickableTextElement;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import CoflCore.commands.Command;
 import CoflCore.commands.CommandType;
 import CoflCore.commands.JsonStringCommand;
@@ -31,6 +35,7 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
@@ -388,20 +393,46 @@ public class EventRegistry {
             int inventoryGuiLeft = inventoryGui.guiLeft;
             int inventoryGuiTop = inventoryGui.guiTop;
 
-            // --- Define your info text lines ---
+            // --- Define your info text lines and clickable elements ---
             ArrayList<String> lines = new ArrayList<>();
+            ArrayList<List<ClickableTextElement>> clickableLines = new ArrayList<>();
             int maxWidth = 0;
             for(DescriptionHandler.DescModification mod : toDisplay) {
                 if (mod != null && mod.value != null) {
                     if(mod.type.equals("APPEND")) {
-                        lines.add(mod.value);
-                        int width = fontRenderer.getStringWidth(mod.value);
-                        if (width > maxWidth) {
-                            maxWidth = width;
+                        // Check if the value is JSON for clickable text
+                        List<ClickableTextElement> clickableElements = parseClickableText(mod.value);
+                        if (clickableElements != null && !clickableElements.isEmpty()) {
+                            // Calculate combined width of all clickable elements
+                            int totalWidth = 0;
+                            for (ClickableTextElement element : clickableElements) {
+                                if (element.getText() != null) {
+                                    totalWidth += fontRenderer.getStringWidth(element.getText());
+                                }
+                            }
+                            lines.add(""); // Empty line placeholder for clickable content
+                            clickableLines.add(clickableElements);
+                            if (totalWidth > maxWidth) {
+                                maxWidth = totalWidth;
+                            }
+                        } else {
+                            // Regular text
+                            lines.add(mod.value);
+                            clickableLines.add(null);
+                            int width = fontRenderer.getStringWidth(mod.value);
+                            if (width > maxWidth) {
+                                maxWidth = width;
+                            }
                         }
                     }
                     else if(mod.type.equals("SUGGEST")) {
-                        lines.add("§7Will suggest: §r" + mod.value.split(": ")[1]);
+                        String displayText = "§7Will suggest: §r" + mod.value.split(": ")[1];
+                        lines.add(displayText);
+                        clickableLines.add(null);
+                        int width = fontRenderer.getStringWidth(displayText);
+                        if (width > maxWidth) {
+                            maxWidth = width;
+                        }
                     }
                 }
             }
@@ -418,14 +449,264 @@ public class EventRegistry {
             net.minecraft.client.renderer.GlStateManager.pushMatrix();
             net.minecraft.client.renderer.GlStateManager.enableBlend(); // Enable blending for transparency
             net.minecraft.client.renderer.GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); // Standard alpha blend function
+            
             for(int i = 0; i < lines.size(); i++) {
                 String line = lines.get(i);
-                // Draw each line with a vertical offset
-                fontRenderer.drawString(line, textX, textY + (fontRenderer.FONT_HEIGHT + 2) * i, 0xFFFFFFFF, true); // White
+                List<ClickableTextElement> clickableElements = clickableLines.get(i);
+                int currentY = textY + (fontRenderer.FONT_HEIGHT + 2) * i;
+                
+                if (clickableElements != null && !clickableElements.isEmpty()) {
+                    // Render clickable text elements
+                    renderClickableTextLine(clickableElements, textX, currentY, fontRenderer, event);
+                } else if (line != null && !line.isEmpty()) {
+                    // Draw regular text line
+                    fontRenderer.drawString(line, textX, currentY, 0xFFFFFFFF, true); // White
+                }
             }
+            
             net.minecraft.client.renderer.GlStateManager.disableBlend(); // Disable blending
             net.minecraft.client.renderer.GlStateManager.popMatrix();
         }
+    }
+
+    /**
+     * Parses a string that might contain JSON for clickable text elements
+     * @param value The string value that might be JSON
+     * @return List of ClickableTextElement if valid JSON, null otherwise
+     */
+    private List<ClickableTextElement> parseClickableText(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        
+        // Check if the value looks like JSON (starts with [ and ends with ])
+        String trimmed = value.trim();
+        if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+            return null;
+        }
+        
+        try {
+            Gson gson = new Gson();
+            Type listType = new TypeToken<List<ClickableTextElement>>(){}.getType();
+            return gson.fromJson(value, listType);
+        } catch (Exception e) {
+            // If parsing fails, return null to fall back to regular text
+            return null;
+        }
+    }
+
+    /**
+     * Renders a line of clickable text elements
+     * @param elements List of clickable text elements to render
+     * @param startX Starting X position
+     * @param y Y position for the line
+     * @param fontRenderer Font renderer to use
+     * @param event GUI event for mouse interaction handling
+     */
+    private void renderClickableTextLine(List<ClickableTextElement> elements, int startX, int y, FontRenderer fontRenderer, GuiScreenEvent.DrawScreenEvent.Post event) {
+        int currentX = startX;
+        
+        for (ClickableTextElement element : elements) {
+            if (element.getText() == null || element.getText().isEmpty()) {
+                continue;
+            }
+            
+            String text = element.getText();
+            int textWidth = fontRenderer.getStringWidth(text);
+            
+            // Check if mouse is hovering over this text element
+            int mouseX = Mouse.getX() * event.gui.width / Minecraft.getMinecraft().displayWidth;
+            int mouseY = event.gui.height - Mouse.getY() * event.gui.height / Minecraft.getMinecraft().displayHeight - 1;
+            
+            boolean isHovered = mouseX >= currentX && mouseX <= currentX + textWidth && 
+                               mouseY >= y && mouseY <= y + fontRenderer.FONT_HEIGHT;
+            
+            // Draw the text with underline if hovered and clickable
+            int color = 0xFFFFFFFF; // Default white
+            if (element.getOnClick() != null && !element.getOnClick().isEmpty()) {
+                color = isHovered ? 0xFFFFFF00 : 0xFF55FFFF; // Yellow when hovered, cyan when clickable
+            }
+            
+            fontRenderer.drawString(text, currentX, y, color, true);
+            
+            // Draw underline if hovered and clickable
+            if (isHovered && element.getOnClick() != null && !element.getOnClick().isEmpty()) {
+                net.minecraft.client.gui.Gui.drawRect(currentX, y + fontRenderer.FONT_HEIGHT, 
+                                                    currentX + textWidth, y + fontRenderer.FONT_HEIGHT + 1, 
+                                                    0xFFFFFF00);
+            }
+            
+            // Store click area for later processing
+            if (element.getOnClick() != null && !element.getOnClick().isEmpty()) {
+                storeClickableArea(currentX, y, textWidth, fontRenderer.FONT_HEIGHT, element.getOnClick());
+            }
+            
+            // Store hover area for tooltip
+            if (element.getHover() != null && !element.getHover().isEmpty()) {
+                storeHoverArea(currentX, y, textWidth, fontRenderer.FONT_HEIGHT, element.getHover(), isHovered);
+            }
+            
+            currentX += textWidth;
+        }
+    }
+
+    // Storage for clickable areas
+    private static class ClickableArea {
+        public int x, y, width, height;
+        public String command;
+        
+        public ClickableArea(int x, int y, int width, int height, String command) {
+            this.x = x; this.y = y; this.width = width; this.height = height; this.command = command;
+        }
+        
+        public boolean contains(int mouseX, int mouseY) {
+            return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+        }
+    }
+    
+    private static final List<ClickableArea> clickableAreas = new ArrayList<>();
+    private static String currentHoverText = null;
+    private static int hoverX = 0, hoverY = 0;
+    
+    // Dragging state for repositioning text
+    private static boolean isDragging = false;
+    private static int dragStartX = 0, dragStartY = 0;
+    private static int textOffsetX = 0, textOffsetY = 0;
+    private static int lastMouseX = 0, lastMouseY = 0;
+    
+    private void storeClickableArea(int x, int y, int width, int height, String command) {
+        clickableAreas.add(new ClickableArea(x, y, width, height, command));
+    }
+    
+    private void storeHoverArea(int x, int y, int width, int height, String hoverText, boolean isHovered) {
+        if (isHovered) {
+            currentHoverText = hoverText;
+            hoverX = x + width / 2;
+            hoverY = y;
+        }
+    }
+
+    @SubscribeEvent
+    public void onInfoDisplayMouseClick(GuiScreenEvent.MouseInputEvent.Pre event) {
+        if (!Mouse.getEventButtonState() || Mouse.getEventButton() != 0) { // Only handle left click down
+            return;
+        }
+        
+        if (!(event.gui instanceof GuiContainer)) {
+            return;
+        }
+        
+        int mouseX = Mouse.getX() * event.gui.width / Minecraft.getMinecraft().displayWidth;
+        int mouseY = event.gui.height - Mouse.getY() * event.gui.height / Minecraft.getMinecraft().displayHeight - 1;
+        
+        // Check if any clickable area was clicked
+        for (ClickableArea area : clickableAreas) {
+            if (area.contains(mouseX, mouseY)) {
+                handleClickableTextClick(area.command);
+                event.setCanceled(true);
+                break;
+            }
+        }
+    }
+    
+    private void handleClickableTextClick(String command) {
+        if (command == null || command.isEmpty()) {
+            return;
+        }
+        
+        try {
+            // Execute the command using WSCommandHandler
+            WSCommandHandler.Execute(command, Minecraft.getMinecraft().thePlayer);
+        } catch (Exception e) {
+            System.err.println("Failed to execute clickable text command: " + command);
+            e.printStackTrace();
+        }
+    }
+
+    @SubscribeEvent
+    public void onInfoDisplayRenderTooltip(GuiScreenEvent.DrawScreenEvent.Post event) {
+        if (currentHoverText != null && !currentHoverText.isEmpty() && event.gui instanceof GuiContainer) {
+            // Split hover text by newlines for multi-line tooltips
+            String[] lines = currentHoverText.split("\\n");
+            List<String> tooltipLines = Arrays.asList(lines);
+            
+            // Draw the hover tooltip
+            drawHoverTooltip(tooltipLines, hoverX, hoverY, event.gui.width, event.gui.height);
+        }
+        
+        // Clear clickable areas and hover text for next frame
+        clickableAreas.clear();
+        currentHoverText = null;
+    }
+    
+    private void drawHoverTooltip(List<String> lines, int x, int y, int screenWidth, int screenHeight) {
+        if (lines.isEmpty()) {
+            return;
+        }
+        
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+        
+        // Calculate tooltip dimensions
+        int maxWidth = 0;
+        for (String line : lines) {
+            int width = fontRenderer.getStringWidth(line);
+            if (width > maxWidth) {
+                maxWidth = width;
+            }
+        }
+        
+        int tooltipHeight = 8;
+        if (lines.size() > 1) {
+            tooltipHeight += (lines.size() - 1) * 10;
+        }
+        
+        // Position tooltip to avoid going off screen
+        int tooltipX = x + 12;
+        int tooltipY = y - 12;
+        
+        if (tooltipX + maxWidth + 4 > screenWidth) {
+            tooltipX = x - maxWidth - 16;
+        }
+        if (tooltipY + tooltipHeight + 6 > screenHeight) {
+            tooltipY = screenHeight - tooltipHeight - 6;
+        }
+        if (tooltipY < 4) {
+            tooltipY = 4;
+        }
+        if (tooltipX < 4) {
+            tooltipX = 4;
+        }
+        
+        // Draw tooltip background
+        final int backgroundColor = 0xF0100010;
+        final int borderColorStart = 0x505000FF;
+        final int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
+        
+        net.minecraft.client.renderer.GlStateManager.disableLighting();
+        net.minecraft.client.renderer.GlStateManager.disableDepth();
+        
+        // Background
+        net.minecraft.client.gui.Gui.drawRect(tooltipX - 3, tooltipY - 4, tooltipX + maxWidth + 3, tooltipY - 3, backgroundColor);
+        net.minecraft.client.gui.Gui.drawRect(tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + maxWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor);
+        net.minecraft.client.gui.Gui.drawRect(tooltipX - 3, tooltipY - 3, tooltipX + maxWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor);
+        net.minecraft.client.gui.Gui.drawRect(tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3, backgroundColor);
+        net.minecraft.client.gui.Gui.drawRect(tooltipX + maxWidth + 3, tooltipY - 3, tooltipX + maxWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor);
+        
+        // Borders
+        net.minecraft.client.gui.Gui.drawRect(tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1, tooltipY + tooltipHeight + 3 - 1, borderColorStart);
+        net.minecraft.client.gui.Gui.drawRect(tooltipX + maxWidth + 2, tooltipY - 3 + 1, tooltipX + maxWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorEnd);
+        net.minecraft.client.gui.Gui.drawRect(tooltipX - 3, tooltipY - 3, tooltipX + maxWidth + 3, tooltipY - 3 + 1, borderColorStart);
+        net.minecraft.client.gui.Gui.drawRect(tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + maxWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd);
+        
+        // Draw text lines
+        for (int lineNumber = 0; lineNumber < lines.size(); ++lineNumber) {
+            String line = lines.get(lineNumber);
+            fontRenderer.drawStringWithShadow(line, tooltipX, tooltipY, -1);
+            tooltipY += 10;
+        }
+        
+        net.minecraft.client.renderer.GlStateManager.enableLighting();
+        net.minecraft.client.renderer.GlStateManager.enableDepth();
     }
 
     long UpdateThisTick = 0;
