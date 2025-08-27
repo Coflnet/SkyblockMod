@@ -16,6 +16,7 @@ import com.mojang.realmsclient.util.Pair;
 import com.coflnet.sky.SkyCofl;
 import com.coflnet.sky.WSCommandHandler;
 import com.coflnet.sky.models.ClickableTextElement;
+import com.coflnet.sky.config.InfoDisplayConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -106,6 +107,21 @@ public class EventRegistry {
             return;
         }
         LastHotkeyState = Keyboard.getEventKeyState();
+        
+        // Check for Ctrl+R to reset text position
+        if (Keyboard.getEventKeyState() && Keyboard.getEventKey() == Keyboard.KEY_R && 
+            (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))) {
+            
+            Minecraft mc = Minecraft.getMinecraft();
+            if (mc.currentScreen instanceof GuiContainer) {
+                resetTextPosition();
+                // Show feedback message
+                if (mc.thePlayer != null) {
+                    mc.thePlayer.addChatMessage(new ChatComponentText("§a[SkyCofl] Info display position reset"));
+                }
+            }
+        }
+        
         onAfterKeyPressed();
     }
 
@@ -380,6 +396,19 @@ public class EventRegistry {
 
         // Check if the current GUI screen is the player's inventory or a chest GUI
         if (event.gui instanceof GuiContainer) {
+            // Handle dragging during rendering for real-time updates
+            if (isDragging) {
+                int mouseX = Mouse.getX() * event.gui.width / Minecraft.getMinecraft().displayWidth;
+                int mouseY = event.gui.height - Mouse.getY() * event.gui.height / Minecraft.getMinecraft().displayHeight - 1;
+                
+                // Update text offset based on mouse movement
+                int deltaX = mouseX - dragStartX;
+                int deltaY = mouseY - dragStartY;
+                
+                textOffsetX = deltaX;
+                textOffsetY = deltaY;
+            }
+            
             DescriptionHandler.DescModification[] toDisplay = DescriptionHandler.getInfoDisplay();
             if(toDisplay.length == 0)
                 return; // No info to display, exit early
@@ -440,15 +469,34 @@ public class EventRegistry {
             // Start position for the text on the left.
             // (inventoryGuiLeft - padding - maxTextWidth) will place the right edge of the text
             // 'padding' pixels to the left of the inventory's left edge.
-            int textX = inventoryGuiLeft - 5 - maxWidth;
-            int textY = inventoryGuiTop + 5;
+            int defaultTextX = inventoryGuiLeft - 5 - maxWidth;
+            int defaultTextY = inventoryGuiTop + 5;
             if (inventoryGui instanceof GuiInventory) {
-                textY += 30;
+                defaultTextY += 30;
             }
+            
+            // Apply user-defined offset for repositioning
+            int textX = defaultTextX + textOffsetX;
+            int textY = defaultTextY + textOffsetY;
 
             net.minecraft.client.renderer.GlStateManager.pushMatrix();
             net.minecraft.client.renderer.GlStateManager.enableBlend(); // Enable blending for transparency
             net.minecraft.client.renderer.GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); // Standard alpha blend function
+            
+            // Calculate text area for drag indicator
+            int lineCount = lines.size();
+            int textHeight = lineCount * (fontRenderer.FONT_HEIGHT + 2);
+            
+            // Check if mouse is over text area for drag indicator
+            int mouseX = Mouse.getX() * event.gui.width / Minecraft.getMinecraft().displayWidth;
+            int mouseY = event.gui.height - Mouse.getY() * event.gui.height / Minecraft.getMinecraft().displayHeight - 1;
+            boolean isMouseOverText = isMouseOverTextArea(mouseX, mouseY, textX, textY, maxWidth, textHeight);
+            
+            // Draw drag indicator background only when dragging (not when hovering for tooltip)
+            if (isDragging) {
+                int backgroundColor = 0x40FFFF00; // Yellow when dragging
+                net.minecraft.client.gui.Gui.drawRect(textX - 2, textY - 2, textX + maxWidth + 2, textY + textHeight + 2, backgroundColor);
+            }
             
             for(int i = 0; i < lines.size(); i++) {
                 String line = lines.get(i);
@@ -466,7 +514,19 @@ public class EventRegistry {
             
             net.minecraft.client.renderer.GlStateManager.disableBlend(); // Disable blending
             net.minecraft.client.renderer.GlStateManager.popMatrix();
+            
+            // Render tooltip immediately after text rendering to ensure it's on top but doesn't affect click detection
+            if (currentHoverText != null && !currentHoverText.isEmpty()) {
+                // Split hover text by newlines for multi-line tooltips
+                String[] tooltipLineArray = currentHoverText.split("\\n");
+                List<String> tooltipLines = Arrays.asList(tooltipLineArray);
+                
+                // Draw the hover tooltip
+                drawHoverTooltip(tooltipLines, hoverX, hoverY, event.gui.width, event.gui.height);
+            }
         }
+        
+        currentHoverText = null;
     }
 
     /**
@@ -571,8 +631,8 @@ public class EventRegistry {
     // Dragging state for repositioning text
     private static boolean isDragging = false;
     private static int dragStartX = 0, dragStartY = 0;
-    private static int textOffsetX = 0, textOffsetY = 0;
-    private static int lastMouseX = 0, lastMouseY = 0;
+    private static int textOffsetX = InfoDisplayConfig.getTextOffsetX();
+    private static int textOffsetY = InfoDisplayConfig.getTextOffsetY();
     
     private void storeClickableArea(int x, int y, int width, int height, String command) {
         clickableAreas.add(new ClickableArea(x, y, width, height, command));
@@ -585,13 +645,24 @@ public class EventRegistry {
             hoverY = y;
         }
     }
+    
+    /**
+     * Checks if the mouse is over the text display area
+     * @param mouseX Mouse X position
+     * @param mouseY Mouse Y position
+     * @param textX Text area X position
+     * @param textY Text area Y position
+     * @param textWidth Text area width
+     * @param textHeight Text area height
+     * @return true if mouse is over the text area
+     */
+    private boolean isMouseOverTextArea(int mouseX, int mouseY, int textX, int textY, int textWidth, int textHeight) {
+        return mouseX >= textX && mouseX <= textX + textWidth && 
+               mouseY >= textY && mouseY <= textY + textHeight;
+    }
 
     @SubscribeEvent
     public void onInfoDisplayMouseClick(GuiScreenEvent.MouseInputEvent.Pre event) {
-        if (!Mouse.getEventButtonState() || Mouse.getEventButton() != 0) { // Only handle left click down
-            return;
-        }
-        
         if (!(event.gui instanceof GuiContainer)) {
             return;
         }
@@ -599,17 +670,119 @@ public class EventRegistry {
         int mouseX = Mouse.getX() * event.gui.width / Minecraft.getMinecraft().displayWidth;
         int mouseY = event.gui.height - Mouse.getY() * event.gui.height / Minecraft.getMinecraft().displayHeight - 1;
         
-        // Check if any clickable area was clicked
-        for (ClickableArea area : clickableAreas) {
-            if (area.contains(mouseX, mouseY)) {
-                handleClickableTextClick(area.command);
-                event.setCanceled(true);
-                break;
+        // Handle left click for clickable text
+        if (Mouse.getEventButtonState() && Mouse.getEventButton() == 0) {
+            // Check if any clickable area was clicked
+
+            System.err.println("Left clicked at: " + mouseX + "," + mouseY);
+            for (ClickableArea area : clickableAreas) {
+                System.out.println("Checking area at " + area.x + "," + area.y + " size " + area.width + "x" + area.height);
+                if (area.contains(mouseX, mouseY)) {
+                    System.out.println("Clicked on clickable area with command: " + area.command);
+                    handleClickableTextClick(area.command);
+                    event.setCanceled(true);
+                    return;
+                }
+            }
+        }
+        
+        // Handle right click for dragging
+        if (Mouse.getEventButton() == 1) { // Right mouse button
+            if (Mouse.getEventButtonState()) { // Button pressed
+                // Check if we're clicking on the text area to start dragging
+                DescriptionHandler.DescModification[] toDisplay = DescriptionHandler.getInfoDisplay();
+                if (toDisplay.length > 0) {
+                    GuiContainer inventoryGui = (GuiContainer) event.gui;
+                    FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+                    
+                    // Calculate text area dimensions (same logic as in onGuiDraw)
+                    int maxWidth = 0;
+                    int lineCount = 0;
+                    for(DescriptionHandler.DescModification mod : toDisplay) {
+                        if (mod != null && mod.value != null && (mod.type.equals("APPEND") || mod.type.equals("SUGGEST"))) {
+                            lineCount++;
+                            String displayText = mod.type.equals("SUGGEST") ? 
+                                "§7Will suggest: §r" + mod.value.split(": ")[1] : mod.value;
+                            
+                            List<ClickableTextElement> clickableElements = parseClickableText(mod.value);
+                            if (clickableElements != null && !clickableElements.isEmpty()) {
+                                int totalWidth = 0;
+                                for (ClickableTextElement element : clickableElements) {
+                                    if (element.getText() != null) {
+                                        totalWidth += fontRenderer.getStringWidth(element.getText());
+                                    }
+                                }
+                                if (totalWidth > maxWidth) {
+                                    maxWidth = totalWidth;
+                                }
+                            } else {
+                                int width = fontRenderer.getStringWidth(displayText);
+                                if (width > maxWidth) {
+                                    maxWidth = width;
+                                }
+                            }
+                        }
+                    }
+                    
+                    int defaultTextX = inventoryGui.guiLeft - 5 - maxWidth;
+                    int defaultTextY = inventoryGui.guiTop + 5;
+                    if (inventoryGui instanceof GuiInventory) {
+                        defaultTextY += 30;
+                    }
+                    
+                    int textX = defaultTextX + textOffsetX;
+                    int textY = defaultTextY + textOffsetY;
+                    int textHeight = lineCount * (fontRenderer.FONT_HEIGHT + 2);
+                    
+                    if (isMouseOverTextArea(mouseX, mouseY, textX, textY, maxWidth, textHeight)) {
+                        isDragging = true;
+                        dragStartX = mouseX;
+                        dragStartY = mouseY;
+                        event.setCanceled(true);
+                    }
+                }
+            } else { // Button released
+                if (isDragging) {
+                    isDragging = false;
+                    // Save the new position to config
+                    InfoDisplayConfig.setTextOffset(textOffsetX, textOffsetY);
+                    event.setCanceled(true);
+                }
             }
         }
     }
     
+    /**
+     * Resets the text position to default
+     */
+    public static void resetTextPosition() {
+        textOffsetX = 0;
+        textOffsetY = 0;
+        isDragging = false;
+        InfoDisplayConfig.resetTextOffset();
+    }
+    
+    /**
+     * Gets the current text offset for external use
+     * @return array with [offsetX, offsetY]
+     */
+    public static int[] getTextOffset() {
+        return new int[]{textOffsetX, textOffsetY};
+    }
+    
+    /**
+     * Sets the text offset for external use
+     * @param offsetX X offset
+     * @param offsetY Y offset
+     */
+    public static void setTextOffset(int offsetX, int offsetY) {
+        textOffsetX = offsetX;
+        textOffsetY = offsetY;
+        InfoDisplayConfig.setTextOffset(offsetX, offsetY);
+    }
+    
     private void handleClickableTextClick(String command) {
+            System.err.println("Clicked command: " + command);
         if (command == null || command.isEmpty()) {
             return;
         }
@@ -621,22 +794,6 @@ public class EventRegistry {
             System.err.println("Failed to execute clickable text command: " + command);
             e.printStackTrace();
         }
-    }
-
-    @SubscribeEvent
-    public void onInfoDisplayRenderTooltip(GuiScreenEvent.DrawScreenEvent.Post event) {
-        if (currentHoverText != null && !currentHoverText.isEmpty() && event.gui instanceof GuiContainer) {
-            // Split hover text by newlines for multi-line tooltips
-            String[] lines = currentHoverText.split("\\n");
-            List<String> tooltipLines = Arrays.asList(lines);
-            
-            // Draw the hover tooltip
-            drawHoverTooltip(tooltipLines, hoverX, hoverY, event.gui.width, event.gui.height);
-        }
-        
-        // Clear clickable areas and hover text for next frame
-        clickableAreas.clear();
-        currentHoverText = null;
     }
     
     private void drawHoverTooltip(List<String> lines, int x, int y, int screenWidth, int screenHeight) {
@@ -677,13 +834,20 @@ public class EventRegistry {
             tooltipX = 4;
         }
         
+        // Set up OpenGL state for tooltip rendering in front
+        net.minecraft.client.renderer.GlStateManager.pushMatrix();
+        net.minecraft.client.renderer.GlStateManager.disableLighting();
+        net.minecraft.client.renderer.GlStateManager.disableDepth();
+        net.minecraft.client.renderer.GlStateManager.enableBlend();
+        net.minecraft.client.renderer.GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        
+        // Translate to ensure tooltip is rendered on top
+        net.minecraft.client.renderer.GlStateManager.translate(0.0F, 0.0F, 300.0F);
+        
         // Draw tooltip background
         final int backgroundColor = 0xF0100010;
         final int borderColorStart = 0x505000FF;
         final int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
-        
-        net.minecraft.client.renderer.GlStateManager.disableLighting();
-        net.minecraft.client.renderer.GlStateManager.disableDepth();
         
         // Background
         net.minecraft.client.gui.Gui.drawRect(tooltipX - 3, tooltipY - 4, tooltipX + maxWidth + 3, tooltipY - 3, backgroundColor);
@@ -699,14 +863,18 @@ public class EventRegistry {
         net.minecraft.client.gui.Gui.drawRect(tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + maxWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd);
         
         // Draw text lines
+        int currentTooltipY = tooltipY;
         for (int lineNumber = 0; lineNumber < lines.size(); ++lineNumber) {
             String line = lines.get(lineNumber);
-            fontRenderer.drawStringWithShadow(line, tooltipX, tooltipY, -1);
-            tooltipY += 10;
+            fontRenderer.drawStringWithShadow(line, tooltipX, currentTooltipY, -1);
+            currentTooltipY += 10;
         }
         
-        net.minecraft.client.renderer.GlStateManager.enableLighting();
+        // Restore OpenGL state
+        net.minecraft.client.renderer.GlStateManager.disableBlend();
         net.minecraft.client.renderer.GlStateManager.enableDepth();
+        net.minecraft.client.renderer.GlStateManager.enableLighting();
+        net.minecraft.client.renderer.GlStateManager.popMatrix();
     }
 
     long UpdateThisTick = 0;
