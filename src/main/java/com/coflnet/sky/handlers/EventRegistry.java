@@ -107,21 +107,6 @@ public class EventRegistry {
             return;
         }
         LastHotkeyState = Keyboard.getEventKeyState();
-        
-        // Check for Ctrl+R to reset text position
-        if (Keyboard.getEventKeyState() && Keyboard.getEventKey() == Keyboard.KEY_R && 
-            (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))) {
-            
-            Minecraft mc = Minecraft.getMinecraft();
-            if (mc.currentScreen instanceof GuiContainer) {
-                resetTextPosition();
-                // Show feedback message
-                if (mc.thePlayer != null) {
-                    mc.thePlayer.addChatMessage(new ChatComponentText("§a[SkyCofl] Info display position reset"));
-                }
-            }
-        }
-        
         onAfterKeyPressed();
     }
 
@@ -422,7 +407,6 @@ public class EventRegistry {
             int inventoryGuiLeft = inventoryGui.guiLeft;
             int inventoryGuiTop = inventoryGui.guiTop;
 
-            // --- Define your info text lines and clickable elements ---
             ArrayList<String> lines = new ArrayList<>();
             ArrayList<List<ClickableTextElement>> clickableLines = new ArrayList<>();
             int maxWidth = 0;
@@ -483,7 +467,6 @@ public class EventRegistry {
             net.minecraft.client.renderer.GlStateManager.enableBlend(); // Enable blending for transparency
             net.minecraft.client.renderer.GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); // Standard alpha blend function
             
-            // Calculate text area for drag indicator
             int lineCount = lines.size();
             int textHeight = lineCount * (fontRenderer.FONT_HEIGHT + 2);
             
@@ -492,22 +475,14 @@ public class EventRegistry {
             int mouseY = event.gui.height - Mouse.getY() * event.gui.height / Minecraft.getMinecraft().displayHeight - 1;
             boolean isMouseOverText = isMouseOverTextArea(mouseX, mouseY, textX, textY, maxWidth, textHeight);
             
-            // Draw drag indicator background only when dragging (not when hovering for tooltip)
-            if (isDragging) {
-                int backgroundColor = 0x40FFFF00; // Yellow when dragging
-                net.minecraft.client.gui.Gui.drawRect(textX - 2, textY - 2, textX + maxWidth + 2, textY + textHeight + 2, backgroundColor);
-            }
-            
             for(int i = 0; i < lines.size(); i++) {
                 String line = lines.get(i);
                 List<ClickableTextElement> clickableElements = clickableLines.get(i);
                 int currentY = textY + (fontRenderer.FONT_HEIGHT + 2) * i;
                 
                 if (clickableElements != null && !clickableElements.isEmpty()) {
-                    // Render clickable text elements
                     renderClickableTextLine(clickableElements, textX, currentY, fontRenderer, event);
                 } else if (line != null && !line.isEmpty()) {
-                    // Draw regular text line
                     fontRenderer.drawString(line, textX, currentY, 0xFFFFFFFF, true); // White
                 }
             }
@@ -517,11 +492,9 @@ public class EventRegistry {
             
             // Render tooltip immediately after text rendering to ensure it's on top but doesn't affect click detection
             if (currentHoverText != null && !currentHoverText.isEmpty()) {
-                // Split hover text by newlines for multi-line tooltips
                 String[] tooltipLineArray = currentHoverText.split("\\n");
                 List<String> tooltipLines = Arrays.asList(tooltipLineArray);
                 
-                // Draw the hover tooltip
                 drawHoverTooltip(tooltipLines, hoverX, hoverY, event.gui.width, event.gui.height);
             }
         }
@@ -539,7 +512,6 @@ public class EventRegistry {
             return null;
         }
         
-        // Check if the value looks like JSON (starts with [ and ends with ])
         String trimmed = value.trim();
         if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
             return null;
@@ -596,12 +568,10 @@ public class EventRegistry {
                                                     0xFFFFFF00);
             }
             
-            // Store click area for later processing
             if (element.getOnClick() != null && !element.getOnClick().isEmpty()) {
                 storeClickableArea(currentX, y, textWidth, fontRenderer.FONT_HEIGHT, element.getOnClick());
             }
             
-            // Store hover area for tooltip
             if (element.getHover() != null && !element.getHover().isEmpty()) {
                 storeHoverArea(currentX, y, textWidth, fontRenderer.FONT_HEIGHT, element.getHover(), isHovered);
             }
@@ -672,13 +642,8 @@ public class EventRegistry {
         
         // Handle left click for clickable text
         if (Mouse.getEventButtonState() && Mouse.getEventButton() == 0) {
-            // Check if any clickable area was clicked
-
-            System.err.println("Left clicked at: " + mouseX + "," + mouseY);
             for (ClickableArea area : clickableAreas) {
-                System.out.println("Checking area at " + area.x + "," + area.y + " size " + area.width + "x" + area.height);
                 if (area.contains(mouseX, mouseY)) {
-                    System.out.println("Clicked on clickable area with command: " + area.command);
                     handleClickableTextClick(area.command);
                     event.setCanceled(true);
                     return;
@@ -688,8 +653,7 @@ public class EventRegistry {
         
         // Handle right click for dragging
         if (Mouse.getEventButton() == 1) { // Right mouse button
-            if (Mouse.getEventButtonState()) { // Button pressed
-                // Check if we're clicking on the text area to start dragging
+            if (Mouse.getEventButtonState()) {
                 DescriptionHandler.DescModification[] toDisplay = DescriptionHandler.getInfoDisplay();
                 if (toDisplay.length > 0) {
                     GuiContainer inventoryGui = (GuiContainer) event.gui;

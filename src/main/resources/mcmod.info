@@ -3,7 +3,7 @@
   "modid": "skycofl",
   "name": "SkyCofl",
   "description": "Skyblock Marketdata in item lore and other money making helpers for Hypixel Skyblock.",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "mcversion": "${mcversion}",
   "url": "https://sky.coflnet.com/mod",
   "updateUrl": "https://github.com/Coflnet/SkyblockMod/tags",
