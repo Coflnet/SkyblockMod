@@ -453,7 +453,7 @@ public class EventRegistry {
             // Start position for the text on the left.
             // (inventoryGuiLeft - padding - maxTextWidth) will place the right edge of the text
             // 'padding' pixels to the left of the inventory's left edge.
-            int defaultTextX = inventoryGuiLeft - 5 - maxWidth;
+            int defaultTextX = inventoryGuiLeft - 5;
             int defaultTextY = inventoryGuiTop + 5;
             if (inventoryGui instanceof GuiInventory) {
                 defaultTextY += 30;
@@ -461,6 +461,8 @@ public class EventRegistry {
             
             // Apply user-defined offset for repositioning
             int textX = defaultTextX + textOffsetX;
+            if(textOffsetX <= 0)
+                textX -= maxWidth; // Shift left by maxWidth if offset is negative or zero to keep text visible
             int textY = defaultTextY + textOffsetY;
 
             net.minecraft.client.renderer.GlStateManager.pushMatrix();
@@ -688,13 +690,15 @@ public class EventRegistry {
                         }
                     }
                     
-                    int defaultTextX = inventoryGui.guiLeft - 5 - maxWidth;
+                    int defaultTextX = inventoryGui.guiLeft - 5;
                     int defaultTextY = inventoryGui.guiTop + 5;
                     if (inventoryGui instanceof GuiInventory) {
                         defaultTextY += 30;
                     }
                     
                     int textX = defaultTextX + textOffsetX;
+                    if(textOffsetX <= 0)
+                        textX -= maxWidth; // Shift left by maxWidth if offset is negative or zero to keep text visible
                     int textY = defaultTextY + textOffsetY;
                     int textHeight = lineCount * (fontRenderer.FONT_HEIGHT + 2);
                     

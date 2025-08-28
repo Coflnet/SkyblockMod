@@ -58,17 +58,7 @@ public class SkyCoflCommand extends CommandBase {
     @Override
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
         if (args.length == 1) {
-            List<String> options = Arrays.asList(
-                    "start", "stop", "report", "online", "delay", "blacklist", "bl", "whitelist", "wl",
-                    "mute", "blocked", "chat", "c", "nickname", "nick", "profit", "worstflips", "bestflips",
-                    "leaderboard", "lb", "loserboard", "buyspeedboard", "trades", "flips", "set", "s",
-                    "purchase", "buy", "transactions", "balance", "help", "h", "logout", "backup", "restore",
-                    "captcha", "importtfm", "replayactive", "reminder", "filters", "emoji", "addremindertime",
-                    "lore", "fact", "flip", "preapi", "transfercoins", "ping", "setgui", "bazaar", "bz",
-                    "switchregion", "craftbreakdown", "cheapattrib", "ca", "attributeupgrade", "au", "ownconfigs",
-                    "configs", "config", "licenses", "license", "verify", "unverify", "attributeflip", "forge",
-                    "crafts", "craft", "upgradeplan", "updatecurrentconfig", "settimezone", "cheapmuseum", "cm",
-                    "replayflips", "lowball", "ahtax", "sethotkey");
+            List<String> options = new ArrayList<>(CoflCore.CoflCore.config.knownCommands.keySet());
             return CommandBase.getListOfStringsMatchingLastWord(args, options);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("set")) {
