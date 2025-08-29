@@ -457,8 +457,9 @@ public class EventRegistry {
             int defaultTextY = inventoryGuiTop + 5;
             if (inventoryGui instanceof GuiInventory) {
                 defaultTextY += 35;
-                defaultTextX -= 23; // Shift left a bit in the player inventory to avoid overlapping NEU
             }
+            if(WSCommandHandler.isModListed("notenoughupdates"))
+                defaultTextX -= 23; // Shift left a bit in the player inventory to avoid overlapping NEU
             
             // Apply user-defined offset for repositioning
             int textX = defaultTextX + textOffsetX;

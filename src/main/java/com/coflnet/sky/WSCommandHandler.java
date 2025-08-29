@@ -90,6 +90,11 @@ public class WSCommandHandler {
     }
 
     @Subscribe
+    public void onGetModsRequest(OnModRequestReceive event){
+        getMods();
+    }
+
+    @Subscribe
     public void onCountdownReceive(OnCountdownReceive event){
         com.coflnet.sky.minecraft_integration.CountdownTimer.startCountdown(event.CountdownData);
     }
@@ -168,8 +173,12 @@ public class WSCommandHandler {
     }
 
     private static void getMods() {
-        // the Cofl server has asked for an mod list now let's respond with all the info
+        // the Cofl server has asked for a mod list now let's respond with all the info
         CoflCore.Wrapper.SendMessage(new RawCommand("foundMods", gson.toJson(modListData)));
+    }
+
+    public static boolean isModListed(String modName) {
+        return modListData.isModPresent(modName);
     }
 
     private static void PlaySound(String soundName, float pitch) {
