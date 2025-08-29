@@ -456,7 +456,8 @@ public class EventRegistry {
             int defaultTextX = inventoryGuiLeft - 5;
             int defaultTextY = inventoryGuiTop + 5;
             if (inventoryGui instanceof GuiInventory) {
-                defaultTextY += 30;
+                defaultTextY += 35;
+                defaultTextX -= 23; // Shift left a bit in the player inventory to avoid overlapping NEU
             }
             
             // Apply user-defined offset for repositioning
