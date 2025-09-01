@@ -129,6 +129,22 @@ public class SkyCoflCommand extends CommandBase {
                             MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
                         }
                         break;
+                    case "search":
+                        if (args.length < 2) {
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §cUsage: /cofl search <item_name>"));
+                            return;
+                        }
+                        
+                        // Join the remaining arguments to form the search term
+                        String searchTerm = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+                        
+                        // Use the API to search in bazaar
+                        boolean success = SkyCoflAPI.searchBazaar(searchTerm);
+                        
+                        if (!success) {
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §cCould not search in bazaar. Make sure you're in a bazaar interface."));
+                        }
+                        break;
                     default:
                         CoflCore.CoflSkyCommand.processCommand(args, PlayerDataProvider.getUsername());
                 }

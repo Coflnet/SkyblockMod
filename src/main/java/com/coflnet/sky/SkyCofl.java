@@ -67,6 +67,7 @@ public class SkyCofl {
             ClientCommandHandler.instance.registerCommand(new SkyCoflCommand());
             ClientCommandHandler.instance.registerCommand(new ColfCommand());
             ClientCommandHandler.instance.registerCommand(new FlipperChatCommand());
+            ClientCommandHandler.instance.registerCommand(new BazaarSearchCommand());
 
             for (int i = 0; i < keyBindings.length; ++i) {
                 ClientRegistry.registerKeyBinding(keyBindings[i]);
