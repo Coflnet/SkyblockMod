@@ -11,6 +11,7 @@ import CoflCore.commands.models.FlipData;
 import CoflCore.configuration.GUIType;
 import com.coflnet.sky.gui.bingui.BinGuiManager;
 import com.coflnet.sky.gui.tfm.ButtonRemapper;
+import com.coflnet.sky.utils.BazaarSearchUtil;
 import CoflCore.misc.SessionManager;
 import CoflCore.misc.SessionManager.CoflSession;
 import CoflCore.network.WSClient;
@@ -129,17 +130,14 @@ public class SkyCoflCommand extends CommandBase {
                             MinecraftForge.EVENT_BUS.unregister(ButtonRemapper.getInstance());
                         }
                         break;
-                    case "search":
+                    case "bazaarsearch":
                         if (args.length < 2) {
-                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §cUsage: /cofl search <item_name>"));
+                            sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §cUsage: /cofl bazaarsearch <item_name>"));
                             return;
                         }
                         
-                        // Join the remaining arguments to form the search term
                         String searchTerm = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-                        
-                        // Use the API to search in bazaar
-                        boolean success = SkyCoflAPI.searchBazaar(searchTerm);
+                        boolean success = BazaarSearchUtil.searchInBazaar(searchTerm);
                         
                         if (!success) {
                             sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §cCould not search in bazaar. Make sure you're in a bazaar interface."));

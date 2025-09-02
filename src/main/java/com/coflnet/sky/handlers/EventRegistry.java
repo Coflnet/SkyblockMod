@@ -395,8 +395,10 @@ public class EventRegistry {
             }
             
             DescriptionHandler.DescModification[] toDisplay = DescriptionHandler.getInfoDisplay();
-            if(toDisplay.length == 0)
+            if(toDisplay.length == 0){
+                clickableAreas.clear();
                 return; // No info to display, exit early
+            }
             GuiContainer inventoryGui = (GuiContainer) event.gui;
             FontRenderer fontRenderer = mc.fontRendererObj;
 
