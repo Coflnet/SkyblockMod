@@ -184,6 +184,9 @@ public class WSCommandHandler {
     private static void PlaySound(String soundName, float pitch) {
         SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
 
+        if(soundName.equals("entity.experience_orb.pickup"))
+            soundName = "random.orb"; // backport new sound
+
         // random.explode
         PositionedSoundRecord psr = PositionedSoundRecord
                 .create(new ResourceLocation(soundName), pitch);
