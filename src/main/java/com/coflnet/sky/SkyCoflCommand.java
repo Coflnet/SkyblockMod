@@ -74,7 +74,7 @@ public class SkyCoflCommand extends CommandBase {
                     "showslbin", "showmedPrice", "showseller", "showvolume", "showextraFields", "showprofitPercent",
                     "showprofit", "showsellerOpenBtn", "showlore", "showhideSold", "showhideManipulated",
                     "privacyExtendDescriptions", "privacyAutoStart", "loreHighlightFilterMatch",
-                    "loreMinProfitForHighlight", "loreDisableHighlighting");
+                    "loreMinProfitForHighlight", "loreDisableHighlighting", "sellProtectionThreshold", "sellProtectionEnabled");
             return CommandBase.getListOfStringsMatchingLastWord(args, options);
         }
         return null;
@@ -143,6 +143,32 @@ public class SkyCoflCommand extends CommandBase {
                             sender.addChatMessage(new ChatComponentText("[§1C§6oflnet§f]§7: §cCould not search in bazaar. Make sure you're in a bazaar interface."));
                         }
                         break;
+                    case "set":
+                        if (args.length >= 3) {
+                            String setting = args[1];
+                            String value = args[2];
+                            
+                            if (setting.equalsIgnoreCase("sellProtectionThreshold")) {
+                                try {
+                                    long threshold = com.coflnet.sky.config.SellProtectionConfig.parseThresholdValue(value);
+                                    com.coflnet.sky.config.SellProtectionConfig.setSellProtectionThreshold(threshold);
+                                    String formattedThreshold = com.coflnet.sky.config.SellProtectionConfig.formatThreshold(threshold);
+                                    sender.addChatMessage(new ChatComponentText(
+                                        "[§1C§6oflnet§f]§7: §7Set §bSell Protection Threshold §7to: §6" + formattedThreshold + " coins"));
+                                } catch (NumberFormatException e) {
+                                    sender.addChatMessage(new ChatComponentText(
+                                        "[§1C§6oflnet§f]§7: §cInvalid format. Use numbers like 1000000, 2k, 3m, 1.5b"));
+                                }
+                                break;
+                            } else if (setting.equalsIgnoreCase("sellProtectionEnabled")) {
+                                boolean enabled = Boolean.parseBoolean(value);
+                                com.coflnet.sky.config.SellProtectionConfig.setEnabled(enabled);
+                                sender.addChatMessage(new ChatComponentText(
+                                    "[§1C§6oflnet§f]§7: §7Set §bSell Protection §7to: §f" + (enabled ? "Enabled" : "Disabled")));
+                                break;
+                            }
+                        }
+                        // Fall through to default if not our settings
                     default:
                         CoflCore.CoflSkyCommand.processCommand(args, PlayerDataProvider.getUsername());
                 }

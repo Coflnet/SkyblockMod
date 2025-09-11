@@ -50,6 +50,8 @@ public class SkyCofl {
         cofl.registerEventFile(new WSCommandHandler());
 
         MinecraftForge.EVENT_BUS.register(new ChatListener());
+        MinecraftForge.EVENT_BUS.register(new com.coflnet.sky.listeners.SellProtectionListener());
+        MinecraftForge.EVENT_BUS.register(new com.coflnet.sky.handlers.SellProtectionTooltipHandler());
 
         // Cache all the mods on load
         WSCommandHandler.cacheMods();
