@@ -2,7 +2,9 @@ package com.coflnet.sky;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import CoflCore.classes.Settings;
 import CoflCore.commands.Command;
 import CoflCore.commands.CommandType;
 import CoflCore.commands.JsonStringCommand;
@@ -63,18 +65,10 @@ public class SkyCoflCommand extends CommandBase {
             return CommandBase.getListOfStringsMatchingLastWord(args, options);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("set")) {
-            List<String> options = Arrays.asList("lbin", "finders", "onlyBin", "whitelistAftermain", "DisableFlips",
-                    "DebugMode", "blockHighCompetition", "minProfit", "minProfitPercent", "minVolume", "maxCost",
-                    "modjustProfit", "modsoundOnFlip", "modshortNumbers", "modshortNames", "modblockTenSecMsg",
-                    "modformat", "modblockedFormat", "modchat", "modcountdown", "modhideNoBestFlip", "modtimerX",
-                    "modtimerY", "modtimerSeconds", "modtimerScale", "modtimerPrefix", "modtimerPrecision",
-                    "modblockedMsg", "modmaxPercentOfPurse", "modnoBedDelay", "modstreamerMode", "modautoStartFlipper",
-                    "modnormalSoldFlips", "modtempBlacklistSpam", "moddataOnlyMode", "modahListHours", "modquickSell",
-                    "modmaxItemsInInventory", "moddisableSpamProtection", "showcost", "showestProfit", "showlbin",
-                    "showslbin", "showmedPrice", "showseller", "showvolume", "showextraFields", "showprofitPercent",
-                    "showprofit", "showsellerOpenBtn", "showlore", "showhideSold", "showhideManipulated",
-                    "privacyExtendDescriptions", "privacyAutoStart", "loreHighlightFilterMatch",
-                    "loreMinProfitForHighlight", "loreDisableHighlighting", "sellProtectionThreshold", "sellProtectionEnabled");
+            List<String> options = CoflCore.CoflCore.config.knownSettings.stream()
+                    .map(Settings::getSettingKey).collect(Collectors.toList());
+            options.add("sellProtectionThreshold");
+            options.add("sellProtectionEnabled");
             return CommandBase.getListOfStringsMatchingLastWord(args, options);
         }
         return null;
