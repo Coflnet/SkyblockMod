@@ -9,7 +9,6 @@ import CoflCore.commands.models.*;
 import com.coflnet.sky.gui.bingui.BinGuiManager;
 import com.coflnet.sky.handlers.ForgeDescriptionHandler;
 import com.coflnet.sky.handlers.EventRegistry;
-import CoflCore.proxy.ProxyManager;
 import com.coflnet.sky.utils.FileUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -38,7 +37,6 @@ public class WSCommandHandler {
     public static transient String lastOnClickEvent;
     private static final ModListData modListData = new ModListData();
     private static final Gson gson = new Gson();
-    private static final ProxyManager proxyManager = new ProxyManager();
     public static int[][] highlightCoordinates = new int[0][];
 
     @Subscribe
@@ -144,12 +142,6 @@ public class WSCommandHandler {
     @Subscribe
     public void onHotkeyRegister(HotkeyRegister[] hotkeys){
         EventRegistry.AddHotKeys(hotkeys);
-    }
-
-    private static void handleProxyRequest(ProxyRequest[] request) {
-        for (ProxyRequest req : request) {
-            proxyManager.handleRequestAsync(req);
-        }
     }
 
     public static void cacheMods() {
