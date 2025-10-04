@@ -158,12 +158,25 @@ public class ForgeDescriptionHandler {
                 tl.appendTag(EMPTY_COMPOUND);
             }
         }
-        try
-        {
-        compound.setTag("i", tl);
-        CompressedStreamTools.writeCompressed(compound, baos);
+        try {
+            compound.setTag("i", tl);
+            CompressedStreamTools.writeCompressed(compound, baos);
 
-        CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIds.toArray(new String[0]), "Crafting", Base64.getEncoder().encodeToString(baos.toByteArray()), PlayerDataProvider.getUsername());
+            String fullNbt = Base64.getEncoder().encodeToString(baos.toByteArray());
+            String username = PlayerDataProvider.getUsername();
+            String[] itemArr = itemIds.toArray(new String[0]);
+
+            // Diagnostics
+            int nullOrEmpty = 0;
+            for (String s : itemArr) if (s == null || s.isEmpty()) nullOrEmpty++;
+            System.out.println("uploadInventory: sending " + itemArr.length + " items, null/empty ids=" + nullOrEmpty + ", username=" + username + ", nbtSize=" + (fullNbt == null ? 0 : fullNbt.length()));
+
+            try {
+                CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemArr, "Crafting", fullNbt, username);
+            } catch (Throwable t) {
+                System.err.println("Exception while calling DescriptionHandler.loadDescriptionForInventory from uploadInventory: username=" + username + " items=" + itemArr.length + " nullOrEmptyIds=" + nullOrEmpty + " nbtSize=" + (fullNbt == null ? 0 : fullNbt.length()));
+                t.printStackTrace();
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -221,7 +234,27 @@ public class ForgeDescriptionHandler {
             }
 
             System.out.println("Loading description for inventory: " + wrapper.chestName + " with " + itemIds.size() + " items");
-            CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIds.toArray(new String[0]), wrapper.chestName, wrapper.fullInventoryNbt, PlayerDataProvider.getUsername(), pos);
+
+            // Defensive: ensure we don't pass nulls into the external DescriptionHandler which may cause an NPE.
+            String[] itemIdArr = itemIds.toArray(new String[0]);
+            String chestName = wrapper.chestName; // may be null for player inventory
+            String fullNbt = wrapper.fullInventoryNbt;
+            String username = PlayerDataProvider.getUsername();
+
+            if (itemIdArr == null) {
+                System.err.println("Skipping loadDescriptionForInventory: itemIdArr is null");
+            } else if (fullNbt == null) {
+                System.err.println("Skipping loadDescriptionForInventory: fullInventoryNbt is null for chestName=" + chestName + " username=" + username + " items=" + itemIdArr.length);
+            } else if (username == null || username.isEmpty()) {
+                System.err.println("Skipping loadDescriptionForInventory: username is null/empty for chestName=" + chestName + " items=" + itemIdArr.length);
+            } else {
+                try {
+                    CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIdArr, chestName, fullNbt, username, pos);
+                } catch (Throwable t) {
+                    System.err.println("Exception while calling DescriptionHandler.loadDescriptionForInventory: chestName=" + chestName + " username=" + username + " items=" + itemIdArr.length + " pos=" + pos);
+                    t.printStackTrace();
+                }
+            }
 
             /* TODO: migrate this
             for (int i = 0; i < stacks.size(); i++) {
@@ -250,14 +283,25 @@ public class ForgeDescriptionHandler {
 
     private static void waitForChestContentLoad(GuiOpenEvent event, GuiContainer gc) {
         for (int i = 1; i < 10; i++) {
-            if (gc.inventorySlots.inventorySlots.get(gc.inventorySlots.inventorySlots.size() - 37).getStack() != null)
-                break;
             try {
+                int idx = gc.inventorySlots.inventorySlots.size() - 37;
+                if (idx >= 0 && idx < gc.inventorySlots.inventorySlots.size()) {
+                    if (gc.inventorySlots.inventorySlots.get(idx).getStack() != null)
+                        break;
+                } else {
+                    // Index not available yet; wait a bit
+                }
                 // incremental backoff to wait for all inventory packages to arrive
                 // (each slot is sent individually)
                 Thread.sleep(20 * i);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                break;
+            } catch (Throwable t) {
+                // Defensive: log unexpected errors but don't crash the thread
+                System.err.println("Unexpected error while waiting for chest content: " + t);
+                t.printStackTrace();
+                break;
             }
         }
     }
@@ -270,9 +314,13 @@ public class ForgeDescriptionHandler {
         }
 
         for (CoflCore.handlers.DescriptionHandler.DescModification datum : data) {
-            if (event.toolTip.size() <= datum.line) {
-                System.out.println(
-                        "Skipped line modification " + datum.line + " for " + event.itemStack.getDisplayName());
+            // Defensive checks: ensure datum.line is within bounds and non-negative
+            if (datum == null) {
+                continue;
+            }
+            int lineIdx = datum.line;
+            if (lineIdx < 0 || lineIdx > event.toolTip.size()) {
+                System.out.println("Skipped line modification (out of range) " + lineIdx + " for " + event.itemStack.getDisplayName() + " tooltipSize=" + event.toolTip.size() + " type=" + datum.type + " value=" + datum.value);
                 continue;
             }
             switch (datum.type) {
@@ -280,13 +328,26 @@ public class ForgeDescriptionHandler {
                     event.toolTip.add(datum.value);
                     break;
                 case "REPLACE":
-                    event.toolTip.set(datum.line, datum.value);
+                    if (lineIdx < event.toolTip.size()) {
+                        event.toolTip.set(lineIdx, datum.value);
+                    } else {
+                        System.out.println("REPLACE skipped, index >= tooltip size: " + lineIdx + " for " + event.itemStack.getDisplayName());
+                    }
                     break;
                 case "INSERT":
-                    event.toolTip.add(datum.line, datum.value);
+                    // Insert is allowed at index == size() (append) as well
+                    if (lineIdx <= event.toolTip.size()) {
+                        event.toolTip.add(lineIdx, datum.value);
+                    } else {
+                        System.out.println("INSERT skipped, index > tooltip size: " + lineIdx + " for " + event.itemStack.getDisplayName());
+                    }
                     break;
                 case "DELETE":
-                    event.toolTip.remove(datum.line);
+                    if (lineIdx >= 0 && lineIdx < event.toolTip.size()) {
+                        event.toolTip.remove(lineIdx);
+                    } else {
+                        System.out.println("DELETE skipped, index out of range: " + lineIdx + " for " + event.itemStack.getDisplayName());
+                    }
                     break;
             }
         }

@@ -912,7 +912,9 @@ public class EventRegistry {
                 forgeDescriptionHandler = new ForgeDescriptionHandler();
                 forgeDescriptionHandler.loadDescriptionAndListenForChanges(event);
             } catch (Exception e) {
-                System.out.println("failed to update description " + e);
+                // Print a better error message and full stacktrace so we can debug ArrayIndexOutOfBounds
+                System.err.println("failed to update description: " + e + " | gui=" + (event == null ? "null" : event.gui));
+                e.printStackTrace();
             }
         }).start();
     }
