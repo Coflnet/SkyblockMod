@@ -114,12 +114,22 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
 }
 
 tasks.processResources {
+    // Avoid failing the build if the same mcmod.info exists in multiple source dirs
+    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.EXCLUDE
+
     inputs.property("version", project.version)
     inputs.property("mcversion", mcVersion)
     inputs.property("modid", modid)
     inputs.property("basePackage", baseGroup)
 
     filesMatching(listOf("mcmod.info", "mixins.$modid.json")) {
+        expand(inputs.properties)
+    }
+
+    // Also process mcmod.info from the legacy bin/main folder (used by some dev setups)
+    // so placeholders like ${version} are expanded for the launcher.
+    from("${projectDir}/bin/main") {
+        include("mcmod.info")
         expand(inputs.properties)
     }
 
