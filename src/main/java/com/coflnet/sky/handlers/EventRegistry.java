@@ -77,7 +77,7 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
-        if (CoflCore.CoflCore.Wrapper.isRunning) {
+        if (CoflCore.CoflCore.Wrapper != null && CoflCore.CoflCore.Wrapper.isRunning) {
             System.out.println("Disconnected from server");
             CoflCore.CoflCore.Wrapper.stop();
             EventHandler.isInSkyblock = false;
@@ -320,7 +320,7 @@ public class EventRegistry {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void OnGuiClick(GuiScreenEvent.MouseInputEvent mie) {
-        if (!CoflCore.CoflCore.Wrapper.isRunning)
+        if (CoflCore.CoflCore.Wrapper == null || !CoflCore.CoflCore.Wrapper.isRunning)
             return;
         if (!(mie.gui instanceof GuiChest))
             return; // verify that it's really a chest
