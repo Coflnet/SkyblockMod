@@ -79,7 +79,7 @@ dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.4-SNAPSHOT")
     //modImplementation(include("org.greenrobot:eventbus-java:3.3.1"))
     shadowImpl("org.greenrobot:eventbus-java:3.3.1")
-    shadowImpl("com.github.Coflnet:coflskycore:33900163ec")
+    shadowImpl("com.github.Coflnet:coflskycore:74daa22055")
     shadowImpl("com.neovisionaries:nv-websocket-client:2.14")
 
     // If you don't want mixins, remove these lines
