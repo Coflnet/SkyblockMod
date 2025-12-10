@@ -296,7 +296,7 @@ public class EventRegistry {
     public static final Pair<String, Pair<String, LocalDateTime>> EMPTY = Pair.of(null, Pair.of("", LocalDateTime.MIN));
     public static Pair<String, Pair<String, LocalDateTime>> last = EMPTY;
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void HandleChatEvent(ClientChatReceivedEvent sce) {
         CoflCore.handlers.EventRegistry.onChatMessage(sce.message.getUnformattedText());
         String previousHover = null;
@@ -309,6 +309,14 @@ public class EventRegistry {
                 previousHover = text;
                 CoflCore.handlers.EventRegistry.onChatMessage(text);
             }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void HandleChatEventBlocking(ClientChatReceivedEvent sce) {
+        if(CoflCore.handlers.EventRegistry.shouldBlockChatMessage(sce.message.getUnformattedText())) {
+            sce.setCanceled(true);
+            sce.message = null;
         }
     }
 
