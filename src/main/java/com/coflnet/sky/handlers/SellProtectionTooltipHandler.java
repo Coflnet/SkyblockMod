@@ -24,11 +24,13 @@ public class SellProtectionTooltipHandler {
     private static final Pattern CLEAN_SELL_INSTANTLY_PATTERN = Pattern.compile("Total: ([0-9,\\.]+) coins");
     private static final Pattern CLEAN_SELL_INVENTORY_PATTERN = Pattern.compile("You earn: ([0-9,\\.]+) coins");
     private static final Pattern CLEAN_SELL_SACKS_PATTERN = Pattern.compile("You earn: ([0-9,\\.]+) coins");
+    private static final Pattern CLEAN_NO_ITEMS_PATTERN = Pattern.compile("You don't have anything to sell");
     
     // Patterns with formatting codes as backup
     private static final Pattern SELL_INSTANTLY_PATTERN = Pattern.compile("Total: §6([0-9,\\.]+) coins");
     private static final Pattern SELL_INVENTORY_PATTERN = Pattern.compile("You earn: §6([0-9,\\.]+) coins");
     private static final Pattern SELL_SACKS_PATTERN = Pattern.compile("You earn: §6([0-9,\\.]+) coins");
+    private static final Pattern NO_ITEMS_PATTERN = Pattern.compile("You don't have anything to sell");
     
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onItemTooltip(ItemTooltipEvent event) {
@@ -89,6 +91,16 @@ public class SellProtectionTooltipHandler {
     private long parseSellAmountFromTooltip(List<String> tooltip) {
         for (String line : tooltip) {
             String cleanLine = ChatUtils.cleanColour(line);
+            
+            // Check if there's nothing to sell
+            Matcher noItemsMatcher = CLEAN_NO_ITEMS_PATTERN.matcher(cleanLine);
+            if (noItemsMatcher.find()) {
+                return 0; // Return 0 for empty inventory
+            }
+            noItemsMatcher = NO_ITEMS_PATTERN.matcher(line);
+            if (noItemsMatcher.find()) {
+                return 0; // Return 0 for empty inventory
+            }
             
             // Try different patterns with clean text
             Matcher matcher = CLEAN_SELL_INSTANTLY_PATTERN.matcher(cleanLine);
