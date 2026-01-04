@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - java: 8
+          - java: 21
             minecraft_version: "1.8.9"
             forge_version: "11.15.1.2318-1.8.9"
     runs-on: ubuntu-22.04
@@ -22,26 +22,32 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v4
 
-      - name: validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v2
-
       - name: setup jdk ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
 
-      - name: make gradle wrapper executable
-        run: chmod +x ./gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: build
         run: ./gradlew build
 
-      - name: capture build artifacts
+      - name: Rename artifact
+        run: |
+          cd build/libs/
+          for file in skycofl-*-all.jar; do
+            if [ -f "$file" ]; then
+              mv "$file" "SkyCofl-1.8.0-Forge-1.8.9.jar"
+            fi
+          done
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Artifacts-${{ matrix.minecraft_version }}
-          path: build/libs/
+          name: SkyCofl-1.8.0-Forge-1.8.9
+          path: build/libs/SkyCofl-1.8.0-Forge-1.8.9.jar
 
       - name: Publish (CurseForge/Modrinth)
         uses: Kir-Antipov/mc-publish@v3.3
@@ -63,7 +69,7 @@ jobs:
             [View on GitHub Releases](https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }})
           loaders: forge
           game-versions: "${{ matrix.minecraft_version }}"
-          java: "8"
+          java: "21"
           version-type: release
 
           files: |
