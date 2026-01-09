@@ -25,9 +25,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ForgeDescriptionHandler {
 
@@ -37,9 +35,6 @@ public class ForgeDescriptionHandler {
     }
 
     public static String allItemIds;
-    
-    // Track item data (without UUID) to detect actual description changes
-    private static final Map<String, String> lastItemDataPerInventory = new HashMap<>();
 
     public static final NBTTagCompound EMPTY_COMPOUND = new NBTTagCompound();
 
@@ -48,37 +43,6 @@ public class ForgeDescriptionHandler {
 
     public void Close() {
         IsOpen = false;
-    }
-
-    /**
-     * Gets item name and count as a basic identifier (without UUID).
-     * Used to check for duplicate items in inventory.
-     * @param stack the item stack
-     * @return tag+count identifier
-     */
-    private static String getItemTagAndCount(ItemStack stack) {
-        if (stack == null || stack.getItem() == null) {
-            return "EMPTY";
-        }
-        try {
-            NBTTagCompound serialized = stack.serializeNBT();
-            String itemName = serialized.getCompoundTag("tag").getCompoundTag("display")
-                    .getString("Name");
-            
-            if (itemName != null && (itemName.contains("BUY") || itemName.contains("SELL"))) {
-                // bazaar order, separate by price per unit as well
-                NBTTagList loreNbtList = serialized.getCompoundTag("tag").getCompoundTag("display").getTagList("Lore", 8);
-                for (int i = 0; i < loreNbtList.tagCount(); i++) {
-                    if (loreNbtList.getStringTagAt(i).contains("Price per unit")) {
-                        return itemName + loreNbtList.getStringTagAt(i) + ":" + stack.stackSize;
-                    }
-                }
-            }
-            return itemName + ":" + stack.stackSize;
-        } catch (Exception e) {
-            // Fallback to basic description if NBT parsing fails
-            return stack.getDisplayName() + ":" + stack.stackSize;
-        }
     }
 
     public static String ExtractStackableIdFromItemStack(ItemStack stack) {
@@ -118,69 +82,10 @@ public class ForgeDescriptionHandler {
         }
         return ExtractStackableIdFromItemStack(stack);
     }
-    
-    /**
-     * Gets an ID for an item, using UUID only if there are duplicate tag+count combinations.
-     * This ensures unique identification while avoiding UUID changes from causing false updates.
-     * @param stack the item stack
-     * @param tagCountMap map of tag+count to occurrence count
-     * @return the item ID (with or without UUID depending on duplicates)
-     */
-    private static String getIdFromStackWithDuplicateCheck(ItemStack stack, Map<String, Integer> tagCountMap) {
-        String tagAndCount = getItemTagAndCount(stack);
-        int occurrenceCount = tagCountMap.getOrDefault(tagAndCount, 1);
-        
-        // If this tag+count appears only once, use it as the ID
-        if (occurrenceCount == 1) {
-            return tagAndCount;
-        }
-        
-        // If there are duplicates, include UUID
-        if (stack != null) {
-            try {
-                String uuid = stack.serializeNBT().getCompoundTag("tag").getCompoundTag("ExtraAttributes")
-                        .getString("uuid");
-                if (uuid.length() > 0) {
-                    return tagAndCount + ";uuid=" + uuid;
-                }
-            } catch (Exception e) {
-                // UUID not available
-            }
-        }
-        
-        // Fallback if no UUID available
-        return tagAndCount;
-    }
-    
-    /**
-     * Gets a stable inventory signature that only changes when item tag+count changes.
-     * This is used to detect actual item changes, ignoring UUID-only changes.
-     * @param stacks the list of item stacks in the inventory
-     * @return a string representing the inventory state without UUIDs
-     */
-    private static String getInventorySignatureWithoutUUIDs(List<ItemStack> stacks) {
-        StringBuilder sb = new StringBuilder();
-        for (ItemStack item : stacks) {
-            sb.append(getItemTagAndCount(item)).append("|");
-        }
-        return sb.toString();
-    }
 
     private CoflCore.handlers.DescriptionHandler.DescModification[] getTooltipData(ItemStack itemStack) {
-        // Try to get descriptions - check tag+count first (stable ID), then UUID
-        String tagCountId = getItemTagAndCount(itemStack);
-        CoflCore.handlers.DescriptionHandler.DescModification[] tooltips = 
-                CoflCore.handlers.DescriptionHandler.getTooltipData(tagCountId);
-        
-        if (tooltips == null) {
-            // Fallback to UUID-based lookup if tag+count had no results
-            String uuidId = ExtractIdFromItemStack(itemStack);
-            if (!uuidId.equals(tagCountId)) {
-                tooltips = CoflCore.handlers.DescriptionHandler.getTooltipData(uuidId);
-            }
-        }
-        
-        return tooltips;
+        String id = ExtractIdFromItemStack(itemStack);
+        return CoflCore.handlers.DescriptionHandler.getTooltipData(id);
     }
 
     /**
@@ -225,9 +130,8 @@ public class ForgeDescriptionHandler {
 
         for (Slot obj : gc.inventorySlots.inventorySlots) {
             ItemStack stack = obj.getStack();
-            // Use tag+count instead of UUID to avoid false positives
-            String id = getItemTagAndCount(stack);
-            builder.append(id).append("|");
+            String id = ExtractIdFromItemStack(stack);
+            builder.append(id);
         }
 
         return builder.toString();
@@ -322,37 +226,18 @@ public class ForgeDescriptionHandler {
 
             List<ItemStack> stacks = new ArrayList<>();
             List<String> itemIds = new ArrayList<>();
-            
-            // First pass: count occurrences of each tag+count combination
-            Map<String, Integer> tagCountMap = new HashMap<>();
             for (Slot obj : gc.inventorySlots.inventorySlots) {
                 ItemStack stack = obj.getStack();
                 stacks.add(stack);
-                String tagAndCount = getItemTagAndCount(stack);
-                tagCountMap.put(tagAndCount, tagCountMap.getOrDefault(tagAndCount, 0) + 1);
-            }
-            
-            // Second pass: generate IDs using UUID only for duplicates
-            for (ItemStack stack : stacks) {
-                String id = getIdFromStackWithDuplicateCheck(stack, tagCountMap);
+                String id = ExtractIdFromItemStack(stack);
                 itemIds.add(id);
             }
-            
-            // Check if actual item data (excluding UUID) has changed
-            String currentItemData = getInventorySignatureWithoutUUIDs(stacks);
-            String chestName = wrapper.chestName; // may be null for player inventory
-            String lastItemData = chestName != null ? lastItemDataPerInventory.get(chestName) : null;
-            
-            // If only UUIDs changed but item descriptions are the same, skip the refresh
-            if (lastItemData != null && currentItemData.equals(lastItemData)) {
-                System.out.println("Item UUIDs changed but descriptions are identical for: " + chestName + ", skipping refresh");
-                return false;
-            }
 
-            System.out.println("Loading description for inventory: " + chestName + " with " + itemIds.size() + " items");
+            System.out.println("Loading description for inventory: " + wrapper.chestName + " with " + itemIds.size() + " items");
 
             // Defensive: ensure we don't pass nulls into the external DescriptionHandler which may cause an NPE.
             String[] itemIdArr = itemIds.toArray(new String[0]);
+            String chestName = wrapper.chestName; // may be null for player inventory
             String fullNbt = wrapper.fullInventoryNbt;
             String username = PlayerDataProvider.getUsername();
 
@@ -365,10 +250,6 @@ public class ForgeDescriptionHandler {
             } else {
                 try {
                     CoflCore.handlers.DescriptionHandler.loadDescriptionForInventory(itemIdArr, chestName, fullNbt, username, pos);
-                    // Update last item data after successful load
-                    if (chestName != null) {
-                        lastItemDataPerInventory.put(chestName, currentItemData);
-                    }
                 } catch (Throwable t) {
                     System.err.println("Exception while calling DescriptionHandler.loadDescriptionForInventory: chestName=" + chestName + " username=" + username + " items=" + itemIdArr.length + " pos=" + pos);
                     t.printStackTrace();
