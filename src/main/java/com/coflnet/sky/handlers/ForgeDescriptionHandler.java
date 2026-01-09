@@ -36,6 +36,10 @@ public class ForgeDescriptionHandler {
 
     public static String allItemIds;
 
+    // Maps new UUIDs to original UUID when items update with new UUIDs but same title
+    // This allows finding descriptions loaded for the original UUID when hovering an item with updated UUID
+    public static final java.util.Map<String, String> uuidToOriginalUuid = new java.util.HashMap<>();
+
     public static final NBTTagCompound EMPTY_COMPOUND = new NBTTagCompound();
 
     private boolean IsOpen = true;
@@ -307,7 +311,19 @@ public class ForgeDescriptionHandler {
     }
 
     public void setTooltips(ItemTooltipEvent event) {
+        String stackId = ExtractIdFromItemStack(event.itemStack);
+        
+        // Check if this UUID maps to an original UUID that has descriptions
+        String lookupId = uuidToOriginalUuid.getOrDefault(stackId, stackId);
+        
         CoflCore.handlers.DescriptionHandler.DescModification[] data = getTooltipData(event.itemStack);
+        
+        // Try to get descriptions using the original UUID if mapped
+        if (data == null && !lookupId.equals(stackId)) {
+            // Fallback: try to get descriptions for the original UUID
+            ItemStack tempStack = event.itemStack.copy();
+            data = CoflCore.handlers.DescriptionHandler.getTooltipData(lookupId);
+        }
 
         if (data == null || data.length == 0){
             return;
