@@ -53,8 +53,15 @@ public class SkyCofl {
         MinecraftForge.EVENT_BUS.register(new com.coflnet.sky.listeners.SellProtectionListener());
         MinecraftForge.EVENT_BUS.register(new com.coflnet.sky.handlers.SellProtectionTooltipHandler());
 
-        // Cache all the mods on load
-        WSCommandHandler.cacheMods();
+        // Cache all the mods on load in background to avoid blocking the main thread
+        new Thread(() -> {
+            try {
+                WSCommandHandler.cacheMods();
+            } catch (Exception e) {
+                System.err.println("Failed to cache mods: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }, "cofl-cache-mods").start();
     }
 
     @EventHandler

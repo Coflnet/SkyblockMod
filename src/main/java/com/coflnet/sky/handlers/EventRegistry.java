@@ -77,11 +77,18 @@ public class EventRegistry {
 
     @SubscribeEvent
     public void onDisconnectedFromServerEvent(ClientDisconnectionFromServerEvent event) {
+        EventHandler.isInSkyblock = false;
         if (CoflCore.CoflCore.Wrapper != null && CoflCore.CoflCore.Wrapper.isRunning) {
             System.out.println("Disconnected from server");
-            CoflCore.CoflCore.Wrapper.stop();
-            EventHandler.isInSkyblock = false;
-            System.out.println("SkyCofl stopped");
+            new Thread(() -> {
+                try {
+                    CoflCore.CoflCore.Wrapper.stop();
+                    System.out.println("SkyCofl stopped");
+                } catch (Exception e) {
+                    System.err.println("Failed to stop SkyCofl on disconnect: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }, "cofl-disconnect").start();
         }
     }
 
