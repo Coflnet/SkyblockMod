@@ -163,13 +163,13 @@ public class EventHandler {
     }
 
     private static void checkIfInSkyblock(String s) {
-        if ((s.contains("SKYBLOCK") || s.contains("E")) && !isInSkyblock) {
+        if (s.contains("SKYBLOCK") && !isInSkyblock) {
             if (config.autoStart) {
                 CoflCore.Wrapper.stop();
                 CoflCore.Wrapper.startConnection(PlayerDataProvider.getUsername());
             }
             isInSkyblock = true;
-        } else if (!s.contains("SKYBLOCK") && !s.contains("E") && isInSkyblock) {
+        } else if (!s.contains("SKYBLOCK") && isInSkyblock) {
             if (config.autoStart) {
                 CoflCore.Wrapper.stop();
                 Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("connection to ")
